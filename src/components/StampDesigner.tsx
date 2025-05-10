@@ -11,11 +11,23 @@ import {
   Image as ImageIcon,
   Trash2,
   Check,
-  ShoppingCart
+  ShoppingCart,
+  Circle,
+  Square,
+  RectangleHorizontal,
+  TextQuote
 } from 'lucide-react';
 import { useStampDesigner } from '../hooks/useStampDesigner';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface StampDesignerProps {
   product: Product | null;
@@ -30,13 +42,16 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     removeLine, 
     setInkColor, 
     toggleLogo, 
-    setLogoPosition, 
+    setLogoPosition,
+    setBorderStyle,
+    toggleCurvedText,
     generatePreview, 
     previewImage 
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -62,10 +77,27 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     }, 500);
   };
 
+  // Handle logo upload (simulated)
+  const handleLogoUpload = () => {
+    // For demo, we're using a sample logo
+    // In a real app, this would connect to a file upload component
+    const logoUrl = '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png';
+    setUploadedLogo(logoUrl);
+  };
+
   useEffect(() => {
     // Auto-generate a preview when component mounts
     handlePreview();
   }, []);
+
+  // Watch for logo changes to update the design
+  useEffect(() => {
+    if (uploadedLogo) {
+      // Update the stamp design with the uploaded logo
+      design.logoImage = uploadedLogo;
+      handlePreview();
+    }
+  }, [uploadedLogo]);
 
   if (!product) {
     return (
@@ -85,12 +117,37 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         {/* Left panel: Design options */}
         <div className="space-y-6">
+          {/* Shape selection */}
+          <div className="space-y-3">
+            <h3 className="font-medium text-gray-800">Shape & Border</h3>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setBorderStyle('none')}
+                className={`p-2 border rounded-md flex items-center gap-1 ${design.borderStyle === 'none' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+              >
+                <span className="text-sm">No Border</span>
+              </button>
+              <button
+                onClick={() => setBorderStyle('single')}
+                className={`p-2 border rounded-md flex items-center gap-1 ${design.borderStyle === 'single' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+              >
+                <span className="text-sm">Single Border</span>
+              </button>
+              <button
+                onClick={() => setBorderStyle('double')}
+                className={`p-2 border rounded-md flex items-center gap-1 ${design.borderStyle === 'double' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+              >
+                <span className="text-sm">Double Border</span>
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-3">
             <h3 className="font-medium text-gray-800">Text Lines</h3>
             <p className="text-xs text-gray-500">This stamp can have up to {product.lines} lines of text</p>
             
             {design.lines.map((line, index) => (
-              <div key={index} className="space-y-2">
+              <div key={index} className="space-y-2 p-3 border border-gray-200 rounded-md">
                 <div className="flex items-center gap-2">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Line {index + 1}</span>
                   <button 
@@ -156,6 +213,35 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                       <Plus size={16} />
                     </button>
                   </div>
+                  {design.shape === 'circle' && (
+                    <button
+                      onClick={() => toggleCurvedText(index)}
+                      className={`p-1 border rounded-md flex items-center gap-1 ${line.curved ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                    >
+                      <TextQuote size={16} />
+                      <span className="text-xs">Curved</span>
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2">
+                  <Label htmlFor={`font-family-${index}`} className="text-xs text-gray-500 block mb-1">
+                    Font Family
+                  </Label>
+                  <Select
+                    value={line.fontFamily}
+                    onValueChange={(value) => updateLine(index, { fontFamily: value })}
+                  >
+                    <SelectTrigger id={`font-family-${index}`} className="w-full">
+                      <SelectValue placeholder="Select a font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Arial">Arial</SelectItem>
+                      <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                      <SelectItem value="Courier New">Courier New</SelectItem>
+                      <SelectItem value="Georgia">Georgia</SelectItem>
+                      <SelectItem value="Verdana">Verdana</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             ))}
@@ -172,7 +258,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
           
           <div className="space-y-3">
             <h3 className="font-medium text-gray-800">Ink Color</h3>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {product.inkColors.map((color) => (
                 <button 
                   key={color}
@@ -204,11 +290,21 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
             
             {design.includeLogo && (
               <div className="space-y-2">
-                <div className="border-dashed border-2 border-gray-300 rounded-md p-4 text-center">
+                <div 
+                  className="border-dashed border-2 border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={handleLogoUpload}
+                >
                   <div className="flex justify-center mb-2">
                     <ImageIcon size={24} className="text-gray-400" />
                   </div>
-                  <p className="text-sm text-gray-500">Upload your logo (coming soon)</p>
+                  <p className="text-sm text-gray-500">
+                    {uploadedLogo ? "Logo uploaded! Click to change" : "Click to upload your logo"}
+                  </p>
+                  {uploadedLogo && (
+                    <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                      <img src={uploadedLogo} alt="Uploaded logo" className="h-16 mx-auto object-contain" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Logo Position</label>
@@ -259,18 +355,36 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
             </button>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-md">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-medium">{product.name}</h3>
-              <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-md">
+              <h3 className="font-medium text-gray-800 mb-2">Sample Designs</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border rounded p-2 hover:border-brand-blue cursor-pointer transition-colors">
+                  <img src="/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png" alt="Sample stamp" className="w-full h-auto" />
+                </div>
+                <div className="border rounded p-2 hover:border-brand-blue cursor-pointer transition-colors">
+                  <img src="/lovable-uploads/28a683e8-de59-487e-b2ab-af1930ed01d6.png" alt="Sample stamp" className="w-full h-auto" />
+                </div>
+                <div className="border rounded p-2 hover:border-brand-blue cursor-pointer transition-colors">
+                  <img src="/lovable-uploads/ef68040b-498e-4d2f-a69f-f379ff643c4b.png" alt="Sample stamp" className="w-full h-auto" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">Click on a sample to get inspiration</p>
             </div>
-            <button
-              onClick={handleAddToCart}
-              className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <ShoppingCart size={18} />
-              Add to Cart
-            </button>
+            
+            <div className="bg-gray-50 p-4 rounded-md">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium">{product.name}</h3>
+                <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+              </div>
+              <button
+                onClick={handleAddToCart}
+                className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <ShoppingCart size={18} />
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>
