@@ -1,14 +1,134 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React from 'react';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import FeaturedProducts from '../components/FeaturedProducts';
+import Footer from '../components/Footer';
+import { Link } from 'react-router-dom';
+import { Check, Truck, ThumbsUp, Award } from 'lucide-react';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <Hero />
+        <FeaturedProducts />
+        
+        {/* Features Section */}
+        <section className="py-16 bg-white">
+          <div className="container-custom">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Our Stamps?</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                We offer high-quality self-inking stamps with a variety of options to meet your business needs.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="mx-auto w-12 h-12 bg-brand-red/10 rounded-full flex items-center justify-center mb-4">
+                  <Award className="text-brand-red" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Premium Quality</h3>
+                <p className="text-gray-600">
+                  All our stamps are made with high-quality materials for long-lasting durability.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="mx-auto w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center mb-4">
+                  <ThumbsUp className="text-brand-blue" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Customizable</h3>
+                <p className="text-gray-600">
+                  Easily design your own stamps with our intuitive online design tool.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="mx-auto w-12 h-12 bg-brand-red/10 rounded-full flex items-center justify-center mb-4">
+                  <Truck className="text-brand-red" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Fast Delivery</h3>
+                <p className="text-gray-600">
+                  Free delivery in Casablanca and surrounding regions with quick processing times.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="mx-auto w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center mb-4">
+                  <Check className="text-brand-blue" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Wide Selection</h3>
+                <p className="text-gray-600">
+                  Choose from various sizes, models, and brands to fit your specific needs.
+                </p>
+              </div>
+            </div>
+            
+            <div className="mt-12 text-center">
+              <Link to="/products" className="btn-secondary">
+                Explore Our Collection
+              </Link>
+            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="bg-brand-blue py-16 text-white">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h2 className="text-3xl font-bold mb-4">
+                  Ready to Create Your Custom Stamp?
+                </h2>
+                <p className="mb-6 text-blue-50">
+                  Design your own stamp now with our easy-to-use online designer tool.
+                  See a preview before you order!
+                </p>
+                <Link to="/design" className="bg-white text-brand-blue px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors inline-block">
+                  Start Designing Now
+                </Link>
+              </div>
+              <div className="flex justify-center">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+                  <div className="text-brand-blue mb-4">
+                    <h3 className="font-bold text-xl">Contact Us</h3>
+                    <p className="text-gray-600">For questions or assistance</p>
+                  </div>
+                  <div className="space-y-3 text-gray-800">
+                    <p className="flex items-center gap-3">
+                      <span className="bg-brand-blue/10 p-2 rounded-full">
+                        <Phone className="text-brand-blue w-5 h-5" />
+                      </span>
+                      <span>06 99 11 80 28</span>
+                    </p>
+                    <p className="flex items-center gap-3">
+                      <span className="bg-brand-blue/10 p-2 rounded-full">
+                        <Mail className="text-brand-blue w-5 h-5" />
+                      </span>
+                      <span>zyad.sobhi@gmail.com</span>
+                    </p>
+                    <p className="flex items-center gap-3">
+                      <span className="bg-brand-blue/10 p-2 rounded-full">
+                        <MapPin className="text-brand-blue w-5 h-5" />
+                      </span>
+                      <span>Casablanca, Morocco</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };
 
 export default Index;
+
+// Import necessary icons
+import { Phone, Mail, MapPin } from 'lucide-react';
