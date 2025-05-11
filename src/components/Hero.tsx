@@ -1,11 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-
 const Hero: React.FC = () => {
-  return (
-    <div className="relative bg-gray-50 overflow-hidden">
+  return <div className="relative bg-gray-50 overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-brand-red"></div>
         <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-brand-blue"></div>
@@ -16,10 +13,7 @@ const Hero: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
               Custom <span className="text-brand-red">Self-Inking Stamps</span> for Your Business
             </h1>
-            <p className="text-lg text-gray-600">
-              Design and preview your stamps before ordering with our easy-to-use online tool. 
-              Professional quality guaranteed with fast delivery across Morocco.
-            </p>
+            <p className="text-gray-600 text-sm">CACHETS MAROC! Vos cachets tampon encreurs Meilleur Qualité et Prix! Livré en 24h! La solution la plus simple et efficace pour la création et réalisation de tout tampon encreur professionnel et/ou personnel. Plus de temps à perdre. De chez vous ou de votre bureau, Commandez rapidement par téléphone ou message Vos tampons encreurs personnalisés avec logo, Photo, et signature en bois ou automatique pré-enré! CACHETS MAROC accompagne votre création, la réalisation et l'expédition de Vos cachets personalisé, Un BAT vous sera envoyez avant la fabrication.</p>
             <div className="flex flex-wrap gap-4">
               <Link to="/design" className="btn-primary inline-flex items-center gap-2">
                 Design Your Stamp <ArrowRight size={18} />
@@ -42,37 +36,19 @@ const Hero: React.FC = () => {
           <div className="flex justify-center">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <img
-                  src="/lovable-uploads/a91604fd-99b9-4812-922f-91e34cf59242.png"
-                  alt="Sirdas Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-                <img
-                  src="/lovable-uploads/ae1b3e93-30d3-42e7-b6f3-02d21160d651.png"
-                  alt="Shiny Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
+                <img src="/lovable-uploads/a91604fd-99b9-4812-922f-91e34cf59242.png" alt="Sirdas Stamp" className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
+                <img src="/lovable-uploads/ae1b3e93-30d3-42e7-b6f3-02d21160d651.png" alt="Shiny Stamp" className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
               </div>
               <div className="space-y-4 mt-8">
-                <img
-                  src="/lovable-uploads/c8a9d444-ab04-44f5-80dd-b196c3b48725.png"
-                  alt="Wooden Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-                <img
-                  src="/lovable-uploads/ea0b1c21-c188-4d30-ab58-2b411be021c8.png"
-                  alt="Trodat Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
+                <img src="/lovable-uploads/c8a9d444-ab04-44f5-80dd-b196c3b48725.png" alt="Wooden Stamp" className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
+                <img src="/lovable-uploads/ea0b1c21-c188-4d30-ab58-2b411be021c8.png" alt="Trodat Stamp" className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Hero;
 
 // Import the Phone component at the top
