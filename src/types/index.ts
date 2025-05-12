@@ -44,4 +44,3 @@ export interface StampDesign {
   shape: 'rectangle' | 'circle' | 'square'; // Match the product shape
   borderStyle?: 'single' | 'double' | 'none'; // Added border style options
 }
-

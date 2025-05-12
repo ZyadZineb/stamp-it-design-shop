@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
@@ -74,6 +74,3 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
-
-// Import the Phone component at the top
-import { Phone } from 'lucide-react';

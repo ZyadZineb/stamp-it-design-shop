@@ -29,7 +29,7 @@ export const useStampDesigner = (product: Product | null) => {
     inkColor: product?.inkColors[0] || 'blue',
     includeLogo: false,
     logoPosition: 'top',
-    shape: product?.shape || 'circle', // Default to circle if not specified
+    shape: product?.shape || 'rectangle',
     borderStyle: 'single'
   });
 
@@ -40,7 +40,7 @@ export const useStampDesigner = (product: Product | null) => {
       ...prev,
       lines: initializeLines(),
       inkColor: product?.inkColors[0] || prev.inkColor,
-      shape: product?.shape || 'circle'
+      shape: product?.shape || 'rectangle'
     }));
   }, [product]);
 
