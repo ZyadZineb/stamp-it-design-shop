@@ -33,6 +33,9 @@ export type StampTextLine = {
   alignment: 'left' | 'center' | 'right';
   // Added curved text support for circular stamps
   curved?: boolean;
+  // Added position adjustments
+  xPosition?: number; // -100 to 100 percentage offset from center
+  yPosition?: number; // -100 to 100 percentage offset from default position
 };
 
 export interface StampDesign {

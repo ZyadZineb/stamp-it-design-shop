@@ -10,7 +10,9 @@ export const useStampDesigner = (product: Product | null) => {
     bold: false,
     italic: false,
     alignment: 'center',
-    curved: false
+    curved: false,
+    xPosition: 0,
+    yPosition: 0
   };
 
   const initializeLines = () => {
@@ -43,6 +45,13 @@ export const useStampDesigner = (product: Product | null) => {
       shape: product?.shape || 'rectangle'
     }));
   }, [product]);
+
+  // Auto-generate preview whenever design changes
+  useEffect(() => {
+    if (product) {
+      generatePreview();
+    }
+  }, [design, product]);
 
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
@@ -88,6 +97,13 @@ export const useStampDesigner = (product: Product | null) => {
     updateLine(index, { curved: !design.lines[index].curved });
   };
 
+  const updateTextPosition = (index: number, x: number, y: number) => {
+    updateLine(index, { 
+      xPosition: Math.max(-100, Math.min(100, x)), 
+      yPosition: Math.max(-100, Math.min(100, y))
+    });
+  };
+
   const generatePreview = (): string => {
     // Determine dimensions based on shape
     const width = design.shape === 'circle' ? 300 : 300;
@@ -130,28 +146,34 @@ export const useStampDesigner = (product: Product | null) => {
       // Add text lines
       design.lines.forEach((line, i) => {
         const lineCount = design.lines.length;
-        const textY = centerY + (i - (lineCount - 1) / 2) * 25;
+        
+        // Apply position adjustments
+        const xOffset = (line.xPosition || 0) / 100 * radius / 2;
+        const yOffset = (line.yPosition || 0) / 100 * radius / 2;
+        
+        const textY = centerY + (i - (lineCount - 1) / 2) * 25 + yOffset;
+        const textX = centerX + xOffset;
         
         if (line.curved) {
           // Calculate the path for curved text
           const pathId = `textPath${i}`;
-          const pathRadius = radius - 20 - i * 5;
+          const pathRadius = radius - 20 - i * 5 + yOffset;
           
           svgContent += `
             <defs>
-              <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
+              <path id="${pathId}" d="M ${textX - pathRadius}, ${textY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
             </defs>
             <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${line.fontSize}px"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
-              <textPath href="#${pathId}" startOffset="50%" text-anchor="middle">
+              <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
                 ${line.text || ' '}
               </textPath>
             </text>
           `;
         } else {
-          // Regular centered text
+          // Regular text with position adjustments
           svgContent += `
-            <text x="${centerX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
+            <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
                   text-anchor="middle" fill="${design.inkColor}"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
               ${line.text || ' '}
@@ -213,17 +235,27 @@ export const useStampDesigner = (product: Product | null) => {
       const textStartY = design.includeLogo && design.logoPosition === 'top' ? 70 : 50;
       
       // Add text
-      svgContent += `
-        <text x="${centerX}" y="${textStartY}" font-family="Arial" font-size="14" text-anchor="middle" fill="${design.inkColor}">
-          ${design.lines.map((line, index) => 
-            `<tspan x="${centerX}" dy="${index === 0 ? 0 : 20}" 
-              font-weight="${line.bold ? 'bold' : 'normal'}" 
-              font-style="${line.italic ? 'italic' : 'normal'}"
-              text-anchor="${line.alignment === 'left' ? 'start' : line.alignment === 'right' ? 'end' : 'middle'}"
-            >${line.text || ' '}</tspan>`
-          ).join('')}
-        </text>
-      `;
+      design.lines.forEach((line, index) => {
+        // Apply position adjustments
+        const xOffset = (line.xPosition || 0) / 100 * (width / 4);
+        const yOffset = (line.yPosition || 0) / 100 * 15;
+        
+        const textY = textStartY + index * 20 + yOffset;
+        const textX = centerX + xOffset;
+        
+        let textAnchor;
+        if (line.alignment === 'left') textAnchor = 'start';
+        else if (line.alignment === 'right') textAnchor = 'end';
+        else textAnchor = 'middle';
+        
+        svgContent += `
+          <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
+                text-anchor="${textAnchor}" fill="${design.inkColor}"
+                ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
+            ${line.text || ' '}
+          </text>
+        `;
+      });
     }
     
     // Close the SVG
@@ -245,6 +277,7 @@ export const useStampDesigner = (product: Product | null) => {
     setLogoImage,
     setBorderStyle,
     toggleCurvedText,
+    updateTextPosition,
     generatePreview,
     previewImage
   };

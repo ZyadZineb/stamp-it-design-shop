@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
   AlignLeft, 
   AlignCenter, 
@@ -8,14 +8,16 @@ import {
   Italic, 
   Plus, 
   Minus, 
-  Image as ImageIcon,
+  ImageIcon,
   Trash2,
   Check,
   ShoppingCart,
   Circle,
   Square,
   RectangleHorizontal,
-  TextQuote
+  TextQuote,
+  MoveHorizontal,
+  MoveVertical
 } from 'lucide-react';
 import { useStampDesigner } from '../hooks/useStampDesigner';
 import { Product } from '../types';
@@ -28,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface StampDesignerProps {
   product: Product | null;
@@ -40,41 +43,29 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     updateLine, 
     addLine, 
     removeLine, 
-    setInkColor, 
+    setInkColor,
     toggleLogo, 
     setLogoPosition,
     setBorderStyle,
     toggleCurvedText,
-    generatePreview, 
+    updateTextPosition,
     previewImage 
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
-  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handleAddToCart = () => {
     if (!product) return;
     
-    // Generate a preview before adding to cart
-    const previewUrl = generatePreview();
-    
-    // Create a custom text string from all lines
-    const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
-    
     // Add the product to cart with the custom text and preview
-    addToCart(product, 1, customText, design.inkColor, previewUrl);
+    const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
+    addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
     
     // Call the optional callback
     if (onAddToCart) onAddToCart();
-  };
-
-  const handlePreview = () => {
-    setIsGeneratingPreview(true);
-    setTimeout(() => {
-      generatePreview();
-      setIsGeneratingPreview(false);
-    }, 500);
   };
 
   // Handle logo upload (simulated)
@@ -85,19 +76,29 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     setUploadedLogo(logoUrl);
   };
 
-  useEffect(() => {
-    // Auto-generate a preview when component mounts
-    handlePreview();
-  }, []);
-
   // Watch for logo changes to update the design
   useEffect(() => {
     if (uploadedLogo) {
       // Update the stamp design with the uploaded logo
       design.logoImage = uploadedLogo;
-      handlePreview();
     }
   }, [uploadedLogo]);
+
+  // Click handler for interactive preview text positioning
+  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (activeLineIndex === null || !previewRef.current) return;
+    
+    const rect = previewRef.current.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    
+    // Calculate relative position (-100 to 100 range)
+    const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
+    const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
+    
+    // Update the position of the active line
+    updateTextPosition(activeLineIndex, relativeX, relativeY);
+  };
 
   if (!product) {
     return (
@@ -116,7 +117,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         {/* Left panel: Design options */}
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-[70vh]">
           {/* Shape selection */}
           <div className="space-y-3">
             <h3 className="font-medium text-gray-800">Shape & Border</h3>
@@ -147,11 +148,22 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
             <p className="text-xs text-gray-500">This stamp can have up to {product.lines} lines of text</p>
             
             {design.lines.map((line, index) => (
-              <div key={index} className="space-y-2 p-3 border border-gray-200 rounded-md">
+              <div 
+                key={index} 
+                className={`space-y-2 p-3 border rounded-md ${activeLineIndex === index ? 'border-brand-blue ring-2 ring-blue-100' : 'border-gray-200'}`}
+                onClick={() => setActiveLineIndex(index)}
+              >
                 <div className="flex items-center gap-2">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Line {index + 1}</span>
+                  {activeLineIndex === index && (
+                    <span className="text-xs bg-brand-blue/10 text-brand-blue px-2 py-1 rounded">Selected</span>
+                  )}
                   <button 
-                    onClick={() => removeLine(index)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeLine(index);
+                      if (activeLineIndex === index) setActiveLineIndex(null);
+                    }}
                     className="ml-auto text-red-500 hover:text-red-700"
                     disabled={design.lines.length <= 1}
                   >
@@ -168,46 +180,67 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                 <div className="flex flex-wrap gap-2">
                   <div className="flex border rounded-md overflow-hidden">
                     <button
-                      onClick={() => updateLine(index, { alignment: 'left' })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateLine(index, { alignment: 'left' });
+                      }}
                       className={`p-1 ${line.alignment === 'left' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                     >
                       <AlignLeft size={16} />
                     </button>
                     <button
-                      onClick={() => updateLine(index, { alignment: 'center' })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateLine(index, { alignment: 'center' });
+                      }}
                       className={`p-1 ${line.alignment === 'center' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                     >
                       <AlignCenter size={16} />
                     </button>
                     <button
-                      onClick={() => updateLine(index, { alignment: 'right' })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateLine(index, { alignment: 'right' });
+                      }}
                       className={`p-1 ${line.alignment === 'right' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                     >
                       <AlignRight size={16} />
                     </button>
                   </div>
                   <button
-                    onClick={() => updateLine(index, { bold: !line.bold })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateLine(index, { bold: !line.bold });
+                    }}
                     className={`p-1 border rounded-md ${line.bold ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                   >
                     <Bold size={16} />
                   </button>
                   <button
-                    onClick={() => updateLine(index, { italic: !line.italic })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateLine(index, { italic: !line.italic });
+                    }}
                     className={`p-1 border rounded-md ${line.italic ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                   >
                     <Italic size={16} />
                   </button>
                   <div className="flex items-center border rounded-md overflow-hidden">
                     <button
-                      onClick={() => updateLine(index, { fontSize: Math.max(10, line.fontSize - 2) })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateLine(index, { fontSize: Math.max(10, line.fontSize - 2) });
+                      }}
                       className="p-1 bg-gray-100"
                     >
                       <Minus size={16} />
                     </button>
                     <span className="px-2 text-sm">{line.fontSize}px</span>
                     <button
-                      onClick={() => updateLine(index, { fontSize: Math.min(24, line.fontSize + 2) })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateLine(index, { fontSize: Math.min(24, line.fontSize + 2) });
+                      }}
                       className="p-1 bg-gray-100"
                     >
                       <Plus size={16} />
@@ -215,7 +248,10 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                   </div>
                   {design.shape === 'circle' && (
                     <button
-                      onClick={() => toggleCurvedText(index)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleCurvedText(index);
+                      }}
                       className={`p-1 border rounded-md flex items-center gap-1 ${line.curved ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
                     >
                       <TextQuote size={16} />
@@ -242,6 +278,36 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                       <SelectItem value="Verdana">Verdana</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor={`x-position-${index}`} className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+                      <MoveHorizontal size={14} /> Horizontal Position
+                    </Label>
+                    <Input
+                      id={`x-position-${index}`}
+                      type="range"
+                      min="-100"
+                      max="100"
+                      value={line.xPosition || 0}
+                      onChange={(e) => updateTextPosition(index, parseInt(e.target.value), line.yPosition || 0)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`y-position-${index}`} className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+                      <MoveVertical size={14} /> Vertical Position
+                    </Label>
+                    <Input
+                      id={`y-position-${index}`}
+                      type="range"
+                      min="-100"
+                      max="100"
+                      value={line.yPosition || 0}
+                      onChange={(e) => updateTextPosition(index, line.xPosition || 0, parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
               </div>
             ))}
@@ -328,31 +394,38 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
         {/* Right panel: Preview and add to cart */}
         <div className="space-y-6">
           <div className="border rounded-md p-4 bg-gray-50">
-            <h3 className="font-medium text-gray-800 mb-3">Preview</h3>
-            <div className="flex justify-center items-center bg-white border rounded-md p-4 min-h-60">
-              {isGeneratingPreview ? (
-                <div className="flex flex-col items-center justify-center space-y-2">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
-                  <p className="text-sm text-gray-500">Generating preview...</p>
-                </div>
-              ) : previewImage ? (
-                <img 
-                  src={previewImage} 
-                  alt="Stamp Preview" 
-                  className="max-w-full max-h-48"
-                />
+            <h3 className="font-medium text-gray-800 mb-3">Live Preview</h3>
+            <div 
+              className="flex justify-center items-center bg-white border rounded-md p-4 min-h-60 cursor-pointer relative"
+              ref={previewRef}
+              onClick={handlePreviewClick}
+            >
+              {previewImage ? (
+                <>
+                  <img 
+                    src={previewImage} 
+                    alt="Stamp Preview" 
+                    className="max-w-full max-h-48"
+                  />
+                  {activeLineIndex !== null && (
+                    <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center">
+                      <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
+                        Click to position text for Line {activeLineIndex + 1}
+                      </p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <p className="text-gray-500 text-center">
                   Start designing to see a preview
                 </p>
               )}
             </div>
-            <button
-              onClick={handlePreview}
-              className="mt-3 w-full py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Update Preview
-            </button>
+            {activeLineIndex !== null && (
+              <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
+                <p>Click in the preview area to position Line {activeLineIndex + 1}</p>
+              </div>
+            )}
           </div>
           
           <div className="space-y-4">
