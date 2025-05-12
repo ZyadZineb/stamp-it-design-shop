@@ -17,7 +17,8 @@ import {
   RectangleHorizontal,
   TextQuote,
   MoveHorizontal,
-  MoveVertical
+  MoveVertical,
+  Download
 } from 'lucide-react';
 import { useStampDesigner } from '../hooks/useStampDesigner';
 import { Product } from '../types';
@@ -31,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 
 interface StampDesignerProps {
   product: Product | null;
@@ -49,13 +52,20 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     setBorderStyle,
     toggleCurvedText,
     updateTextPosition,
-    previewImage 
+    updateLogoPosition,
+    startTextDrag,
+    startLogoDrag,
+    stopDragging,
+    handleDrag,
+    previewImage,
+    downloadAsPng
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -86,7 +96,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
 
   // Click handler for interactive preview text positioning
   const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (activeLineIndex === null || !previewRef.current) return;
+    if (!previewRef.current) return;
     
     const rect = previewRef.current.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
@@ -96,9 +106,85 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
     const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
     
-    // Update the position of the active line
-    updateTextPosition(activeLineIndex, relativeX, relativeY);
+    // If a line is active, update its position
+    if (activeLineIndex !== null) {
+      updateTextPosition(activeLineIndex, relativeX, relativeY);
+      startTextDrag(activeLineIndex);
+    }
+    // If no line is active but logo is included, update logo position
+    else if (design.includeLogo) {
+      updateLogoPosition(relativeX, relativeY);
+      startLogoDrag();
+    }
   };
+
+  // Mouse move handler for dragging
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !previewRef.current) return;
+    event.preventDefault();
+    
+    const rect = previewRef.current.getBoundingClientRect();
+    handleDrag(event, rect);
+  };
+
+  // Touch move handler for mobile drag support
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !previewRef.current) return;
+    
+    const rect = previewRef.current.getBoundingClientRect();
+    handleDrag(event, rect);
+  };
+
+  // Start dragging
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    handlePreviewClick(event);
+  };
+
+  // Start dragging (touch)
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    
+    if (!previewRef.current || event.touches.length === 0) return;
+    
+    const rect = previewRef.current.getBoundingClientRect();
+    const touch = event.touches[0];
+    
+    const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
+    const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
+    
+    if (activeLineIndex !== null) {
+      updateTextPosition(activeLineIndex, relativeX, relativeY);
+      startTextDrag(activeLineIndex);
+    } else if (design.includeLogo) {
+      updateLogoPosition(relativeX, relativeY);
+      startLogoDrag();
+    }
+  };
+
+  // Stop dragging
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    stopDragging();
+  };
+
+  // Cleanup event listeners
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        stopDragging();
+      }
+    };
+    
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+    
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, [isDragging, stopDragging]);
 
   if (!product) {
     return (
@@ -284,13 +370,13 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                     <Label htmlFor={`x-position-${index}`} className="text-xs text-gray-500 flex items-center gap-1 mb-1">
                       <MoveHorizontal size={14} /> Horizontal Position
                     </Label>
-                    <Input
+                    <Slider
                       id={`x-position-${index}`}
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={line.xPosition || 0}
-                      onChange={(e) => updateTextPosition(index, parseInt(e.target.value), line.yPosition || 0)}
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[line.xPosition || 0]}
+                      onValueChange={(value) => updateTextPosition(index, value[0], line.yPosition || 0)}
                       className="w-full"
                     />
                   </div>
@@ -298,13 +384,13 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                     <Label htmlFor={`y-position-${index}`} className="text-xs text-gray-500 flex items-center gap-1 mb-1">
                       <MoveVertical size={14} /> Vertical Position
                     </Label>
-                    <Input
+                    <Slider
                       id={`y-position-${index}`}
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={line.yPosition || 0}
-                      onChange={(e) => updateTextPosition(index, line.xPosition || 0, parseInt(e.target.value))}
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[line.yPosition || 0]}
+                      onValueChange={(value) => updateTextPosition(index, line.xPosition || 0, value[0])}
                       className="w-full"
                     />
                   </div>
@@ -372,20 +458,36 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                     </div>
                   )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Logo Position</label>
-                  <select
-                    value={design.logoPosition}
-                    onChange={(e) => setLogoPosition(e.target.value as any)}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-                  >
-                    <option value="top">Top</option>
-                    <option value="bottom">Bottom</option>
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                    <option value="center">Center</option>
-                  </select>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+                      <MoveHorizontal size={14} /> Logo Horizontal Position
+                    </Label>
+                    <Slider
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[design.logoX || 0]}
+                      onValueChange={(value) => updateLogoPosition(value[0], design.logoY || 0)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+                      <MoveVertical size={14} /> Logo Vertical Position
+                    </Label>
+                    <Slider
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[design.logoY || 0]}
+                      onValueChange={(value) => updateLogoPosition(design.logoX || 0, value[0])}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">You can also drag the logo directly on the preview area</p>
               </div>
             )}
           </div>
@@ -394,23 +496,44 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
         {/* Right panel: Preview and add to cart */}
         <div className="space-y-6">
           <div className="border rounded-md p-4 bg-gray-50">
-            <h3 className="font-medium text-gray-800 mb-3">Live Preview</h3>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-medium text-gray-800">Live Preview</h3>
+              <Button 
+                onClick={downloadAsPng}
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                disabled={!previewImage}
+              >
+                <Download size={16} />
+                Download PNG
+              </Button>
+            </div>
             <div 
-              className="flex justify-center items-center bg-white border rounded-md p-4 min-h-60 cursor-pointer relative"
+              className="flex justify-center items-center bg-white border rounded-md p-4 min-h-60 cursor-pointer relative touch-none"
               ref={previewRef}
-              onClick={handlePreviewClick}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleMouseUp}
             >
               {previewImage ? (
                 <>
                   <img 
                     src={previewImage} 
                     alt="Stamp Preview" 
-                    className="max-w-full max-h-48"
+                    className="max-w-full max-h-48 pointer-events-none"
+                    draggable="false"
                   />
-                  {activeLineIndex !== null && (
-                    <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center">
+                  {(activeLineIndex !== null || design.includeLogo) && !isDragging && (
+                    <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
                       <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
-                        Click to position text for Line {activeLineIndex + 1}
+                        {activeLineIndex !== null ? 
+                          `Drag to position Line ${activeLineIndex + 1}` : 
+                          "Drag to position Logo"}
                       </p>
                     </div>
                   )}
@@ -421,11 +544,19 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                 </p>
               )}
             </div>
-            {activeLineIndex !== null && (
+            {isDragging ? (
               <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
-                <p>Click in the preview area to position Line {activeLineIndex + 1}</p>
+                <p>Release to set position</p>
               </div>
-            )}
+            ) : activeLineIndex !== null ? (
+              <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
+                <p>Click and drag in the preview area to position Line {activeLineIndex + 1}</p>
+              </div>
+            ) : design.includeLogo ? (
+              <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
+                <p>Click and drag in the preview area to position your logo</p>
+              </div>
+            ) : null}
           </div>
           
           <div className="space-y-4">

@@ -36,6 +36,8 @@ export type StampTextLine = {
   // Added position adjustments
   xPosition?: number; // -100 to 100 percentage offset from center
   yPosition?: number; // -100 to 100 percentage offset from default position
+  // Added drag state
+  isDragging?: boolean;
 };
 
 export interface StampDesign {
@@ -44,6 +46,10 @@ export interface StampDesign {
   includeLogo: boolean;
   logoImage?: string;
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  // Added custom logo positioning
+  logoX?: number; // -100 to 100 percentage offset
+  logoY?: number; // -100 to 100 percentage offset
+  logoDragging?: boolean;
   shape: 'rectangle' | 'circle' | 'square'; // Match the product shape
   borderStyle?: 'single' | 'double' | 'none'; // Added border style options
 }

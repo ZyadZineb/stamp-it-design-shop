@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product } from '../types';
 
 export const useStampDesigner = (product: Product | null) => {
@@ -12,7 +12,8 @@ export const useStampDesigner = (product: Product | null) => {
     alignment: 'center',
     curved: false,
     xPosition: 0,
-    yPosition: 0
+    yPosition: 0,
+    isDragging: false
   };
 
   const initializeLines = () => {
@@ -31,11 +32,15 @@ export const useStampDesigner = (product: Product | null) => {
     inkColor: product?.inkColors[0] || 'blue',
     includeLogo: false,
     logoPosition: 'top',
+    logoX: 0,
+    logoY: 0,
+    logoDragging: false,
     shape: product?.shape || 'rectangle',
     borderStyle: 'single'
   });
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const svgRef = useRef<string | null>(null);
 
   useEffect(() => {
     setDesign(prev => ({
@@ -98,9 +103,92 @@ export const useStampDesigner = (product: Product | null) => {
   };
 
   const updateTextPosition = (index: number, x: number, y: number) => {
+    // Constrain the movement within -100 to 100 range
+    const constrainedX = Math.max(-100, Math.min(100, x));
+    const constrainedY = Math.max(-100, Math.min(100, y));
+    
     updateLine(index, { 
-      xPosition: Math.max(-100, Math.min(100, x)), 
-      yPosition: Math.max(-100, Math.min(100, y))
+      xPosition: constrainedX, 
+      yPosition: constrainedY
+    });
+  };
+
+  // New methods for drag functionality
+  const startTextDrag = (index: number) => {
+    const newLines = [...design.lines];
+    newLines.forEach((line, i) => {
+      line.isDragging = i === index;
+    });
+    setDesign({...design, lines: newLines, logoDragging: false});
+  };
+
+  const startLogoDrag = () => {
+    const newLines = [...design.lines];
+    newLines.forEach(line => {
+      line.isDragging = false;
+    });
+    setDesign({...design, lines: newLines, logoDragging: true});
+  };
+
+  const stopDragging = () => {
+    const newLines = [...design.lines];
+    newLines.forEach(line => {
+      line.isDragging = false;
+    });
+    setDesign({...design, lines: newLines, logoDragging: false});
+  };
+
+  const handleDrag = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, previewRect: DOMRect) => {
+    // Get mouse/touch position relative to preview area
+    let clientX: number, clientY: number;
+    
+    if ('touches' in e) {
+      // Touch event
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      // Mouse event
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const centerX = previewRect.left + previewRect.width / 2;
+    const centerY = previewRect.top + previewRect.height / 2;
+    
+    // Calculate position as percentage from center (-100 to 100)
+    const relativeX = ((clientX - centerX) / (previewRect.width / 2)) * 100;
+    const relativeY = ((clientY - centerY) / (previewRect.height / 2)) * 100;
+    
+    // Constrain movement within the stamp boundary
+    const maxRange = design.shape === 'circle' ? 80 : 90; // Slightly smaller for circle
+    const constrainedX = Math.max(-maxRange, Math.min(maxRange, relativeX));
+    const constrainedY = Math.max(-maxRange, Math.min(maxRange, relativeY));
+    
+    // Update the position of the dragging element
+    const draggingLineIndex = design.lines.findIndex(line => line.isDragging);
+    
+    if (draggingLineIndex !== -1) {
+      // Update text position
+      updateTextPosition(draggingLineIndex, constrainedX, constrainedY);
+    } else if (design.logoDragging && design.includeLogo) {
+      // Update logo position
+      setDesign({
+        ...design,
+        logoX: constrainedX,
+        logoY: constrainedY
+      });
+    }
+  };
+
+  const updateLogoPosition = (x: number, y: number) => {
+    // Constrain the movement within -100 to 100 range
+    const constrainedX = Math.max(-100, Math.min(100, x));
+    const constrainedY = Math.max(-100, Math.min(100, y));
+    
+    setDesign({
+      ...design,
+      logoX: constrainedX,
+      logoY: constrainedY
     });
   };
 
@@ -133,40 +221,44 @@ export const useStampDesigner = (product: Product | null) => {
       }
       
       // Add logo if included
-      if (design.includeLogo && design.logoPosition === 'center') {
-        const logoSize = radius / 2;
+      if (design.includeLogo) {
+        const logoSize = radius / 3;
+        // Use custom logo position if available
+        const logoX = centerX + (design.logoX || 0) / 100 * (radius - logoSize);
+        const logoY = centerY + (design.logoY || 0) / 100 * (radius - logoSize);
+        
         svgContent += `
-          <circle cx="${centerX}" cy="${centerY}" r="${logoSize}" fill="#f1f1f1" stroke="${design.inkColor}" stroke-width="1"/>
+          <circle cx="${logoX}" cy="${logoY}" r="${logoSize}" fill="#f1f1f1" stroke="${design.inkColor}" stroke-width="1"/>
           ${design.logoImage ? 
-            `<image href="${design.logoImage}" x="${centerX - logoSize}" y="${centerY - logoSize}" width="${logoSize * 2}" height="${logoSize * 2}" />` : 
-            `<rect x="${centerX - logoSize/2}" y="${centerY - logoSize/2}" width="${logoSize}" height="${logoSize}" fill="#ddd"/>`}
+            `<image href="${design.logoImage}" x="${logoX - logoSize}" y="${logoY - logoSize}" width="${logoSize * 2}" height="${logoSize * 2}" preserveAspectRatio="xMidYMid meet" />` : 
+            `<rect x="${logoX - logoSize/2}" y="${logoY - logoSize/2}" width="${logoSize}" height="${logoSize}" fill="#ddd"/>`}
         `;
       }
       
       // Add text lines
-      design.lines.forEach((line, i) => {
-        const lineCount = design.lines.length;
+      design.lines.forEach((line) => {
+        if (!line.text.trim()) return; // Skip empty lines
         
         // Apply position adjustments
-        const xOffset = (line.xPosition || 0) / 100 * radius / 2;
-        const yOffset = (line.yPosition || 0) / 100 * radius / 2;
+        const xOffset = (line.xPosition || 0) / 100 * radius;
+        const yOffset = (line.yPosition || 0) / 100 * radius;
         
-        const textY = centerY + (i - (lineCount - 1) / 2) * 25 + yOffset;
         const textX = centerX + xOffset;
+        const textY = centerY + yOffset;
         
         if (line.curved) {
           // Calculate the path for curved text
-          const pathId = `textPath${i}`;
-          const pathRadius = radius - 20 - i * 5 + yOffset;
+          const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`; // Unique ID
+          const pathRadius = radius - 30;
           
           svgContent += `
             <defs>
-              <path id="${pathId}" d="M ${textX - pathRadius}, ${textY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
+              <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
             </defs>
             <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${line.fontSize}px"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
               <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
-                ${line.text || ' '}
+                ${line.text}
               </textPath>
             </text>
           `;
@@ -176,7 +268,7 @@ export const useStampDesigner = (product: Product | null) => {
             <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
                   text-anchor="middle" fill="${design.inkColor}"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
-              ${line.text || ' '}
+              ${line.text}
             </text>
           `;
         }
@@ -201,47 +293,61 @@ export const useStampDesigner = (product: Product | null) => {
         const logoWidth = 50;
         const logoHeight = 30;
         
-        let logoX = width / 2 - logoWidth / 2;
-        let logoY = height / 2 - logoHeight / 2;
+        // Center coordinates
+        const centerX = width / 2;
+        const centerY = height / 2;
         
-        // Adjust position based on logoPosition
-        switch (design.logoPosition) {
-          case 'top':
-            logoY = 20;
-            break;
-          case 'bottom':
-            logoY = height - logoHeight - 20;
-            break;
-          case 'left':
-            logoX = 20;
-            logoY = height / 2 - logoHeight / 2;
-            break;
-          case 'right':
-            logoX = width - logoWidth - 20;
-            logoY = height / 2 - logoHeight / 2;
-            break;
+        // Use custom position if available, otherwise use preset positions
+        let logoX, logoY;
+        
+        if (design.logoX !== undefined && design.logoY !== undefined) {
+          // Convert from -100,100 range to pixel coordinates
+          logoX = centerX + (design.logoX / 100) * (width/2 - logoWidth/2);
+          logoY = centerY + (design.logoY / 100) * (height/2 - logoHeight/2);
+        } else {
+          // Fallback to preset positions
+          logoX = centerX - logoWidth / 2;
+          logoY = centerY - logoHeight / 2;
+          
+          switch (design.logoPosition) {
+            case 'top':
+              logoY = 20;
+              break;
+            case 'bottom':
+              logoY = height - logoHeight - 20;
+              break;
+            case 'left':
+              logoX = 20;
+              logoY = centerY - logoHeight / 2;
+              break;
+            case 'right':
+              logoX = width - logoWidth - 20;
+              logoY = centerY - logoHeight / 2;
+              break;
+          }
         }
         
         svgContent += `
           ${design.logoImage ? 
-            `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" />` : 
+            `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" preserveAspectRatio="xMidYMid meet" />` : 
             `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
         `;
       }
       
-      // Calculate text position based on logo
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const textStartY = design.includeLogo && design.logoPosition === 'top' ? 70 : 50;
-      
       // Add text
-      design.lines.forEach((line, index) => {
-        // Apply position adjustments
-        const xOffset = (line.xPosition || 0) / 100 * (width / 4);
-        const yOffset = (line.yPosition || 0) / 100 * 15;
+      design.lines.forEach((line) => {
+        if (!line.text.trim()) return; // Skip empty lines
         
-        const textY = textStartY + index * 20 + yOffset;
+        // Center coordinates
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        // Apply position adjustments
+        const xOffset = (line.xPosition || 0) / 100 * (width / 3);
+        const yOffset = (line.yPosition || 0) / 100 * (height / 3);
+        
         const textX = centerX + xOffset;
+        const textY = centerY + yOffset;
         
         let textAnchor;
         if (line.alignment === 'left') textAnchor = 'start';
@@ -252,7 +358,7 @@ export const useStampDesigner = (product: Product | null) => {
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
                 ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
-            ${line.text || ' '}
+            ${line.text}
           </text>
         `;
       });
@@ -262,8 +368,47 @@ export const useStampDesigner = (product: Product | null) => {
     svgContent += `</svg>`;
     
     const previewUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
+    svgRef.current = svgContent; // Store the SVG content for download
     setPreviewImage(previewUrl);
     return previewUrl;
+  };
+
+  const downloadAsPng = () => {
+    if (!previewImage) return;
+    
+    // Create a temporary image element to load the SVG
+    const img = new Image();
+    img.onload = function() {
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      // Set canvas dimensions
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Fill with white background
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw the image
+      ctx.drawImage(img, 0, 0);
+      
+      // Convert canvas to PNG data URL
+      const pngData = canvas.toDataURL('image/png');
+      
+      // Create download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = pngData;
+      downloadLink.download = `custom-stamp-${new Date().getTime()}.png`;
+      
+      // Trigger download
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
+    img.src = previewImage;
   };
 
   return {
@@ -278,7 +423,13 @@ export const useStampDesigner = (product: Product | null) => {
     setBorderStyle,
     toggleCurvedText,
     updateTextPosition,
+    updateLogoPosition,
+    startTextDrag,
+    startLogoDrag,
+    stopDragging,
+    handleDrag,
     generatePreview,
+    downloadAsPng,
     previewImage
   };
 };
