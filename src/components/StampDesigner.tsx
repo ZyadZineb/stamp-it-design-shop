@@ -67,6 +67,24 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Available fonts
+  const availableFonts = [
+    { value: 'Arial', label: 'Arial' },
+    { value: 'Times New Roman', label: 'Times New Roman' },
+    { value: 'Courier New', label: 'Courier New' },
+    { value: 'Georgia', label: 'Georgia' },
+    { value: 'Verdana', label: 'Verdana' },
+    { value: 'Helvetica', label: 'Helvetica' },
+    { value: 'Tahoma', label: 'Tahoma' },
+    { value: 'Trebuchet MS', label: 'Trebuchet MS' },
+    { value: 'Impact', label: 'Impact' },
+    { value: 'Comic Sans MS', label: 'Comic Sans MS' },
+    { value: 'Palatino', label: 'Palatino' },
+    { value: 'Garamond', label: 'Garamond' },
+    { value: 'Bookman', label: 'Bookman' },
+    { value: 'Avant Garde', label: 'Avant Garde' },
+  ];
+
   const handleAddToCart = () => {
     if (!product) return;
     
@@ -271,6 +289,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         updateLine(index, { alignment: 'left' });
                       }}
                       className={`p-1 ${line.alignment === 'left' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                      title="Align Left"
                     >
                       <AlignLeft size={16} />
                     </button>
@@ -280,6 +299,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         updateLine(index, { alignment: 'center' });
                       }}
                       className={`p-1 ${line.alignment === 'center' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                      title="Align Center"
                     >
                       <AlignCenter size={16} />
                     </button>
@@ -289,6 +309,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         updateLine(index, { alignment: 'right' });
                       }}
                       className={`p-1 ${line.alignment === 'right' ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                      title="Align Right"
                     >
                       <AlignRight size={16} />
                     </button>
@@ -299,6 +320,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                       updateLine(index, { bold: !line.bold });
                     }}
                     className={`p-1 border rounded-md ${line.bold ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                    title="Bold"
                   >
                     <Bold size={16} />
                   </button>
@@ -308,6 +330,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                       updateLine(index, { italic: !line.italic });
                     }}
                     className={`p-1 border rounded-md ${line.italic ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                    title="Italic"
                   >
                     <Italic size={16} />
                   </button>
@@ -318,6 +341,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         updateLine(index, { fontSize: Math.max(10, line.fontSize - 2) });
                       }}
                       className="p-1 bg-gray-100"
+                      title="Decrease Font Size"
                     >
                       <Minus size={16} />
                     </button>
@@ -328,6 +352,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         updateLine(index, { fontSize: Math.min(24, line.fontSize + 2) });
                       }}
                       className="p-1 bg-gray-100"
+                      title="Increase Font Size"
                     >
                       <Plus size={16} />
                     </button>
@@ -339,6 +364,7 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                         toggleCurvedText(index);
                       }}
                       className={`p-1 border rounded-md flex items-center gap-1 ${line.curved ? 'bg-brand-blue text-white' : 'bg-gray-100'}`}
+                      title="Toggle Curved Text"
                     >
                       <TextQuote size={16} />
                       <span className="text-xs">Curved</span>
@@ -357,11 +383,11 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                       <SelectValue placeholder="Select a font" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Arial">Arial</SelectItem>
-                      <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                      <SelectItem value="Courier New">Courier New</SelectItem>
-                      <SelectItem value="Georgia">Georgia</SelectItem>
-                      <SelectItem value="Verdana">Verdana</SelectItem>
+                      {availableFonts.map(font => (
+                        <SelectItem key={font.value} value={font.value}>
+                          <span style={{ fontFamily: font.value }}>{font.label}</span>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -498,16 +524,21 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
           <div className="border rounded-md p-4 bg-gray-50">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-medium text-gray-800">Live Preview</h3>
-              <Button 
-                onClick={downloadAsPng}
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1"
-                disabled={!previewImage}
-              >
-                <Download size={16} />
-                Download PNG
-              </Button>
+              <div className="flex gap-2">
+                <p className="text-xs text-gray-600 self-center">
+                  {product.size} mm
+                </p>
+                <Button 
+                  onClick={downloadAsPng}
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  disabled={!previewImage}
+                >
+                  <Download size={16} />
+                  Download PNG
+                </Button>
+              </div>
             </div>
             <div 
               className="flex justify-center items-center bg-white border rounded-md p-4 min-h-60 cursor-pointer relative touch-none"

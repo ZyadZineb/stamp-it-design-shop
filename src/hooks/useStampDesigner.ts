@@ -193,30 +193,59 @@ export const useStampDesigner = (product: Product | null) => {
   };
 
   const generatePreview = (): string => {
-    // Determine dimensions based on shape
-    const width = design.shape === 'circle' ? 300 : 300;
-    const height = design.shape === 'circle' ? 300 : 200;
+    if (!product) {
+      return '';
+    }
+
+    // Parse dimensions from product.size (format: "60x40")
+    const sizeDimensions = product.size.split('x').map(dim => parseInt(dim.trim(), 10));
+    let width = 300;
+    let height = 200;
+    
+    // Set aspect ratio based on product dimensions
+    if (sizeDimensions.length === 2) {
+      const [productWidth, productHeight] = sizeDimensions;
+      // Calculate SVG dimensions to maintain aspect ratio but fit within a reasonable size
+      if (design.shape === 'circle') {
+        // For circular stamps, use the smaller dimension
+        const size = Math.min(productWidth, productHeight);
+        width = height = size * 5; // Scale for better visibility
+      } else {
+        // For rectangular stamps, maintain aspect ratio
+        const aspectRatio = productWidth / productHeight;
+        // Base width on 300px, height calculated to maintain aspect ratio
+        width = 300;
+        height = width / aspectRatio;
+      }
+    } else if (design.shape === 'circle') {
+      // Default for circle if no dimensions are available
+      width = height = 300;
+    }
+
+    // Set viewBox to match exact mm dimensions
+    const viewWidth = sizeDimensions[0] || 60;
+    const viewHeight = sizeDimensions[1] || 40;
     
     // Start building the SVG
     let svgContent = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="white"/>
     `;
     
     // Add appropriate shape
     if (design.shape === 'circle') {
       // For circular stamps
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const radius = Math.min(width, height) / 2 - 10;
+      const centerX = viewWidth / 2;
+      const centerY = viewHeight / 2;
+      const radius = Math.min(viewWidth, viewHeight) / 2 - 1; // Slightly smaller for border
       
       // Add border(s)
       if (design.borderStyle === 'single') {
-        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>`;
+        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
         svgContent += `
-          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>
-          <circle cx="${centerX}" cy="${centerY}" r="${radius - 10}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
       }
       
@@ -228,7 +257,7 @@ export const useStampDesigner = (product: Product | null) => {
         const logoY = centerY + (design.logoY || 0) / 100 * (radius - logoSize);
         
         svgContent += `
-          <circle cx="${logoX}" cy="${logoY}" r="${logoSize}" fill="#f1f1f1" stroke="${design.inkColor}" stroke-width="1"/>
+          <circle cx="${logoX}" cy="${logoY}" r="${logoSize}" fill="#f1f1f1" stroke="${design.inkColor}" stroke-width="0.2"/>
           ${design.logoImage ? 
             `<image href="${design.logoImage}" x="${logoX - logoSize}" y="${logoY - logoSize}" width="${logoSize * 2}" height="${logoSize * 2}" preserveAspectRatio="xMidYMid meet" />` : 
             `<rect x="${logoX - logoSize/2}" y="${logoY - logoSize/2}" width="${logoSize}" height="${logoSize}" fill="#ddd"/>`}
@@ -238,6 +267,9 @@ export const useStampDesigner = (product: Product | null) => {
       // Add text lines
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
+        
+        // Calculate font size scaled to viewBox
+        const scaledFontSize = (line.fontSize / 20) * (radius / 10);
         
         // Apply position adjustments
         const xOffset = (line.xPosition || 0) / 100 * radius;
@@ -249,13 +281,13 @@ export const useStampDesigner = (product: Product | null) => {
         if (line.curved) {
           // Calculate the path for curved text
           const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`; // Unique ID
-          const pathRadius = radius - 30;
+          const pathRadius = radius - (radius * 0.2); // Smaller radius for curved text
           
           svgContent += `
             <defs>
               <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
             </defs>
-            <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${line.fontSize}px"
+            <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${scaledFontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
               <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
                 ${line.text}
@@ -264,9 +296,15 @@ export const useStampDesigner = (product: Product | null) => {
           `;
         } else {
           // Regular text with position adjustments
+          // Set text-anchor based on alignment
+          let textAnchor;
+          if (line.alignment === 'left') textAnchor = 'start';
+          else if (line.alignment === 'right') textAnchor = 'end';
+          else textAnchor = 'middle';
+          
           svgContent += `
-            <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
-                  text-anchor="middle" fill="${design.inkColor}"
+            <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
+                  text-anchor="${textAnchor}" fill="${design.inkColor}"
                   ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
               ${line.text}
             </text>
@@ -276,34 +314,34 @@ export const useStampDesigner = (product: Product | null) => {
       
     } else {
       // For rectangular stamps
-      const cornerRadius = 5;
+      const cornerRadius = viewWidth * 0.05; // 5% of width as corner radius
       
       // Add border(s)
       if (design.borderStyle === 'single') {
-        svgContent += `<rect x="10" y="10" width="${width-20}" height="${height-20}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>`;
+        svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
         svgContent += `
-          <rect x="10" y="10" width="${width-20}" height="${height-20}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>
-          <rect x="20" y="20" width="${width-40}" height="${height-40}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="2" fill="none"/>
+          <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
       }
       
       // Add logo if included
       if (design.includeLogo) {
-        const logoWidth = 50;
-        const logoHeight = 30;
+        const logoWidth = viewWidth * 0.2;
+        const logoHeight = viewHeight * 0.2;
         
         // Center coordinates
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const centerX = viewWidth / 2;
+        const centerY = viewHeight / 2;
         
         // Use custom position if available, otherwise use preset positions
         let logoX, logoY;
         
         if (design.logoX !== undefined && design.logoY !== undefined) {
-          // Convert from -100,100 range to pixel coordinates
-          logoX = centerX + (design.logoX / 100) * (width/2 - logoWidth/2);
-          logoY = centerY + (design.logoY / 100) * (height/2 - logoHeight/2);
+          // Convert from -100,100 range to viewBox coordinates
+          logoX = centerX + (design.logoX / 100) * (viewWidth/2 - logoWidth/2);
+          logoY = centerY + (design.logoY / 100) * (viewHeight/2 - logoHeight/2);
         } else {
           // Fallback to preset positions
           logoX = centerX - logoWidth / 2;
@@ -311,17 +349,17 @@ export const useStampDesigner = (product: Product | null) => {
           
           switch (design.logoPosition) {
             case 'top':
-              logoY = 20;
+              logoY = viewHeight * 0.1;
               break;
             case 'bottom':
-              logoY = height - logoHeight - 20;
+              logoY = viewHeight - logoHeight - viewHeight * 0.1;
               break;
             case 'left':
-              logoX = 20;
+              logoX = viewWidth * 0.1;
               logoY = centerY - logoHeight / 2;
               break;
             case 'right':
-              logoX = width - logoWidth - 20;
+              logoX = viewWidth - logoWidth - viewWidth * 0.1;
               logoY = centerY - logoHeight / 2;
               break;
           }
@@ -338,24 +376,29 @@ export const useStampDesigner = (product: Product | null) => {
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
+        // Calculate font size scaled to viewBox
+        const scaledFontSize = (line.fontSize / 20) * (viewHeight / 10);
+        
         // Center coordinates
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const centerX = viewWidth / 2;
+        const centerY = viewHeight / 2;
         
         // Apply position adjustments
-        const xOffset = (line.xPosition || 0) / 100 * (width / 3);
-        const yOffset = (line.yPosition || 0) / 100 * (height / 3);
+        const xOffset = (line.xPosition || 0) / 100 * (viewWidth / 3);
+        const yOffset = (line.yPosition || 0) / 100 * (viewHeight / 3);
         
+        // Base position plus offset
         const textX = centerX + xOffset;
         const textY = centerY + yOffset;
         
+        // Set text-anchor based on alignment
         let textAnchor;
         if (line.alignment === 'left') textAnchor = 'start';
         else if (line.alignment === 'right') textAnchor = 'end';
         else textAnchor = 'middle';
         
         svgContent += `
-          <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${line.fontSize}px" 
+          <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
                 ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
             ${line.text}
@@ -374,7 +417,25 @@ export const useStampDesigner = (product: Product | null) => {
   };
 
   const downloadAsPng = () => {
-    if (!previewImage) return;
+    if (!previewImage || !product) return;
+    
+    // Parse dimensions from product.size (format: "60x40") 
+    const sizeDimensions = product.size.split('x').map(dim => parseInt(dim.trim(), 10));
+    let pngWidth = 300;
+    let pngHeight = 200;
+    
+    // Set exact dimensions for the download based on product size
+    if (sizeDimensions.length === 2) {
+      // Use actual mm dimensions multiplied by 8 for better quality
+      // This makes 1mm = 8px in the output image
+      pngWidth = sizeDimensions[0] * 8;
+      pngHeight = sizeDimensions[1] * 8;
+      
+      if (design.shape === 'circle') {
+        // For circular stamps, use the larger dimension
+        pngWidth = pngHeight = Math.max(pngWidth, pngHeight);
+      }
+    }
     
     // Create a temporary image element to load the SVG
     const img = new Image();
@@ -384,16 +445,16 @@ export const useStampDesigner = (product: Product | null) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
       
-      // Set canvas dimensions
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Set canvas dimensions to exact product dimensions in pixels
+      canvas.width = pngWidth;
+      canvas.height = pngHeight;
       
       // Fill with white background
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw the image
-      ctx.drawImage(img, 0, 0);
+      // Draw the image scaled to fit the canvas properly
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       
       // Convert canvas to PNG data URL
       const pngData = canvas.toDataURL('image/png');
@@ -401,7 +462,7 @@ export const useStampDesigner = (product: Product | null) => {
       // Create download link
       const downloadLink = document.createElement('a');
       downloadLink.href = pngData;
-      downloadLink.download = `custom-stamp-${new Date().getTime()}.png`;
+      downloadLink.download = `${product.name.replace(/\s+/g, '-')}-${product.size}-stamp.png`;
       
       // Trigger download
       document.body.appendChild(downloadLink);
