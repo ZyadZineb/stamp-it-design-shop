@@ -8,6 +8,7 @@ import { products } from '../data/products';
 const Products = () => {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedInkColor, setSelectedInkColor] = useState<string | null>(null);
   
   const brands = Array.from(new Set(products.map(product => product.brand)));
   
@@ -16,6 +17,13 @@ const Products = () => {
     { id: 'wooden', name: 'Wooden Stamps' },
     { id: 'round', name: 'Round Stamps' },
     { id: 'rectangular', name: 'Rectangular Stamps' },
+    { id: 'square', name: 'Square Stamps' },
+  ];
+  
+  const inkColors = [
+    { id: 'blue', name: 'Blue Ink' },
+    { id: 'red', name: 'Red Ink' },
+    { id: 'black', name: 'Black Ink' },
   ];
   
   const filteredProducts = products.filter(product => {
@@ -25,13 +33,23 @@ const Products = () => {
     // Filter by type
     if (selectedType) {
       if (selectedType === 'wooden' && !product.name.toLowerCase().includes('wood')) return false;
-      if (selectedType === 'round' && !product.size.toLowerCase().includes('mm')) return false;
-      if (selectedType === 'rectangular' && !product.size.toLowerCase().includes('x')) return false;
+      if (selectedType === 'round' && product.shape !== 'circle') return false;
+      if (selectedType === 'rectangular' && product.shape !== 'rectangle') return false;
+      if (selectedType === 'square' && product.shape !== 'square') return false;
       if (selectedType === 'selfInking' && product.name.toLowerCase().includes('wood')) return false;
     }
     
+    // Filter by ink color
+    if (selectedInkColor && !product.inkColors.includes(selectedInkColor)) return false;
+    
     return true;
   });
+
+  const clearFilters = () => {
+    setSelectedBrand(null);
+    setSelectedType(null);
+    setSelectedInkColor(null);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -75,7 +93,7 @@ const Products = () => {
                   </div>
                 </div>
                 
-                <div>
+                <div className="mb-6">
                   <h3 className="font-medium mb-2">Type</h3>
                   <div className="space-y-1">
                     <div className="flex items-center">
@@ -105,11 +123,44 @@ const Products = () => {
                   </div>
                 </div>
                 
+                <div className="mb-6">
+                  <h3 className="font-medium mb-2">Ink Color</h3>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="all-ink-colors"
+                        name="ink-color"
+                        checked={selectedInkColor === null}
+                        onChange={() => setSelectedInkColor(null)}
+                        className="mr-2"
+                      />
+                      <label htmlFor="all-ink-colors" className="text-sm">All Colors</label>
+                    </div>
+                    {inkColors.map(color => (
+                      <div key={color.id} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={`color-${color.id}`}
+                          name="ink-color"
+                          checked={selectedInkColor === color.id}
+                          onChange={() => setSelectedInkColor(color.id)}
+                          className="mr-2"
+                        />
+                        <label htmlFor={`color-${color.id}`} className="text-sm flex items-center">
+                          <span 
+                            className="inline-block w-3 h-3 rounded-full mr-1" 
+                            style={{backgroundColor: color.id}}
+                          ></span>
+                          {color.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
                 <button
-                  onClick={() => {
-                    setSelectedBrand(null);
-                    setSelectedType(null);
-                  }}
+                  onClick={clearFilters}
                   className="mt-6 text-sm text-brand-blue hover:underline"
                 >
                   Clear all filters
@@ -122,7 +173,7 @@ const Products = () => {
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Our Stamp Collection</h1>
                 <p className="text-gray-600">
-                  Browse our extensive collection of high-quality stamps.
+                  Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.
                 </p>
               </div>
               
@@ -140,10 +191,7 @@ const Products = () => {
                 <div className="text-center py-12">
                   <p className="text-gray-500">No products found matching your filters.</p>
                   <button
-                    onClick={() => {
-                      setSelectedBrand(null);
-                      setSelectedType(null);
-                    }}
+                    onClick={clearFilters}
                     className="mt-4 text-brand-blue hover:underline"
                   >
                     Clear filters

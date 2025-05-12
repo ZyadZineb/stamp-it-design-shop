@@ -12,6 +12,16 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   
+  // Helper function to get readable ink colors
+  const getReadableInkColors = (colors: string[]) => {
+    return colors.map(color => {
+      if (color === 'black') return 'Black';
+      if (color === 'blue') return 'Blue';
+      if (color === 'red') return 'Red';
+      return color.charAt(0).toUpperCase() + color.slice(1);
+    }).join(", ");
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -48,7 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.name}
         </h3>
         <p className="text-sm text-gray-600 mb-3">
-          {product.lines} lines • {product.inkColors.join(", ")} ink
+          {product.lines} lines • {getReadableInkColors(product.inkColors)} ink
         </p>
         <div className="flex items-center justify-between">
           <span className="font-bold text-lg text-brand-red">
