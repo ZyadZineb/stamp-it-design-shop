@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product } from '../types';
 
 export const useStampDesigner = (product: Product | null) => {
   const defaultLine: StampTextLine = {
     text: '',
-    fontSize: 16,
+    fontSize: 16, // This will now represent points (pt) instead of pixels
     fontFamily: 'Arial',
     bold: false,
     italic: false,
@@ -60,6 +59,13 @@ export const useStampDesigner = (product: Product | null) => {
 
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
+    
+    // Add validation for fontSize if it's being updated
+    if (updates.fontSize !== undefined) {
+      // Ensure fontSize is between 7pt and 40pt
+      updates.fontSize = Math.max(7, Math.min(40, updates.fontSize));
+    }
+    
     newLines[index] = { ...newLines[index], ...updates };
     setDesign({ ...design, lines: newLines });
   };
@@ -268,8 +274,10 @@ export const useStampDesigner = (product: Product | null) => {
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
-        // Calculate font size scaled to viewBox
-        const scaledFontSize = (line.fontSize / 20) * (radius / 10);
+        // Calculate font size scaled to viewBox - convert pt to appropriate size for SVG
+        // In SVG, 1pt = 1.25px, and we need to scale based on viewBox dimensions
+        const pointToUnitScale = 0.35; // Scale factor to convert pt to appropriate SVG units
+        const scaledFontSize = line.fontSize * pointToUnitScale;
         
         // Apply position adjustments
         const xOffset = (line.xPosition || 0) / 100 * radius;
@@ -376,8 +384,9 @@ export const useStampDesigner = (product: Product | null) => {
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
-        // Calculate font size scaled to viewBox
-        const scaledFontSize = (line.fontSize / 20) * (viewHeight / 10);
+        // Calculate font size scaled to viewBox - convert pt to appropriate size for SVG
+        const pointToUnitScale = 0.35; // Scale factor for pt to appropriate SVG units
+        const scaledFontSize = line.fontSize * pointToUnitScale;
         
         // Center coordinates
         const centerX = viewWidth / 2;

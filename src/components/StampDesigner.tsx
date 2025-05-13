@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { 
   AlignLeft, 
@@ -84,17 +83,6 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     { value: 'Bookman', label: 'Bookman' },
     { value: 'Avant Garde', label: 'Avant Garde' },
   ];
-
-  const handleAddToCart = () => {
-    if (!product) return;
-    
-    // Add the product to cart with the custom text and preview
-    const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
-    addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
-    
-    // Call the optional callback
-    if (onAddToCart) onAddToCart();
-  };
 
   // Handle logo upload (simulated)
   const handleLogoUpload = () => {
@@ -338,18 +326,18 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateLine(index, { fontSize: Math.max(10, line.fontSize - 2) });
+                        updateLine(index, { fontSize: Math.max(7, line.fontSize - 1) });
                       }}
                       className="p-1 bg-gray-100"
                       title="Decrease Font Size"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="px-2 text-sm">{line.fontSize}px</span>
+                    <span className="px-2 text-sm">{line.fontSize}pt</span>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateLine(index, { fontSize: Math.min(24, line.fontSize + 2) });
+                        updateLine(index, { fontSize: Math.min(40, line.fontSize + 1) });
                       }}
                       className="p-1 bg-gray-100"
                       title="Increase Font Size"
