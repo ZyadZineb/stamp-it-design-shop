@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { StampDesign } from '@/types';
 import { DesignTemplate, stampTemplates } from '@/data/stampTemplates';
-import { FileSparkles } from 'lucide-react';
+import { File, Sparkles } from 'lucide-react';
 
 interface TemplateGalleryProps {
   onApplyTemplate: (design: StampDesign) => void;
@@ -25,7 +25,10 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onApplyTemplat
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2"
       >
-        <FileSparkles size={16} />
+        <div className="flex items-center">
+          <File size={16} />
+          <Sparkles size={16} className="-ml-1" />
+        </div>
         Start with a Template
       </Button>
       
