@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { 
   AlignLeft, 
@@ -84,7 +85,6 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     { value: 'Avant Garde', label: 'Avant Garde' },
   ];
 
-  // Creating handleAddToCart function that was deleted but still referenced
   const handleAddToCart = () => {
     if (!product) return;
     
@@ -338,18 +338,18 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateLine(index, { fontSize: Math.max(7, line.fontSize - 1) });
+                        updateLine(index, { fontSize: Math.max(10, line.fontSize - 2) });
                       }}
                       className="p-1 bg-gray-100"
                       title="Decrease Font Size"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="px-2 text-sm">{line.fontSize}pt</span>
+                    <span className="px-2 text-sm">{line.fontSize}px</span>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateLine(index, { fontSize: Math.min(40, line.fontSize + 1) });
+                        updateLine(index, { fontSize: Math.min(24, line.fontSize + 2) });
                       }}
                       className="p-1 bg-gray-100"
                       title="Increase Font Size"

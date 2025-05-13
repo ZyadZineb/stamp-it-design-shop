@@ -1,30 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product } from '../types';
-import { useUndoRedo } from './useUndoRedo';
-import { useToast } from './use-toast';
-
-export const STORAGE_KEY = 'stamp-designer-saved-designs';
-
-export interface SavedDesign {
-  id: string;
-  name: string;
-  date: string;
-  design: StampDesign;
-  productId?: string;
-  previewImage?: string;
-}
-
-export interface DesignValidation {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
 
 export const useStampDesigner = (product: Product | null) => {
-  const { toast } = useToast();
   const defaultLine: StampTextLine = {
     text: '',
-    fontSize: 16, // This represents points (pt) instead of pixels
+    fontSize: 16,
     fontFamily: 'Arial',
     bold: false,
     italic: false,
@@ -46,7 +27,7 @@ export const useStampDesigner = (product: Product | null) => {
     return lines;
   };
 
-  const initialDesign: StampDesign = {
+  const [design, setDesign] = useState<StampDesign>({
     lines: initializeLines(),
     inkColor: product?.inkColors[0] || 'blue',
     includeLogo: false,
@@ -56,120 +37,36 @@ export const useStampDesigner = (product: Product | null) => {
     logoDragging: false,
     shape: product?.shape || 'rectangle',
     borderStyle: 'single'
-  };
-
-  // Undo/Redo functionality
-  const { state: design, saveState, undo, redo, canUndo, canRedo } = useUndoRedo<StampDesign>(initialDesign);
-  
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [savedDesigns, setSavedDesigns] = useState<SavedDesign[]>([]);
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [validationResults, setValidationResults] = useState<DesignValidation>({
-    isValid: true,
-    errors: [],
-    warnings: []
   });
-  
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const svgRef = useRef<string | null>(null);
 
-  // Load saved designs from localStorage
   useEffect(() => {
-    const loadSavedDesigns = () => {
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      if (savedData) {
-        try {
-          const parsed = JSON.parse(savedData);
-          setSavedDesigns(parsed);
-        } catch (error) {
-          console.error('Failed to parse saved designs', error);
-        }
-      }
-    };
-    
-    loadSavedDesigns();
-  }, []);
-
-  useEffect(() => {
-    // Update the design when product changes
-    if (product) {
-      const updatedDesign = {
-        ...design,
-        lines: initializeLines(),
-        inkColor: product?.inkColors[0] || design.inkColor,
-        shape: product?.shape || 'rectangle'
-      };
-      saveState(updatedDesign);
-    }
+    setDesign(prev => ({
+      ...prev,
+      lines: initializeLines(),
+      inkColor: product?.inkColors[0] || prev.inkColor,
+      shape: product?.shape || 'rectangle'
+    }));
   }, [product]);
 
   // Auto-generate preview whenever design changes
   useEffect(() => {
     if (product) {
       generatePreview();
-      validateDesign();
     }
-  }, [design, product]);
-
-  const validateDesign = useCallback(() => {
-    if (!product) return;
-    
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    
-    // Check if there's at least one line with text
-    const hasText = design.lines.some(line => line.text.trim().length > 0);
-    if (!hasText) {
-      errors.push('Your stamp needs at least one line of text');
-    }
-    
-    // Check for overlapping text elements
-    // (This is a simplified validation, a real one would be more complex)
-    const textLines = design.lines.filter(line => line.text.trim().length > 0);
-    const positions = textLines.map(line => ({ y: line.yPosition || 0, fontSize: line.fontSize }));
-    
-    for (let i = 0; i < positions.length; i++) {
-      for (let j = i + 1; j < positions.length; j++) {
-        const distance = Math.abs(positions[i].y - positions[j].y);
-        const minDistance = (positions[i].fontSize + positions[j].fontSize) * 0.7;
-        
-        if (distance < minDistance) {
-          warnings.push('Some text lines may be overlapping');
-          break;
-        }
-      }
-    }
-    
-    // Check if font sizes are appropriate
-    const smallFonts = design.lines.some(line => line.text.trim().length > 0 && line.fontSize < 9);
-    if (smallFonts) {
-      warnings.push('Some text is very small and may not print clearly');
-    }
-    
-    setValidationResults({
-      isValid: errors.length === 0,
-      errors,
-      warnings
-    });
-    
-    return errors.length === 0;
   }, [design, product]);
 
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
-    
-    // Add validation for fontSize if it's being updated
-    if (updates.fontSize !== undefined) {
-      // Ensure fontSize is between 7pt and 40pt
-      updates.fontSize = Math.max(7, Math.min(40, updates.fontSize));
-    }
-    
     newLines[index] = { ...newLines[index], ...updates };
-    saveState({ ...design, lines: newLines });
+    setDesign({ ...design, lines: newLines });
   };
 
   const addLine = () => {
     if (design.lines.length < (product?.lines || 5)) {
-      saveState({
+      setDesign({
         ...design,
         lines: [...design.lines, { ...defaultLine }]
       });
@@ -178,27 +75,27 @@ export const useStampDesigner = (product: Product | null) => {
 
   const removeLine = (index: number) => {
     const newLines = design.lines.filter((_, i) => i !== index);
-    saveState({ ...design, lines: newLines });
+    setDesign({ ...design, lines: newLines });
   };
 
   const setInkColor = (color: string) => {
-    saveState({ ...design, inkColor: color });
+    setDesign({ ...design, inkColor: color });
   };
 
   const toggleLogo = () => {
-    saveState({ ...design, includeLogo: !design.includeLogo });
+    setDesign({ ...design, includeLogo: !design.includeLogo });
   };
 
   const setLogoPosition = (position: 'top' | 'bottom' | 'left' | 'right' | 'center') => {
-    saveState({ ...design, logoPosition: position });
+    setDesign({ ...design, logoPosition: position });
   };
 
   const setLogoImage = (imageUrl: string) => {
-    saveState({ ...design, logoImage: imageUrl });
+    setDesign({ ...design, logoImage: imageUrl });
   };
 
   const setBorderStyle = (style: 'single' | 'double' | 'none') => {
-    saveState({ ...design, borderStyle: style });
+    setDesign({ ...design, borderStyle: style });
   };
 
   const toggleCurvedText = (index: number) => {
@@ -222,7 +119,7 @@ export const useStampDesigner = (product: Product | null) => {
     newLines.forEach((line, i) => {
       line.isDragging = i === index;
     });
-    saveState({...design, lines: newLines, logoDragging: false});
+    setDesign({...design, lines: newLines, logoDragging: false});
   };
 
   const startLogoDrag = () => {
@@ -230,7 +127,7 @@ export const useStampDesigner = (product: Product | null) => {
     newLines.forEach(line => {
       line.isDragging = false;
     });
-    saveState({...design, lines: newLines, logoDragging: true});
+    setDesign({...design, lines: newLines, logoDragging: true});
   };
 
   const stopDragging = () => {
@@ -238,7 +135,7 @@ export const useStampDesigner = (product: Product | null) => {
     newLines.forEach(line => {
       line.isDragging = false;
     });
-    saveState({...design, lines: newLines, logoDragging: false});
+    setDesign({...design, lines: newLines, logoDragging: false});
   };
 
   const handleDrag = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, previewRect: DOMRect) => {
@@ -275,7 +172,11 @@ export const useStampDesigner = (product: Product | null) => {
       updateTextPosition(draggingLineIndex, constrainedX, constrainedY);
     } else if (design.logoDragging && design.includeLogo) {
       // Update logo position
-      updateLogoPosition(constrainedX, constrainedY);
+      setDesign({
+        ...design,
+        logoX: constrainedX,
+        logoY: constrainedY
+      });
     }
   };
 
@@ -284,7 +185,7 @@ export const useStampDesigner = (product: Product | null) => {
     const constrainedX = Math.max(-100, Math.min(100, x));
     const constrainedY = Math.max(-100, Math.min(100, y));
     
-    saveState({
+    setDesign({
       ...design,
       logoX: constrainedX,
       logoY: constrainedY
@@ -367,10 +268,8 @@ export const useStampDesigner = (product: Product | null) => {
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
-        // Calculate font size scaled to viewBox - convert pt to appropriate size for SVG
-        // In SVG, 1pt = 1.25px, and we need to scale based on viewBox dimensions
-        const pointToUnitScale = 0.35; // Scale factor to convert pt to appropriate SVG units
-        const scaledFontSize = line.fontSize * pointToUnitScale;
+        // Calculate font size scaled to viewBox
+        const scaledFontSize = (line.fontSize / 20) * (radius / 10);
         
         // Apply position adjustments
         const xOffset = (line.xPosition || 0) / 100 * radius;
@@ -477,9 +376,8 @@ export const useStampDesigner = (product: Product | null) => {
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
-        // Calculate font size scaled to viewBox - convert pt to appropriate size for SVG
-        const pointToUnitScale = 0.35; // Scale factor for pt to appropriate SVG units
-        const scaledFontSize = line.fontSize * pointToUnitScale;
+        // Calculate font size scaled to viewBox
+        const scaledFontSize = (line.fontSize / 20) * (viewHeight / 10);
         
         // Center coordinates
         const centerX = viewWidth / 2;
@@ -574,93 +472,6 @@ export const useStampDesigner = (product: Product | null) => {
     img.src = previewImage;
   };
 
-  // New methods for the enhanced component
-  const saveDesign = (name: string) => {
-    if (!product) return;
-    
-    const newSavedDesign: SavedDesign = {
-      id: Date.now().toString(),
-      name,
-      date: new Date().toISOString(),
-      design: { ...design },
-      productId: product.id,
-      previewImage: previewImage || undefined
-    };
-    
-    const updatedSavedDesigns = [...savedDesigns, newSavedDesign];
-    setSavedDesigns(updatedSavedDesigns);
-    
-    // Save to localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSavedDesigns));
-    
-    toast({
-      title: "Design saved!",
-      description: "Your design has been saved and can be loaded later."
-    });
-    
-    return newSavedDesign.id;
-  };
-  
-  const loadDesign = (designId: string) => {
-    const savedDesign = savedDesigns.find(d => d.id === designId);
-    if (savedDesign) {
-      saveState(savedDesign.design);
-      
-      toast({
-        title: "Design loaded",
-        description: `Loaded design: ${savedDesign.name}`
-      });
-      
-      return true;
-    }
-    return false;
-  };
-  
-  const deleteSavedDesign = (designId: string) => {
-    const updatedSavedDesigns = savedDesigns.filter(d => d.id !== designId);
-    setSavedDesigns(updatedSavedDesigns);
-    
-    // Update localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSavedDesigns));
-    
-    toast({
-      title: "Design deleted",
-      description: "The saved design has been removed."
-    });
-  };
-  
-  const applyTemplate = (templateDesign: StampDesign) => {
-    if (!product) return;
-    
-    // Adjust the template to match the current product's capacity
-    const adjustedLines = templateDesign.lines.slice(0, product.lines);
-    while (adjustedLines.length < product.lines) {
-      adjustedLines.push({ ...defaultLine });
-    }
-    
-    const adjustedDesign = {
-      ...templateDesign,
-      lines: adjustedLines,
-      // Ensure the color is supported by the product
-      inkColor: product.inkColors.includes(templateDesign.inkColor)
-        ? templateDesign.inkColor
-        : product.inkColors[0],
-      // Ensure the shape matches the product
-      shape: product.shape || 'rectangle'
-    };
-    
-    saveState(adjustedDesign);
-    
-    toast({
-      title: "Template applied",
-      description: "The template has been applied to your design."
-    });
-  };
-  
-  const setZoom = (level: number) => {
-    setZoomLevel(Math.max(0.5, Math.min(3, level)));
-  };
-
   return {
     design,
     updateLine,
@@ -680,24 +491,6 @@ export const useStampDesigner = (product: Product | null) => {
     handleDrag,
     generatePreview,
     downloadAsPng,
-    previewImage,
-    // Undo/Redo
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    // Saved designs
-    savedDesigns,
-    saveDesign,
-    loadDesign,
-    deleteSavedDesign,
-    // Templates
-    applyTemplate,
-    // Validation
-    validationResults,
-    validateDesign,
-    // Zoom
-    zoomLevel,
-    setZoom
+    previewImage
   };
 };
