@@ -84,6 +84,18 @@ const StampDesigner: React.FC<StampDesignerProps> = ({ product, onAddToCart }) =
     { value: 'Avant Garde', label: 'Avant Garde' },
   ];
 
+  // Creating handleAddToCart function that was deleted but still referenced
+  const handleAddToCart = () => {
+    if (!product) return;
+    
+    // Add the product to cart with the custom text and preview
+    const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
+    addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
+    
+    // Call the optional callback
+    if (onAddToCart) onAddToCart();
+  };
+
   // Handle logo upload (simulated)
   const handleLogoUpload = () => {
     // For demo, we're using a sample logo
