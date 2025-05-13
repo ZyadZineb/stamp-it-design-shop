@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import StampDesigner from '../components/StampDesigner';
+import EnhancedStampDesigner from '../components/StampWizard/EnhancedStampDesigner';
 import { getProductById, products } from '../data/products';
 import { Product } from '../types';
 
@@ -23,8 +23,7 @@ const DesignStamp = () => {
     }
   }, [productId]);
   
-  const handleProductSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = e.target.value;
+  const handleProductSelect = (id: string) => {
     const product = getProductById(id);
     
     if (product) {
@@ -53,24 +52,13 @@ const DesignStamp = () => {
             </p>
           </div>
           
-          <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-            <h2 className="font-semibold mb-3">Select a Product</h2>
-            <select
-              value={selectedProduct?.id || ''}
-              onChange={handleProductSelect}
-              className="w-full md:max-w-md px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-            >
-              <option value="">-- Select a stamp model --</option>
-              {products.map(product => (
-                <option key={product.id} value={product.id}>
-                  {product.name} - {product.size} - {product.price} DHS
-                </option>
-              ))}
-            </select>
-          </div>
-          
           <div className="mb-8">
-            <StampDesigner product={selectedProduct} onAddToCart={handleAddToCart} />
+            <EnhancedStampDesigner 
+              product={selectedProduct} 
+              onAddToCart={handleAddToCart} 
+              onProductSelect={handleProductSelect}
+              products={products}
+            />
           </div>
           
           {!selectedProduct && (
