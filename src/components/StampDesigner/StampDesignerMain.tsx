@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -164,7 +165,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
 
   if (!product) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-8 text-center bg-white rounded-lg">
         <p className="text-gray-500">Please select a product to start designing your stamp.</p>
       </div>
     );

@@ -69,7 +69,7 @@ const DesignStamp = () => {
             </select>
           </div>
           
-          <div className="mb-8">
+          <div className="bg-white rounded-lg shadow-md mb-8">
             <StampDesigner product={selectedProduct} onAddToCart={handleAddToCart} />
           </div>
           
