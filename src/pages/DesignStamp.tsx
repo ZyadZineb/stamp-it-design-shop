@@ -44,7 +44,7 @@ const DesignStamp = () => {
       <Navbar />
       
       <main className="flex-grow py-8 bg-gray-50">
-        <div className="container-custom">
+        <div className="container mx-auto px-4">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-3">Design Your Custom Stamp</h1>
             <p className="text-gray-600 max-w-3xl">
