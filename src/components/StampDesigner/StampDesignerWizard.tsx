@@ -1,0 +1,472 @@
+
+import React, { useState, useEffect } from 'react';
+import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut } from 'lucide-react';
+import { useStampDesigner } from '@/hooks/useStampDesignerEnhanced';
+import { Product } from '@/types';
+import { useCart } from '@/contexts/CartContext';
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import WizardControls from './WizardControls';
+import TextLinesEditor from './TextLinesEditor';
+import StampPreview from './StampPreviewEnhanced';
+import ColorSelector from './ColorSelector';
+import LogoUploader from './LogoUploader';
+import BorderStyleSelector from './BorderStyleSelector';
+import DesignTemplates from './DesignTemplates';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+interface StampDesignerWizardProps {
+  product: Product | null;
+  onAddToCart?: () => void;
+}
+
+type WizardStep = 'shape' | 'text' | 'color' | 'logo' | 'preview';
+
+const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAddToCart }) => {
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  
+  // Use the enhanced stamp designer hook
+  const { 
+    design, 
+    updateLine, 
+    addLine, 
+    removeLine, 
+    setInkColor,
+    toggleLogo, 
+    setLogoPosition,
+    setBorderStyle,
+    toggleCurvedText,
+    updateTextPosition,
+    updateLogoPosition,
+    startTextDrag,
+    startLogoDrag,
+    stopDragging,
+    handleDrag,
+    previewImage,
+    downloadAsPng,
+    validateDesign,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    saveDesign,
+    loadDesign,
+    hasSavedDesign,
+    clearSavedDesign,
+    applyTemplate,
+    zoomIn,
+    zoomOut,
+    zoomLevel,
+  } = useStampDesignerEnhanced(product);
+  
+  const { addToCart } = useCart();
+  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [currentStep, setCurrentStep] = useState<WizardStep>('shape');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  
+  // Steps configuration
+  const steps: { id: WizardStep; label: string; description: string }[] = [
+    { id: 'shape', label: 'Shape & Border', description: 'Choose your stamp shape and border style' },
+    { id: 'text', label: 'Text', description: 'Add and position your text' },
+    { id: 'color', label: 'Color', description: 'Select ink color' },
+    { id: 'logo', label: 'Logo', description: 'Add a logo if needed' },
+    { id: 'preview', label: 'Preview', description: 'Review and finalize your design' }
+  ];
+  
+  // Get current step index
+  const currentStepIndex = steps.findIndex(step => step.id === currentStep);
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
+  
+  // Navigation functions
+  const goToNextStep = () => {
+    const errors = validateDesign(currentStep);
+    setValidationErrors(errors);
+    
+    if (errors.length === 0) {
+      const nextIndex = currentStepIndex + 1;
+      if (nextIndex < steps.length) {
+        setCurrentStep(steps[nextIndex].id);
+      }
+    }
+  };
+  
+  const goToPrevStep = () => {
+    const prevIndex = currentStepIndex - 1;
+    if (prevIndex >= 0) {
+      setCurrentStep(steps[prevIndex].id);
+    }
+  };
+  
+  const jumpToStep = (step: WizardStep) => {
+    setCurrentStep(step);
+  };
+
+  // Handle logo upload
+  const handleLogoUpload = () => {
+    // For demo, we're using a sample logo
+    const logoUrl = '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png';
+    setUploadedLogo(logoUrl);
+  };
+
+  // Watch for logo changes to update the design
+  useEffect(() => {
+    if (uploadedLogo) {
+      design.logoImage = uploadedLogo;
+    }
+  }, [uploadedLogo]);
+
+  // Click handler for interactive preview text positioning
+  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.Touch) => {
+    const element = event.currentTarget;
+    const rect = element.getBoundingClientRect();
+    
+    let clientX: number, clientY: number;
+    
+    if ('clientX' in event) {
+      // Mouse event
+      clientX = event.clientX;
+      clientY = event.clientY;
+    } else {
+      // Touch event
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+    
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
+    
+    // Calculate relative position (-100 to 100 range)
+    const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
+    const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
+    
+    // If a line is active, update its position
+    if (activeLineIndex !== null) {
+      updateTextPosition(activeLineIndex, relativeX, relativeY);
+      startTextDrag(activeLineIndex);
+    }
+    // If no line is active but logo is included, update logo position
+    else if (design.includeLogo) {
+      updateLogoPosition(relativeX, relativeY);
+      startLogoDrag();
+    }
+  };
+
+  // Start dragging
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    handlePreviewClick(event);
+  };
+
+  // Start dragging (touch)
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    
+    if (event.touches.length === 0) return;
+    handlePreviewClick(event.touches[0]);
+  };
+
+  // Mouse move handler for dragging
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    event.preventDefault();
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    handleDrag(event, rect);
+  };
+
+  // Touch move handler for mobile drag support
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || event.touches.length === 0) return;
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    handleDrag(event, rect);
+  };
+
+  // Stop dragging
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    stopDragging();
+  };
+
+  // Save current design
+  const handleSaveDesign = () => {
+    saveDesign();
+    toast({
+      title: "Design saved",
+      description: "Your design has been saved and will be available when you return",
+    });
+  };
+
+  // Load saved design
+  const handleLoadDesign = () => {
+    loadDesign();
+    toast({
+      title: "Design loaded",
+      description: "Your saved design has been loaded",
+    });
+  };
+
+  // Add to cart with validation
+  const handleAddToCart = () => {
+    if (!product) return;
+    
+    const errors = validateDesign('preview');
+    setValidationErrors(errors);
+    
+    if (errors.length === 0) {
+      // Add the product to cart with the custom text and preview
+      const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
+      addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
+      
+      toast({
+        title: "Added to cart",
+        description: "Your custom stamp has been added to your cart",
+      });
+      
+      // Call the optional callback
+      if (onAddToCart) onAddToCart();
+    }
+  };
+
+  // Cleanup event listeners
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        stopDragging();
+      }
+    };
+    
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    document.addEventListener('touchend', handleGlobalMouseUp);
+    
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, [isDragging, stopDragging]);
+
+  // Check for saved design on initial load
+  useEffect(() => {
+    if (product && hasSavedDesign()) {
+      toast({
+        title: "Saved design found",
+        description: "You have a saved design. Would you like to load it?",
+        action: (
+          <Button onClick={handleLoadDesign} variant="outline" size="sm">
+            Load Design
+          </Button>
+        ),
+      });
+    }
+  }, [product]);
+
+  if (!product) {
+    return (
+      <div className="p-8 text-center bg-white rounded-lg">
+        <p className="text-gray-500">Please select a product to start designing your stamp.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="border-b border-gray-200 p-4 bg-gray-50">
+        <h2 className="text-xl font-semibold">Custom Stamp Designer</h2>
+        <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
+        
+        {/* Progress indicator */}
+        <div className="mt-4">
+          <Progress value={progress} className="h-2" />
+          <div className="flex justify-between mt-2">
+            {steps.map((step, index) => (
+              <div 
+                key={step.id} 
+                className={`text-xs ${index <= currentStepIndex ? 'text-brand-blue font-medium' : 'text-gray-400'}`}
+              >
+                {step.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Validation errors */}
+      {validationErrors.length > 0 && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 m-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800">Please fix the following issues:</h3>
+              <ul className="mt-1 text-sm text-red-700 list-disc list-inside">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Undo/Redo controls */}
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={undo} 
+            disabled={!canUndo}
+            title="Undo"
+          >
+            <Undo size={16} />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={redo} 
+            disabled={!canRedo}
+            title="Redo"
+          >
+            <Redo size={16} />
+          </Button>
+        </div>
+        
+        <div className="flex space-x-2">
+          {hasSavedDesign() ? (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleLoadDesign}
+                title="Load Saved Design"
+              >
+                Load Design
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={clearSavedDesign}
+                title="Clear Saved Design"
+              >
+                Clear Saved
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSaveDesign}
+              title="Save Design for Later"
+            >
+              <Save size={16} className="mr-1" />
+              Save Design
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+        {/* Left panel: Design options based on current step */}
+        <div className="space-y-6 overflow-y-auto max-h-[70vh]">
+          {currentStep === 'shape' && (
+            <>
+              <BorderStyleSelector 
+                borderStyle={design.borderStyle} 
+                onBorderStyleChange={setBorderStyle} 
+              />
+              <DesignTemplates 
+                onSelectTemplate={applyTemplate} 
+                productShape={design.shape} 
+              />
+            </>
+          )}
+          
+          {currentStep === 'text' && (
+            <TextLinesEditor
+              lines={design.lines}
+              maxLines={product.lines}
+              shape={design.shape}
+              activeLineIndex={activeLineIndex}
+              setActiveLineIndex={setActiveLineIndex}
+              updateLine={updateLine}
+              addLine={addLine}
+              removeLine={removeLine}
+              toggleCurvedText={toggleCurvedText}
+              updateTextPosition={updateTextPosition}
+            />
+          )}
+          
+          {currentStep === 'color' && (
+            <ColorSelector 
+              inkColors={product.inkColors} 
+              selectedColor={design.inkColor} 
+              onColorSelect={setInkColor}
+            />
+          )}
+          
+          {currentStep === 'logo' && (
+            <LogoUploader
+              includeLogo={design.includeLogo}
+              toggleLogo={toggleLogo}
+              logoX={design.logoX}
+              logoY={design.logoY}
+              uploadedLogo={uploadedLogo}
+              onLogoUpload={handleLogoUpload}
+              updateLogoPosition={updateLogoPosition}
+            />
+          )}
+          
+          {currentStep === 'preview' && (
+            <div className="bg-gray-50 p-4 rounded-md">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium">{product.name}</h3>
+                <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+              </div>
+              <Button
+                onClick={handleAddToCart}
+                className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+              >
+                Add to Cart
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        {/* Right panel: Preview and navigation controls */}
+        <div className="space-y-6">
+          <StampPreview
+            previewImage={previewImage}
+            productSize={product.size}
+            isDragging={isDragging}
+            activeLineIndex={activeLineIndex}
+            includeLogo={design.includeLogo}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            downloadAsPng={downloadAsPng}
+            zoomIn={zoomIn}
+            zoomOut={zoomOut}
+            zoomLevel={zoomLevel}
+          />
+          
+          <WizardControls 
+            currentStep={currentStep} 
+            steps={steps}
+            onNext={goToNextStep}
+            onPrev={goToPrevStep}
+            onJump={jumpToStep}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StampDesignerWizard;
