@@ -1,105 +1,199 @@
 
 import React from 'react';
-import { StampDesign } from '@/types';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { StampDesign, StampTextLine } from '@/types';
 
 interface DesignTemplatesProps {
   onSelectTemplate: (template: Partial<StampDesign>) => void;
   productShape: 'rectangle' | 'circle' | 'square';
 }
 
-const DesignTemplates: React.FC<DesignTemplatesProps> = ({ 
-  onSelectTemplate, 
-  productShape 
-}) => {
-  // Sample templates based on shape
-  const templates = [
-    // Rectangle templates
-    ...(productShape !== 'circle' ? [
-      {
-        name: 'Business Address',
-        preview: '/lovable-uploads/ef68040b-498e-4d2f-a69f-f379ff643c4b.png',
-        design: {
-          borderStyle: 'single',
-          lines: [
-            { text: 'COMPANY NAME', fontSize: 18, fontFamily: 'Arial', bold: true, italic: false, alignment: 'center', xPosition: 0, yPosition: -25 },
-            { text: '123 Business Street', fontSize: 14, fontFamily: 'Arial', bold: false, italic: false, alignment: 'center', xPosition: 0, yPosition: 0 },
-            { text: 'City, Country 12345', fontSize: 14, fontFamily: 'Arial', bold: false, italic: false, alignment: 'center', xPosition: 0, yPosition: 25 }
-          ],
-          inkColor: 'blue',
-          includeLogo: false
-        }
-      },
-      {
-        name: 'Invoice Paid',
-        preview: '/lovable-uploads/28a683e8-de59-487e-b2ab-af1930ed01d6.png',
-        design: {
-          borderStyle: 'double',
-          lines: [
-            { text: 'PAID', fontSize: 22, fontFamily: 'Impact', bold: true, italic: false, alignment: 'center', xPosition: 0, yPosition: 0 },
-            { text: 'Date: __/__/____', fontSize: 14, fontFamily: 'Arial', bold: false, italic: false, alignment: 'center', xPosition: 0, yPosition: 30 }
-          ],
-          inkColor: 'red',
-          includeLogo: false
-        }
+const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, productShape }) => {
+  // Define sample design templates with proper type alignment
+  const templates: { 
+    id: string;
+    name: string;
+    description: string;
+    forShapes: ('rectangle' | 'circle' | 'square')[];
+    template: Partial<StampDesign>;
+  }[] = [
+    {
+      id: 'business',
+      name: 'Business Address',
+      description: 'Perfect for company address stamps',
+      forShapes: ['rectangle', 'square'],
+      template: {
+        borderStyle: 'single',
+        lines: [
+          {
+            text: 'COMPANY NAME',
+            fontSize: 18,
+            fontFamily: 'Arial',
+            bold: true,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: -25,
+            isDragging: false
+          },
+          {
+            text: '123 Business Street',
+            fontSize: 14,
+            fontFamily: 'Arial',
+            bold: false,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: 0,
+            isDragging: false
+          },
+          {
+            text: 'City, State 12345',
+            fontSize: 14,
+            fontFamily: 'Arial',
+            bold: false,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: 25,
+            isDragging: false
+          }
+        ],
+        inkColor: 'blue',
+        includeLogo: false,
+        logoX: 0,
+        logoY: 0
       }
-    ] : []),
-    
-    // Circle templates
-    ...(productShape === 'circle' ? [
-      {
-        name: 'Circular Seal',
-        preview: '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png',
-        design: {
-          borderStyle: 'double',
-          lines: [
-            { text: 'OFFICIAL SEAL', fontSize: 16, fontFamily: 'Arial', bold: true, italic: false, alignment: 'center', curved: true, xPosition: 0, yPosition: -30 },
-            { text: 'ESTABLISHED 2024', fontSize: 14, fontFamily: 'Arial', bold: false, italic: false, alignment: 'center', curved: true, xPosition: 0, yPosition: 30 },
-            { text: 'COMPANY NAME', fontSize: 18, fontFamily: 'Arial', bold: true, italic: false, alignment: 'center', xPosition: 0, yPosition: 0 }
-          ],
-          inkColor: 'blue',
-          includeLogo: true,
-          logoImage: '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png',
-          logoX: 0,
-          logoY: 0
-        }
-      },
-      {
-        name: 'Notary Seal',
-        preview: '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png',
-        design: {
-          borderStyle: 'single',
-          lines: [
-            { text: 'NOTARY PUBLIC', fontSize: 16, fontFamily: 'Times New Roman', bold: true, italic: false, alignment: 'center', curved: true, xPosition: 0, yPosition: -30 },
-            { text: 'STATE OF EXAMPLE', fontSize: 14, fontFamily: 'Times New Roman', bold: false, italic: false, alignment: 'center', curved: true, xPosition: 0, yPosition: 30 },
-            { text: 'Jane Doe', fontSize: 18, fontFamily: 'Script', bold: false, italic: true, alignment: 'center', xPosition: 0, yPosition: 0 }
-          ],
-          inkColor: 'blue',
-          includeLogo: false
-        }
+    },
+    {
+      id: 'signature',
+      name: 'Signature',
+      description: 'For document signing and approvals',
+      forShapes: ['rectangle', 'square'],
+      template: {
+        borderStyle: 'double',
+        lines: [
+          {
+            text: 'APPROVED',
+            fontSize: 20,
+            fontFamily: 'Arial',
+            bold: true,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: -25,
+            isDragging: false
+          },
+          {
+            text: 'Date: ___________',
+            fontSize: 14,
+            fontFamily: 'Arial',
+            bold: false,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: 25,
+            isDragging: false
+          }
+        ],
+        inkColor: 'red',
+        includeLogo: false,
+        logoX: 0,
+        logoY: 0
       }
-    ] : [])
+    },
+    {
+      id: 'circular',
+      name: 'Circular Stamp',
+      description: 'Professional round stamp layout',
+      forShapes: ['circle'],
+      template: {
+        borderStyle: 'double',
+        lines: [
+          {
+            text: 'OFFICIAL STAMP',
+            fontSize: 16,
+            fontFamily: 'Arial',
+            bold: true,
+            italic: false,
+            alignment: 'center' as const,
+            curved: true,
+            xPosition: 0,
+            yPosition: -40,
+            isDragging: false
+          },
+          {
+            text: 'COMPANY NAME',
+            fontSize: 18,
+            fontFamily: 'Arial',
+            bold: true,
+            italic: false,
+            alignment: 'center' as const,
+            curved: false,
+            xPosition: 0,
+            yPosition: 0,
+            isDragging: false
+          },
+          {
+            text: 'ESTABLISHED 2022',
+            fontSize: 12,
+            fontFamily: 'Arial',
+            bold: false,
+            italic: false,
+            alignment: 'center' as const,
+            curved: true,
+            xPosition: 0,
+            yPosition: 40,
+            isDragging: false
+          }
+        ],
+        inkColor: 'blue',
+        includeLogo: true,
+        logoX: 0,
+        logoY: 0
+      }
+    }
   ];
 
+  // Filter templates based on product shape
+  const filteredTemplates = templates.filter(template => 
+    template.forShapes.includes(productShape)
+  );
+
   return (
-    <div className="space-y-3">
-      <h3 className="font-medium text-gray-800">Design Templates</h3>
-      <p className="text-xs text-gray-600">Start with a template and customize it</p>
+    <div className="space-y-4">
+      <h3 className="font-medium text-lg">Design Templates</h3>
+      <p className="text-sm text-gray-500">Start with a template and customize it to your needs.</p>
       
-      <div className="grid grid-cols-2 gap-3">
-        {templates.map((template, index) => (
-          <div 
-            key={index}
-            onClick={() => onSelectTemplate(template.design)}
-            className="border rounded-md p-2 hover:border-brand-blue cursor-pointer transition-colors"
-          >
-            <img 
-              src={template.preview} 
-              alt={template.name} 
-              className="w-full h-auto mb-2" 
-            />
-            <p className="text-sm font-medium text-center">{template.name}</p>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        {filteredTemplates.map((template) => (
+          <Card key={template.id}>
+            <CardContent className="p-4">
+              <h4 className="font-medium">{template.name}</h4>
+              <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full mt-3" 
+                onClick={() => onSelectTemplate(template.template)}
+              >
+                Use Template
+              </Button>
+            </CardContent>
+          </Card>
         ))}
+        
+        {filteredTemplates.length === 0 && (
+          <p className="text-sm text-gray-500 col-span-2">
+            No templates available for this stamp shape.
+          </p>
+        )}
       </div>
     </div>
   );

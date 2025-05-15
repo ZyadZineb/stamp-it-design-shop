@@ -8,7 +8,8 @@ interface DesignHistoryState {
   future: StampDesign[];
 }
 
-export const useStampDesignerEnhanced = (product: Product | null) => {
+// Main hook function
+const useStampDesignerEnhanced = (product: Product | null) => {
   const defaultLine: StampTextLine = {
     text: '',
     fontSize: 16,

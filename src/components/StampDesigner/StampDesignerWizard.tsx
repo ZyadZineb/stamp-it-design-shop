@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut } from 'lucide-react';
-import { useStampDesigner } from '@/hooks/useStampDesignerEnhanced';
+import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
 import { Product } from '@/types';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from "@/components/ui/button";
@@ -121,20 +120,22 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   }, [uploadedLogo]);
 
   // Click handler for interactive preview text positioning
-  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.Touch) => {
+  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
     const rect = element.getBoundingClientRect();
     
     let clientX: number, clientY: number;
     
-    if ('clientX' in event) {
+    if ('nativeEvent' in event && 'clientX' in event.nativeEvent) {
       // Mouse event
-      clientX = event.clientX;
-      clientY = event.clientY;
-    } else {
+      clientX = event.nativeEvent.clientX;
+      clientY = event.nativeEvent.clientY;
+    } else if ('touches' in event && event.touches.length > 0) {
       // Touch event
-      clientX = event.clientX;
-      clientY = event.clientY;
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else {
+      return; // Exit if we can't get coordinates
     }
     
     const clickX = clientX - rect.left;
@@ -167,7 +168,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
     setIsDragging(true);
     
     if (event.touches.length === 0) return;
-    handlePreviewClick(event.touches[0]);
+    handlePreviewClick(event);
   };
 
   // Mouse move handler for dragging
