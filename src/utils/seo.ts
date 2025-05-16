@@ -1,6 +1,11 @@
 
 import { useEffect } from 'react';
 
+interface HrefLangTag {
+  lang: string;
+  url: string;
+}
+
 interface MetaProps {
   title: string;
   description: string;
@@ -9,6 +14,7 @@ interface MetaProps {
   ogType?: 'website' | 'article' | 'product';
   ogUrl?: string;
   structuredData?: any;
+  hrefLangTags?: HrefLangTag[];
 }
 
 export const useMetaTags = ({
@@ -18,7 +24,8 @@ export const useMetaTags = ({
   ogImage = 'https://lovable.dev/opengraph-image-p98pqg.png',
   ogType = 'website',
   ogUrl,
-  structuredData
+  structuredData,
+  hrefLangTags
 }: MetaProps) => {
   useEffect(() => {
     // Update document title
@@ -65,6 +72,21 @@ export const useMetaTags = ({
       ogUrlMeta.setAttribute('content', ogUrl);
     }
     
+    // Handle hreflang tags for multi-language support
+    if (hrefLangTags && hrefLangTags.length > 0) {
+      // Remove any existing hreflang tags
+      document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+      
+      // Add new hreflang tags
+      hrefLangTags.forEach(tag => {
+        const linkEl = document.createElement('link');
+        linkEl.setAttribute('rel', 'alternate');
+        linkEl.setAttribute('hreflang', tag.lang);
+        linkEl.setAttribute('href', tag.url);
+        document.head.appendChild(linkEl);
+      });
+    }
+    
     // Add structured data if provided
     if (structuredData) {
       let existingScript = document.querySelector('#structured-data-script');
@@ -85,8 +107,13 @@ export const useMetaTags = ({
       if (script && structuredData) {
         script.remove();
       }
+      
+      // Clean up hreflang tags
+      if (hrefLangTags && hrefLangTags.length > 0) {
+        document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+      }
     };
-  }, [title, description, keywords, ogImage, ogType, ogUrl, structuredData]);
+  }, [title, description, keywords, ogImage, ogType, ogUrl, structuredData, hrefLangTags]);
 };
 
 // Helper to generate product structured data
