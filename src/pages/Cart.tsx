@@ -1,23 +1,23 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useCart } from '../contexts/CartContext';
 import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const navigate = useNavigate();
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Order submitted successfully! We'll contact you soon.");
-    clearCart();
+  const handleProceedToCheckout = () => {
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty. Add some items first.");
+      return;
+    }
+    navigate('/checkout');
   };
 
   return (
@@ -131,7 +131,7 @@ const Cart = () => {
               </div>
               
               <div>
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6">
                   <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between">
@@ -140,79 +140,25 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping</span>
-                      <span className="text-green-600">Free</span>
+                      <span className="text-green-600">Calculated at checkout</span>
                     </div>
                   </div>
                   <div className="border-t pt-2 flex justify-between font-semibold">
-                    <span>Total</span>
+                    <span>Estimated Total</span>
                     <span>{cartTotal} DHS</span>
                   </div>
-                </div>
-                
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone *
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                        Delivery Address *
-                      </label>
-                      <textarea
-                        id="address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-blue"
-                        required
-                      />
-                    </div>
-                    <div className="pt-2">
-                      <button
-                        type="submit"
-                        className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors"
-                      >
-                        Place Order
-                      </button>
-                    </div>
-                  </form>
+                  
+                  <div className="mt-6">
+                    <Button 
+                      className="w-full py-6 text-base font-medium"
+                      onClick={handleProceedToCheckout}
+                    >
+                      Proceed to Checkout
+                    </Button>
+                    <p className="text-center text-sm text-gray-500 mt-4">
+                      Secure checkout powered by our payment partner
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
