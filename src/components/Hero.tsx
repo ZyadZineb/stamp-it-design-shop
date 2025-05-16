@@ -1,75 +1,76 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const Hero: React.FC = () => {
+const Hero = () => {
+  const { t, i18n } = useTranslation();
+  
+  // Different hero content based on language
+  const getHeroContent = () => {
+    const isEnglish = i18n.language.startsWith('en');
+    
+    return {
+      title: isEnglish 
+        ? "Professional Self-Inking Stamps" 
+        : "Tampons Auto-Encreurs Professionnels",
+      subtitle: isEnglish 
+        ? "Quality stamps for your business needs" 
+        : "Des tampons de qualité pour vos besoins professionnels",
+      description: isEnglish 
+        ? "Design and order custom self-inking stamps for your business. Choose from various sizes, shapes, and colors." 
+        : "Concevez et commandez des tampons auto-encreurs personnalisés pour votre entreprise. Choisissez parmi différentes tailles, formes et couleurs.",
+      ctaProducts: isEnglish ? "Browse Collection" : "Parcourir la Collection",
+      ctaDesign: isEnglish ? "Design Your Stamp" : "Concevoir Votre Tampon",
+      imagePath: isEnglish 
+        ? "/lovable-uploads/28a683e8-de59-487e-b2ab-af1930ed01d6.png" 
+        : "/lovable-uploads/96fba4bf-cc54-4b59-8b27-7e5776d0b544.png"
+    };
+  };
+  
+  const heroContent = getHeroContent();
+  
   return (
-    <div className="relative bg-gray-50 overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-20">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-brand-red"></div>
-        <div className="absolute top-1/2 -left-24 w-64 h-64 rounded-full bg-brand-blue"></div>
-      </div>
-      <div className="container-custom relative z-10 py-16 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
-              Custom <span className="text-brand-red">Self-Inking Stamps</span> for Your Business
+    <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-16">
+      <div className="container-custom mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              {heroContent.title}
             </h1>
-            <p className="text-lg text-gray-600">
-              Design and preview your stamps before ordering with our easy-to-use online tool. 
-              Professional quality guaranteed with fast delivery across Morocco.
+            <h2 className="text-xl md:text-2xl font-medium text-brand-blue mb-4">
+              {heroContent.subtitle}
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              {heroContent.description}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link to="/design" className="btn-primary inline-flex items-center gap-2">
-                Design Your Stamp <ArrowRight size={18} />
+              <Link 
+                to="/products" 
+                className="btn-primary"
+              >
+                {heroContent.ctaProducts}
               </Link>
-              <Link to="/products" className="btn-secondary inline-flex items-center gap-2">
-                Browse Catalog
+              <Link 
+                to="/design" 
+                className="btn-secondary"
+              >
+                {heroContent.ctaDesign}
               </Link>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-md mt-6 inline-flex items-center gap-3 text-gray-700">
-              <div className="bg-brand-blue/10 p-2 rounded-full">
-                <Phone className="text-brand-blue w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium">WhatsApp / Phone</p>
-                <p className="text-lg font-bold">06 99 11 80 28</p>
-              </div>
             </div>
           </div>
-          
-          <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <img
-                  src="/lovable-uploads/a91604fd-99b9-4812-922f-91e34cf59242.png"
-                  alt="Sirdas Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-                <img
-                  src="/lovable-uploads/ae1b3e93-30d3-42e7-b6f3-02d21160d651.png"
-                  alt="Shiny Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="space-y-4 mt-8">
-                <img
-                  src="/lovable-uploads/c8a9d444-ab04-44f5-80dd-b196c3b48725.png"
-                  alt="Wooden Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-                <img
-                  src="/lovable-uploads/ea0b1c21-c188-4d30-ab58-2b411be021c8.png"
-                  alt="Trodat Stamp"
-                  className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            </div>
+          <div className="hidden md:flex justify-end">
+            <img 
+              src={heroContent.imagePath} 
+              alt="Stamp showcase" 
+              className="max-w-full rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
+              width="500"
+              height="350"
+            />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

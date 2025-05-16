@@ -1,82 +1,124 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../contexts/CartContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const Navbar: React.FC = () => {
-  const { itemCount } = useCart();
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const { t } = useTranslation();
+  const { cartItems } = useCart();
+  
+  const navLinks = [
+    { name: t('navigation.home'), path: '/' },
+    { name: t('navigation.products'), path: '/products' },
+    { name: t('navigation.design'), path: '/design' },
+    { name: t('navigation.contact'), path: '/contact' },
+  ];
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const isActive = (path: string) => {
+    return location.pathname === path ? 'text-brand-blue font-medium' : '';
+  };
+  
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container-custom py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand-red rounded-full flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/c8a9d444-ab04-44f5-80dd-b196c3b48725.png" 
-                alt="Cachets Maroc Logo" 
-                className="w-8 h-8 object-contain"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
-            <span className="text-xl font-bold text-brand-red">Cachets Maroc</span>
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container-custom mx-auto px-4 py-3">
+        <nav className="flex justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/logo.svg" 
+              alt={t('common.brand')} 
+              className="h-10 w-auto" 
+            />
           </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-brand-red font-medium">Home</Link>
-            <Link to="/products" className="text-gray-700 hover:text-brand-red font-medium">Products</Link>
-            <Link to="/design" className="text-gray-700 hover:text-brand-red font-medium">Design Your Stamp</Link>
-            <Link to="/contact" className="text-gray-700 hover:text-brand-red font-medium">Contact</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`text-gray-600 hover:text-brand-blue transition-colors ${
+                  location.pathname === link.path ? 'text-brand-blue font-medium' : ''
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
+            {/* Cart Icon */}
             <Link to="/cart" className="relative">
-              <ShoppingCart className="text-brand-blue w-6 h-6" />
-              {itemCount > 0 && (
+              <ShoppingCart className="h-6 w-6 text-gray-600 hover:text-brand-blue transition-colors" />
+              {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-brand-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
+                  {cartItems.length}
                 </span>
               )}
             </Link>
           </div>
           
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center gap-4">
-            <Link to="/cart" className="relative">
-              <ShoppingCart className="text-brand-blue w-6 h-6" />
-              {itemCount > 0 && (
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <Link to="/cart" className="relative mr-4">
+              <ShoppingCart className="h-6 w-6 text-gray-600" />
+              {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-brand-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
+                  {cartItems.length}
                 </span>
               )}
             </Link>
-            <button onClick={toggleMenu} className="focus:outline-none">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            >
               {isMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
+                <X className="h-6 w-6" />
               ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
+                <Menu className="h-6 w-6" />
               )}
             </button>
           </div>
-        </div>
+        </nav>
         
-        {/* Mobile menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="mt-4 pb-4 md:hidden">
-            <div className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-700 hover:text-brand-red font-medium" onClick={() => setIsMenuOpen(false)}>Home</Link>
-              <Link to="/products" className="text-gray-700 hover:text-brand-red font-medium" onClick={() => setIsMenuOpen(false)}>Products</Link>
-              <Link to="/design" className="text-gray-700 hover:text-brand-red font-medium" onClick={() => setIsMenuOpen(false)}>Design Your Stamp</Link>
-              <Link to="/contact" className="text-gray-700 hover:text-brand-red font-medium" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+          <div className="md:hidden pt-4 pb-3 border-t mt-3">
+            <div className="space-y-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`block py-2 px-4 rounded-md ${
+                    location.pathname === link.path
+                      ? 'bg-gray-100 text-brand-blue font-medium'
+                      : 'text-gray-600'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              
+              {/* Language Switcher in mobile menu */}
+              <div className="py-2 px-4">
+                <LanguageSwitcher />
+              </div>
             </div>
           </div>
         )}
       </div>
-    </nav>
+    </header>
   );
 };
 

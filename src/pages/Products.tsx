@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
@@ -19,15 +20,22 @@ import { useIsMobile } from '../hooks/use-mobile';
 import { SlidersHorizontal } from 'lucide-react';
 import { useMetaTags } from '../utils/seo';
 import { trackPageView } from '../utils/analytics';
+import TranslatedText from '../components/common/TranslatedText';
 
 const Products = () => {
+  const { t, i18n } = useTranslation();
+  
   // Apply SEO meta tags
   useMetaTags({
-    title: 'Shop Self-Inking Stamps',
-    description: 'Browse our extensive collection of self-inking stamps from top brands like Trodat, Shiny, and more. Filter by size, shape, and price.',
-    keywords: 'self-inking stamps, custom stamps, Trodat stamps, Shiny stamps, MobiStamps, business stamps',
+    title: t('products.metaTitle', 'Shop Self-Inking Stamps'),
+    description: t('products.metaDescription', 'Browse our extensive collection of self-inking stamps from top brands like Trodat, Shiny, and more. Filter by size, shape, and price.'),
+    keywords: t('products.metaKeywords', 'self-inking stamps, custom stamps, Trodat stamps, Shiny stamps, MobiStamps, business stamps'),
     ogType: 'product',
-    ogUrl: 'https://cachets-maroc.com/products'
+    ogUrl: 'https://cachets-maroc.com/products',
+    hrefLangTags: [
+      { lang: 'en', url: 'https://cachets-maroc.com/en/products' },
+      { lang: 'fr', url: 'https://cachets-maroc.com/fr/products' }
+    ]
   });
 
   // Analytics tracking
@@ -131,6 +139,7 @@ const Products = () => {
                   products={products}
                   onSearch={(query) => updateFilter('searchQuery', query)}
                   onProductSelect={handleProductSelection}
+                  placeholder={t('products.searchPlaceholder')}
                 />
               </div>
               
@@ -162,7 +171,7 @@ const Products = () => {
               <div className="bg-white p-4 rounded-lg shadow-md sticky top-4">
                 <h2 className="font-semibold text-lg mb-4 border-b pb-2 flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4" />
-                  <span>Filters</span>
+                  <TranslatedText i18nKey="products.filters">Filters</TranslatedText>
                 </h2>
                 
                 {renderFilters()}
@@ -172,20 +181,34 @@ const Products = () => {
             {/* Main content with products */}
             <div className="lg:w-3/4">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Our Stamp Collection</h1>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  <TranslatedText i18nKey="products.title">Our Stamp Collection</TranslatedText>
+                </h1>
                 <p className="text-gray-600">
-                  Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.
+                  <TranslatedText i18nKey="products.description">
+                    Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.
+                  </TranslatedText>
                 </p>
               </div>
               
               <div className="flex justify-between items-center mb-6">
-                <p className="text-sm text-gray-600" aria-live="polite">{filteredProducts.length} products found</p>
+                <p className="text-sm text-gray-600" aria-live="polite">
+                  <TranslatedText 
+                    i18nKey="products.productsFound" 
+                    values={{ count: filteredProducts.length }}
+                  >
+                    {filteredProducts.length} products found
+                  </TranslatedText>
+                </p>
                 <button
                   onClick={() => setIsSelectionMode(!isSelectionMode)}
                   className={`text-sm ${isSelectionMode ? 'text-blue-600 font-medium' : 'text-gray-600'}`}
                   aria-pressed={isSelectionMode}
                 >
-                  {isSelectionMode ? 'Cancel comparison' : 'Compare products'}
+                  {isSelectionMode ? 
+                    <TranslatedText i18nKey="products.cancelComparison">Cancel comparison</TranslatedText> : 
+                    <TranslatedText i18nKey="products.compareProducts">Compare products</TranslatedText>
+                  }
                 </button>
               </div>
               
@@ -216,12 +239,18 @@ const Products = () => {
                 </div>
               ) : (
                 <div className="text-center py-12" aria-live="polite">
-                  <p className="text-gray-500">No products found matching your filters.</p>
+                  <p className="text-gray-500">
+                    <TranslatedText i18nKey="products.noProductsFound">
+                      No products found matching your filters.
+                    </TranslatedText>
+                  </p>
                   <button
                     onClick={clearAllFilters}
                     className="mt-4 text-brand-blue hover:underline"
                   >
-                    Clear filters
+                    <TranslatedText i18nKey="products.clearFilters">
+                      Clear filters
+                    </TranslatedText>
                   </button>
                 </div>
               )}

@@ -1,0 +1,29 @@
+
+{
+  "navigation": {
+    "home": "Accueil",
+    "products": "Produits",
+    "design": "Concevoir un Tampon",
+    "contact": "Contact",
+    "cart": "Panier"
+  },
+  "products": {
+    "title": "Notre Collection de Tampons",
+    "description": "Parcourez notre vaste collection de tampons de haute qualité des meilleures marques comme Trodat, Shiny, MobiStamps et plus.",
+    "filters": "Filtres",
+    "compareProducts": "Comparer les produits",
+    "cancelComparison": "Annuler la comparaison",
+    "productsFound": "{{count}} produits trouvés",
+    "noProductsFound": "Aucun produit ne correspond à vos filtres.",
+    "clearFilters": "Effacer les filtres",
+    "searchPlaceholder": "Rechercher des produits..."
+  },
+  "languages": {
+    "en": "Anglais",
+    "fr": "Français"
+  },
+  "common": {
+    "brand": "Cachets Maroc",
+    "currency": "DHS"
+  }
+}

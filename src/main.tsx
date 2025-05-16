@@ -2,6 +2,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import './i18n/config.ts' // Import i18n configuration
 
 // Register service worker
 if ('serviceWorker' in navigator) {
