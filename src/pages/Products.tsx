@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,6 +18,7 @@ import SizeFilter from '../components/ProductFilter/SizeFilter';
 import { useIsMobile } from '../hooks/use-mobile';
 import { SlidersHorizontal } from 'lucide-react';
 import { useMetaTags } from '../utils/seo';
+import { trackPageView } from '../utils/analytics';
 
 const Products = () => {
   // Apply SEO meta tags
@@ -32,13 +32,8 @@ const Products = () => {
 
   // Analytics tracking
   useEffect(() => {
-    if (window.gtag) {
-      window.gtag('event', 'page_view', {
-        page_title: 'Products Page',
-        page_location: window.location.href,
-        page_path: window.location.pathname
-      });
-    }
+    // Track page view using our analytics utility
+    trackPageView(window.location.pathname, 'Products Page');
   }, []);
 
   const {
