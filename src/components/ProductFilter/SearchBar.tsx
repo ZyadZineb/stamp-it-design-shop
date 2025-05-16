@@ -10,9 +10,10 @@ interface SearchBarProps {
   products: Product[];
   onSearch: (query: string) => void;
   onProductSelect: (productId: string) => void;
+  placeholder?: string; // Added optional placeholder prop
 }
 
-const SearchBar = ({ products, onSearch, onProductSelect }: SearchBarProps) => {
+const SearchBar = ({ products, onSearch, onProductSelect, placeholder }: SearchBarProps) => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -51,13 +52,16 @@ const SearchBar = ({ products, onSearch, onProductSelect }: SearchBarProps) => {
       )
     : [];
 
+  // Default placeholder text if none provided
+  const defaultPlaceholder = `Search stamps${!isMobile ? " (Ctrl+K)" : ""}`;
+
   return (
     <div className="relative w-full">
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
         <Input
           ref={inputRef}
-          placeholder={`Search stamps${!isMobile ? " (Ctrl+K)" : ""}`}
+          placeholder={placeholder || defaultPlaceholder}
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           className="pl-9 pr-9"
