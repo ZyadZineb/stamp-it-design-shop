@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
@@ -18,8 +18,29 @@ import MobileFilterDrawer from '../components/ProductFilter/MobileFilterDrawer';
 import SizeFilter from '../components/ProductFilter/SizeFilter';
 import { useIsMobile } from '../hooks/use-mobile';
 import { SlidersHorizontal } from 'lucide-react';
+import { useMetaTags } from '../utils/seo';
 
 const Products = () => {
+  // Apply SEO meta tags
+  useMetaTags({
+    title: 'Shop Self-Inking Stamps',
+    description: 'Browse our extensive collection of self-inking stamps from top brands like Trodat, Shiny, and more. Filter by size, shape, and price.',
+    keywords: 'self-inking stamps, custom stamps, Trodat stamps, Shiny stamps, MobiStamps, business stamps',
+    ogType: 'product',
+    ogUrl: 'https://cachets-maroc.com/products'
+  });
+
+  // Analytics tracking
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('event', 'page_view', {
+        page_title: 'Products Page',
+        page_location: window.location.href,
+        page_path: window.location.pathname
+      });
+    }
+  }, []);
+
   const {
     filters,
     updateFilter,
@@ -163,10 +184,11 @@ const Products = () => {
               </div>
               
               <div className="flex justify-between items-center mb-6">
-                <p className="text-sm text-gray-600">{filteredProducts.length} products found</p>
+                <p className="text-sm text-gray-600" aria-live="polite">{filteredProducts.length} products found</p>
                 <button
                   onClick={() => setIsSelectionMode(!isSelectionMode)}
                   className={`text-sm ${isSelectionMode ? 'text-blue-600 font-medium' : 'text-gray-600'}`}
+                  aria-pressed={isSelectionMode}
                 >
                   {isSelectionMode ? 'Cancel comparison' : 'Compare products'}
                 </button>
@@ -198,7 +220,7 @@ const Products = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
+                <div className="text-center py-12" aria-live="polite">
                   <p className="text-gray-500">No products found matching your filters.</p>
                   <button
                     onClick={clearAllFilters}

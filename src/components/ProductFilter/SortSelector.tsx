@@ -15,18 +15,28 @@ interface SortSelectorProps {
 
 const SortSelector = ({ options, value, onChange }: SortSelectorProps) => {
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Sort by" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="inline-flex flex-col">
+      <label htmlFor="sort-selector" className="sr-only">Sort products by</label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger 
+          className="w-[180px]" 
+          id="sort-selector"
+          aria-label="Sort products"
+        >
+          <SelectValue placeholder="Sort by" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem 
+              key={option.value} 
+              value={option.value}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 

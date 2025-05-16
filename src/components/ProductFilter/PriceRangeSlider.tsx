@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 
@@ -10,7 +10,7 @@ interface PriceRangeSliderProps {
   onChange: (value: [number, number]) => void;
 }
 
-const PriceRangeSlider = ({
+const PriceRangeSlider = memo(({
   minPrice,
   maxPrice,
   value,
@@ -24,7 +24,7 @@ const PriceRangeSlider = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Label htmlFor="price-range">Price Range</Label>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500" aria-live="polite">
           {value[0]} MAD - {value[1]} MAD
         </span>
       </div>
@@ -36,9 +36,16 @@ const PriceRangeSlider = ({
         value={value}
         onValueChange={handleChange}
         className="my-4"
+        aria-label={`Price range from ${value[0]} to ${value[1]} MAD`}
+        aria-valuemin={minPrice}
+        aria-valuemax={maxPrice}
+        aria-valuenow={value[0]}
+        aria-valuetext={`${value[0]} to ${value[1]} MAD`}
       />
     </div>
   );
-};
+});
+
+PriceRangeSlider.displayName = 'PriceRangeSlider';
 
 export default PriceRangeSlider;
