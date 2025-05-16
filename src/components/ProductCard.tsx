@@ -1,78 +1,95 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, ShoppingCart } from 'lucide-react';
-import { Product } from '../types';
-import { useCart } from '../contexts/CartContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Product } from '@/types';
+import { useNavigate } from 'react-router-dom';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onSelectForComparison?: () => void;
+  maxSelectableProducts?: number;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
-  
-  // Helper function to get readable ink colors
-  const getReadableInkColors = (colors: string[]) => {
-    return colors.map(color => {
-      if (color === 'black') return 'Black';
-      if (color === 'blue') return 'Blue';
-      if (color === 'red') return 'Red';
-      return color.charAt(0).toUpperCase() + color.slice(1);
-    }).join(", ");
+const ProductCard = ({ 
+  product, 
+  isSelectionMode = false, 
+  isSelected = false, 
+  onSelectForComparison,
+  maxSelectableProducts = 3 
+}: ProductCardProps) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (isSelectionMode && onSelectForComparison) {
+      onSelectForComparison();
+    } else {
+      navigate(`/design?productId=${product.id}`);
+    }
   };
-  
+
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSelectForComparison) {
+      onSelectForComparison();
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="relative h-48 overflow-hidden bg-gray-100">
-        <img 
-          src={product.images[0]} 
-          alt={product.name} 
-          className="w-full h-full object-contain p-4"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-          <Link 
-            to={`/design?productId=${product.id}`} 
-            className="bg-brand-blue text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
+    <Card 
+      className={`overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer ${
+        isSelected ? 'ring-2 ring-blue-500' : ''
+      }`}
+      onClick={handleCardClick}
+    >
+      <div className="relative pt-[100%]">
+        {product.images && product.images.length > 0 && (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="absolute inset-0 w-full h-full object-contain p-4"
+          />
+        )}
+        
+        {isSelectionMode && (
+          <div 
+            className="absolute top-2 right-2 bg-white rounded-full shadow-sm"
+            onClick={handleCompareClick}
           >
-            <Eye size={20} />
-          </Link>
-          <button 
-            onClick={() => addToCart(product, 1)}
-            className="bg-brand-red text-white p-2 rounded-full hover:bg-red-700 transition-colors"
-          >
-            <ShoppingCart size={20} />
-          </button>
-        </div>
+            <Checkbox 
+              checked={isSelected} 
+              className="h-5 w-5"
+              onCheckedChange={() => {}}
+            />
+          </div>
+        )}
       </div>
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm bg-brand-blue/10 text-brand-blue px-2 py-0.5 rounded-full">
-            {product.brand}
-          </span>
-          <span className="text-sm text-gray-500">
+      
+      <CardContent className="p-4">
+        <div className="mb-2">
+          <p className="text-sm text-gray-500">{product.brand}</p>
+          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+          <p className="text-gray-700 text-xl font-medium">{product.price} MAD</p>
+        </div>
+        
+        <div className="mt-2 flex flex-wrap gap-1">
+          <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
             {product.size}
           </span>
-        </div>
-        <h3 className="font-semibold text-lg text-gray-800 mb-1">
-          {product.name}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3">
-          {product.lines} lines • {getReadableInkColors(product.inkColors)} ink
-        </p>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-lg text-brand-red">
-            {product.price} DHS TTC
+          <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
+            {product.lines} lines
           </span>
-          <Link 
-            to={`/design?productId=${product.id}`} 
-            className="text-sm text-brand-blue font-medium hover:underline"
-          >
-            Customize →
-          </Link>
+          {product.shape && (
+            <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
+              {product.shape}
+            </span>
+          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
