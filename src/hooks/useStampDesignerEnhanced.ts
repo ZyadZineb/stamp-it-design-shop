@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product, TextEffect, StampElement } from '../types';
 
@@ -67,7 +66,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const svgRef = useRef<string | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Update design when product changes
   useEffect(() => {

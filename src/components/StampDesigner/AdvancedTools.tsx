@@ -7,7 +7,7 @@ import ExportDesign from './ExportDesign';
 import { useTranslation } from 'react-i18next';
 
 interface AdvancedToolsProps {
-  svgRef: string | null;
+  svgRef: SVGSVGElement | null;
   previewImage: string | null;
   productName: string;
   downloadAsPng: () => void;
