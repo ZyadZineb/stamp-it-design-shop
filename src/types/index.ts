@@ -47,6 +47,8 @@ export type StampTextLine = {
   isDragging?: boolean;
   // Added text effects
   textEffect?: TextEffect;
+  // Added letter spacing
+  letterSpacing?: number;
 };
 
 export interface StampDesign {

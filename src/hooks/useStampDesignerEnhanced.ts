@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product, TextEffect, StampElement } from '../types';
 
@@ -22,7 +23,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     isDragging: false,
     textEffect: {
       type: 'none'
-    }
+    },
+    letterSpacing: 0
   };
 
   const initializeLines = () => {
@@ -134,6 +136,27 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
     newLines[index] = { ...newLines[index], ...updates };
+    
+    const updatedDesign = { ...design, lines: newLines };
+    updateHistory(updatedDesign);
+  };
+  
+  // Update multiple lines at once (for auto-arrange)
+  const updateMultipleLines = (updatedLines: StampTextLine[]) => {
+    // Validate that we aren't trying to add more lines than exist
+    if (updatedLines.length > design.lines.length) {
+      updatedLines = updatedLines.slice(0, design.lines.length);
+    }
+    
+    // Create a new array with the same length as the original
+    const newLines = [...design.lines];
+    
+    // Update only the lines that are provided
+    updatedLines.forEach((line, index) => {
+      if (index < newLines.length) {
+        newLines[index] = { ...newLines[index], ...line };
+      }
+    });
     
     const updatedDesign = { ...design, lines: newLines };
     updateHistory(updatedDesign);
@@ -405,13 +428,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Add or update custom element (like QR code or barcode)
   const addElement = (element: { type: string, dataUrl: string, width: number, height: number }) => {
-    // Calculate the center coordinates for proper positioning
-    const viewWidth = product?.size.split('x')[0] ? parseInt(product.size.split('x')[0]) : 60;
-    const viewHeight = product?.size.split('x')[1] ? parseInt(product.size.split('x')[1]) : 40;
+    // Parse dimensions from product size
+    const sizeDimensions = product?.size ? product.size.split('x').map(dim => parseInt(dim.trim(), 10)) : [60, 40];
     
     // Define centerX and centerY based on viewBox dimensions
-    const centerX = viewWidth / 2;
-    const centerY = viewHeight / 2;
+    const centerX = sizeDimensions[0] ? sizeDimensions[0] / 2 : 30;
+    const centerY = sizeDimensions[1] ? sizeDimensions[1] / 2 : 20;
     
     const newElement = {
       ...element,
@@ -474,6 +496,37 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }
     
     return errors;
+  };
+
+  // Implement applyTextEffect function
+  const applyTextEffect = (lineIndex: number, effect: {
+    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
+    color?: string;
+    blur?: number;
+    thickness?: number;
+  }) => {
+    const updatedLines = [...design.lines];
+    if (updatedLines[lineIndex]) {
+      updatedLines[lineIndex] = {
+        ...updatedLines[lineIndex],
+        textEffect: {
+          type: effect.type === 'bold' || effect.type === 'italic' ? 'none' : effect.type,
+          color: effect.color || '#000000',
+          blur: effect.blur || 2,
+          thickness: effect.thickness || 1
+        },
+        bold: effect.type === 'bold' ? true : updatedLines[lineIndex].bold,
+        italic: effect.type === 'italic' ? true : updatedLines[lineIndex].italic
+      };
+      
+      const updatedDesign = {
+        ...design,
+        lines: updatedLines
+      };
+      
+      updateHistory(updatedDesign);
+      generatePreview();
+    }
   };
 
   // Generate preview image
@@ -593,6 +646,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
         }
         
+        // Add letter-spacing if specified
+        const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
+        
         if (line.curved) {
           // Calculate the path for curved text
           const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`; // Unique ID
@@ -603,7 +659,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
               <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
             </defs>
             <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${scaledFontSize}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke}>
+                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke} ${letterSpacing}>
               <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
                 ${line.text}
               </textPath>
@@ -620,7 +676,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           svgContent += `
             <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                   text-anchor="${textAnchor}" fill="${design.inkColor}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke}>
+                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke} ${letterSpacing}>
               ${line.text}
             </text>
           `;
@@ -679,11 +735,13 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       }
       
-      svgContent += `
-        ${design.logoImage ? 
-          `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" preserveAspectRatio="xMidYMid meet" />` : 
-          `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
-      `;
+      if (design.includeLogo) {
+        svgContent += `
+          ${design.logoImage ? 
+            `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" preserveAspectRatio="xMidYMid meet" />` : 
+            `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
+        `;
+      }
       
       // Add text with text effects
       design.lines.forEach((line) => {
@@ -691,10 +749,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         
         // Calculate font size scaled to viewBox
         const scaledFontSize = (line.fontSize / 20) * (viewHeight / 10);
-        
-        // Center coordinates
-        const centerX = viewWidth / 2;
-        const centerY = viewHeight / 2;
         
         // Apply position adjustments
         const xOffset = (line.xPosition || 0) / 100 * (viewWidth / 3);
@@ -721,6 +775,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
         }
         
+        // Add letter-spacing if specified
+        const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
+        
         // Set text-anchor based on alignment
         let textAnchor;
         if (line.alignment === 'left') textAnchor = 'start';
@@ -731,7 +788,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
                 ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} 
-                ${textEffectFilter} ${textStroke}>
+                ${textEffectFilter} ${textStroke} ${letterSpacing}>
             ${line.text}
           </text>
         `;
@@ -765,38 +822,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return previewUrl;
   };
 
-  // Implement applyTextEffect function
-  const applyTextEffect = (lineIndex: number, effect: {
-    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
-    color?: string;
-    blur?: number;
-    thickness?: number;
-  }) => {
-    const updatedLines = [...design.lines];
-    if (updatedLines[lineIndex]) {
-      updatedLines[lineIndex] = {
-        ...updatedLines[lineIndex],
-        textEffect: {
-          type: effect.type === 'bold' || effect.type === 'italic' ? 'none' : effect.type,
-          color: effect.color || '#000000',
-          blur: effect.blur || 2,
-          thickness: effect.thickness || 1
-        },
-        bold: effect.type === 'bold' ? true : updatedLines[lineIndex].bold,
-        italic: effect.type === 'italic' ? true : updatedLines[lineIndex].italic
-      };
-      
-      const updatedDesign = {
-        ...design,
-        lines: updatedLines
-      };
-      
-      updateHistory(updatedDesign);
-      generatePreview();
-    }
-  };
-
-  // Implement downloadAsPng function
+  // Download preview as PNG
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
     
@@ -849,9 +875,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     startLogoDrag,
     stopDragging,
     handleDrag,
-    generatePreview,
-    downloadAsPng,
     previewImage,
+    generatePreview,
     validateDesign,
     undo,
     redo,
@@ -867,7 +892,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     zoomLevel,
     svgRef,
     addElement,
-    applyTextEffect
+    applyTextEffect,
+    downloadAsPng,
+    updateMultipleLines
   };
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
@@ -5,11 +6,10 @@ import { Product } from '@/types';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from 'react-i18next';
 import WizardControls from './WizardControls';
-import TextLinesEditor from './TextLinesEditor';
+import EnhancedTextEditor from './EnhancedTextEditor';
 import StampPreviewAccessible from './StampPreviewAccessible';
 import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
@@ -20,10 +20,13 @@ import AdvancedTools from './AdvancedTools';
 import ExportDesign from './ExportDesign';
 import TextEffects from './TextEffects';
 import PreviewBackgrounds from './PreviewBackgrounds';
+import PreviewOnPaper from './PreviewOnPaper';
+import AutoArrange from './AutoArrange';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
-// Define the WizardStep type here to avoid conflicts
-type StampWizardStep = 'shape' | 'text' | 'effects' | 'color' | 'logo' | 'advanced' | 'preview';
+// Define the wizard step type
+type WizardStepType = 'shape' | 'text' | 'effects' | 'color' | 'logo' | 'advanced' | 'preview';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -75,89 +78,30 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     zoomOut,
     zoomLevel,
     svgRef,
-    addElement
+    addElement,
+    applyTextEffect,
+    downloadAsPng,
+    updateMultipleLines
   } = useStampDesignerEnhanced(product);
-  
-  // Implementation for downloadAsPng since it's needed but not provided by the hook
-  const downloadAsPng = () => {
-    if (!svgRef.current || !product) return;
-    
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) return;
-    
-    // Set canvas dimensions (scale up for better quality)
-    canvas.width = 1000;
-    canvas.height = 800;
-    
-    // Create an image from the SVG
-    const img = new Image();
-    const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(svgBlob);
-    
-    img.onload = () => {
-      // Draw image to canvas (white background)
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `${product.name}-stamp.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      
-      // Clean up
-      URL.revokeObjectURL(url);
-    };
-    
-    img.src = url;
-  };
-  
-  // Implementation of applyTextEffect which is needed but not provided by the hook
-  const applyTextEffect = (lineIndex: number, effect: {
-    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
-    color?: string;
-    blur?: number;
-    thickness?: number;
-  }) => {
-    const updatedLines = [...design.lines];
-    if (updatedLines[lineIndex]) {
-      updatedLines[lineIndex] = {
-        ...updatedLines[lineIndex],
-        textEffect: {
-          type: effect.type,
-          color: effect.color || '#000000',
-          blur: effect.blur || 2,
-          thickness: effect.thickness || 1
-        },
-        bold: effect.type === 'bold' ? true : updatedLines[lineIndex].bold,
-        italic: effect.type === 'italic' ? true : updatedLines[lineIndex].italic
-      };
-      
-      updateLine(lineIndex, updatedLines[lineIndex]);
-      generatePreview();
-    }
-  };
   
   const { addToCart } = useCart();
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<StampWizardStep>('shape');
+  const [currentStep, setCurrentStep] = useState<WizardStepType>('shape');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [previewBackground, setPreviewBackground] = useState<string>('none');
+  const [showAnimation, setShowAnimation] = useState(false);
   
   // Steps configuration
-  const steps: { id: StampWizardStep; label: string; labelKey?: string; description: string; descriptionKey?: string }[] = [
-    { id: 'shape', labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
-    { id: 'text', labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
-    { id: 'effects', labelKey: 'wizard.steps.effects.label', label: 'Effects', descriptionKey: 'wizard.steps.effects.description', description: 'Add text effects and styling' },
-    { id: 'color', labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
-    { id: 'logo', labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
-    { id: 'advanced', labelKey: 'wizard.steps.advanced.label', label: 'Advanced', descriptionKey: 'wizard.steps.advanced.description', description: 'Add QR codes and barcodes' },
-    { id: 'preview', labelKey: 'wizard.steps.preview.label', label: 'Preview', descriptionKey: 'wizard.steps.preview.description', description: 'Review and finalize your design' }
+  const steps = [
+    { id: 'shape' as WizardStepType, labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
+    { id: 'text' as WizardStepType, labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
+    { id: 'effects' as WizardStepType, labelKey: 'wizard.steps.effects.label', label: 'Effects', descriptionKey: 'wizard.steps.effects.description', description: 'Add text effects and styling' },
+    { id: 'color' as WizardStepType, labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
+    { id: 'logo' as WizardStepType, labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
+    { id: 'advanced' as WizardStepType, labelKey: 'wizard.steps.advanced.label', label: 'Advanced', descriptionKey: 'wizard.steps.advanced.description', description: 'Add QR codes and barcodes' },
+    { id: 'preview' as WizardStepType, labelKey: 'wizard.steps.preview.label', label: 'Preview', descriptionKey: 'wizard.steps.preview.description', description: 'Review and finalize your design' }
   ];
   
   // Get current step index
@@ -184,7 +128,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     }
   };
   
-  const jumpToStep = (step: StampWizardStep) => {
+  const jumpToStep = (step: WizardStepType) => {
     setCurrentStep(step);
   };
 
@@ -357,6 +301,22 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       description: t('preview.backgroundChangedDesc', "Preview background has been updated"),
     });
   };
+  
+  // Handle animation
+  const handleAnimate = () => {
+    setShowAnimation(true);
+    setTimeout(() => setShowAnimation(false), 1000);
+  };
+  
+  // Handle auto-arrange
+  const handleAutoArrange = (updatedLines: any[]) => {
+    updateMultipleLines(updatedLines);
+    
+    toast({
+      title: t('design.autoArranged', "Layout Auto-Arranged"),
+      description: t('design.autoArrangedDesc', "Text has been automatically arranged for optimal layout"),
+    });
+  };
 
   // Cleanup event listeners
   useEffect(() => {
@@ -404,12 +364,17 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden ${highContrast ? 'border-2 border-gray-800' : ''}`}>
       <div className={`border-b ${highContrast ? 'border-gray-800 bg-gray-100' : 'border-gray-200 bg-gray-50'} p-4`}>
-        <h2 className={`text-xl font-semibold ${highContrast ? 'text-black' : ''}`}>
-          {t('design.title', "Custom Stamp Designer")}
-        </h2>
-        <p className={`text-sm ${highContrast ? 'text-black' : 'text-gray-600'}`}>
-          {t('design.subtitle', "Designing:")} {product.name} ({product.size})
-        </p>
+        <div className="flex justify-between items-center">
+          <h2 className={`text-xl font-semibold ${highContrast ? 'text-black' : ''}`}>
+            {t('design.title', "Custom Stamp Designer")}
+          </h2>
+          
+          <HelpTooltip content={t('design.productInfo', `Designing a ${product.name} stamp (${product.size}). You can add up to ${product.lines} lines of text and choose from ${product.inkColors.length} ink colors.`)}>
+            <span className={`text-sm ${highContrast ? 'text-black' : 'text-gray-600'}`}>
+              {product.name} ({product.size})
+            </span>
+          </HelpTooltip>
+        </div>
         
         {/* Progress indicator */}
         <div className="mt-4">
@@ -421,14 +386,21 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             {steps.map((step, index) => (
               <div 
                 key={step.id} 
-                className={`text-xs ${index <= currentStepIndex 
-                  ? (highContrast ? 'text-black font-bold' : 'text-brand-blue font-medium') 
-                  : (highContrast ? 'text-gray-600' : 'text-gray-400')}`}
+                className={`text-xs ${isMobile ? 'hidden sm:block' : ''} ${
+                  index <= currentStepIndex 
+                    ? (highContrast ? 'text-black font-bold' : 'text-brand-blue font-medium') 
+                    : (highContrast ? 'text-gray-600' : 'text-gray-400')
+                }`}
               >
                 {step.labelKey ? t(step.labelKey) : step.label}
               </div>
             ))}
           </div>
+          <p className="text-sm text-center mt-1 text-gray-500">
+            {t('wizard.stepOf', 'Step {{current}} of {{total}}', { current: currentStepIndex + 1, total: steps.length })}:
+            {' '}
+            <strong>{t(steps[currentStepIndex].labelKey || '', steps[currentStepIndex].label)}</strong>
+          </p>
         </div>
       </div>
       
@@ -460,6 +432,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             onClick={undo} 
             disabled={!canUndo}
             title={t('actions.undo', "Undo")}
+            className={largeControls ? "h-10 w-10 p-0" : ""}
           >
             <Undo size={largeControls ? 20 : 16} />
           </Button>
@@ -469,6 +442,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             onClick={redo} 
             disabled={!canRedo}
             title={t('actions.redo', "Redo")}
+            className={largeControls ? "h-10 w-10 p-0" : ""}
           >
             <Redo size={largeControls ? 20 : 16} />
           </Button>
@@ -508,9 +482,18 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-6 ${isMobile ? 'flex flex-col-reverse' : ''}`}>
         {/* Left panel: Design options based on current step */}
         <div className={`space-y-6 overflow-y-auto max-h-[70vh] ${largeControls ? 'text-lg' : ''}`}>
+          {/* Auto-arrange button - Show on text and effects steps */}
+          {(currentStep === 'text' || currentStep === 'effects') && (
+            <AutoArrange 
+              design={design} 
+              onArrange={handleAutoArrange}
+              shape={design.shape}
+            />
+          )}
+          
           {currentStep === 'shape' && (
             <>
               <BorderStyleSelector 
@@ -530,7 +513,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           
           {currentStep === 'text' && (
             <>
-              <TextLinesEditor
+              <EnhancedTextEditor
                 lines={design.lines}
                 maxLines={product.lines}
                 shape={design.shape}
@@ -541,6 +524,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 removeLine={removeLine}
                 toggleCurvedText={toggleCurvedText}
                 updateTextPosition={updateTextPosition}
+                applyTextEffect={applyTextEffect}
+                largeControls={largeControls}
               />
               <AiSuggestions 
                 design={design} 
@@ -559,6 +544,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   blur: 2,
                   thickness: 1
                 }}
+                largeControls={largeControls}
               />
               <AiSuggestions 
                 design={design} 
@@ -591,6 +577,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 uploadedLogo={uploadedLogo}
                 onLogoUpload={handleLogoUpload}
                 updateLogoPosition={updateLogoPosition}
+                largeControls={largeControls}
               />
               <AiSuggestions 
                 design={design}
@@ -606,6 +593,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               productName={product.name}
               downloadAsPng={downloadAsPng}
               onAddElement={handleAddElement}
+              largeControls={largeControls}
             />
           )}
           
@@ -626,11 +614,20 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 </Button>
               </div>
               
+              <PreviewOnPaper
+                previewImage={previewImage}
+                productName={product.name}
+                onAnimate={handleAnimate}
+                highContrast={highContrast}
+                largeControls={largeControls}
+              />
+              
               <ExportDesign
                 svgRef={svgRef.current}
                 previewImage={previewImage}
                 productName={product.name}
                 downloadAsPng={downloadAsPng}
+                largeControls={largeControls}
               />
               
               <PreviewBackgrounds
@@ -661,6 +658,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             background={previewBackground}
             highContrast={highContrast}
             largeControls={largeControls}
+            isAnimating={showAnimation}
           />
           
           <WizardControls 

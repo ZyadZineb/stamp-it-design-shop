@@ -1,35 +1,37 @@
 
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
 interface StampPreviewAccessibleProps {
   previewImage: string | null;
   productSize: string;
-  isDragging: boolean;
-  activeLineIndex: number | null;
-  includeLogo: boolean;
-  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseUp: () => void;
-  onTouchStart: (e: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchMove: (e: React.TouchEvent<HTMLDivElement>) => void;
-  downloadAsPng: () => void;
-  zoomIn: () => void;
-  zoomOut: () => void;
-  zoomLevel: number;
+  isDragging?: boolean;
+  activeLineIndex?: number | null;
+  includeLogo?: boolean;
+  onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseMove?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onTouchStart?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  downloadAsPng?: () => void;
+  zoomIn?: () => void;
+  zoomOut?: () => void;
+  zoomLevel?: number;
   background?: string;
   highContrast?: boolean;
   largeControls?: boolean;
+  isAnimating?: boolean;
 }
 
 const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   previewImage,
   productSize,
-  isDragging,
-  activeLineIndex,
-  includeLogo,
+  isDragging = false,
+  activeLineIndex = null,
+  includeLogo = false,
   onMouseDown,
   onMouseMove,
   onMouseUp,
@@ -38,210 +40,175 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   downloadAsPng,
   zoomIn,
   zoomOut,
-  zoomLevel,
+  zoomLevel = 1,
   background = 'none',
   highContrast = false,
-  largeControls = false
+  largeControls = false,
+  isAnimating = false
 }) => {
   const { t } = useTranslation();
-  const previewRef = useRef<HTMLDivElement>(null);
   
-  // Get background styles based on selected background
+  // Determine the cursor style based on active elements
+  const getCursorStyle = () => {
+    if (isDragging) return 'grabbing';
+    if (activeLineIndex !== null || includeLogo) return 'grab';
+    return 'default';
+  };
+
+  // Get background style based on selected background
   const getBackgroundStyle = () => {
     switch (background) {
+      case 'grid':
+        return 'bg-gray-50 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:20px_20px]';
+      case 'dots':
+        return 'bg-[radial-gradient(#d0d0d0_1px,transparent_1px)] bg-[size:20px_20px]';
       case 'paper':
-        return { 
-          backgroundColor: '#f8f8f8',
-          backgroundImage: 'url(https://images.unsplash.com/photo-1581091226825-a6a2a5aee158)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        };
-      case 'envelope':
-        return { 
-          backgroundColor: '#f1f0ed',
-          backgroundImage: 'url(https://images.unsplash.com/photo-1473091534298-04dcbce3278c)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        };
-      case 'cardboard':
-        return { 
-          backgroundColor: '#d4c8b8',
-          backgroundImage: 'url(https://images.unsplash.com/photo-1506744038136-46273834b3fb)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        };
-      case 'fabric':
-        return { 
-          backgroundColor: '#e2d1c3',
-          backgroundImage: 'url(https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        };
+        return 'bg-amber-50';
+      case 'dark':
+        return 'bg-gray-800';
       default:
-        return { backgroundColor: '#ffffff' };
+        return 'bg-white';
     }
   };
 
-  // Get cursor style based on drag state
-  const getCursorStyle = () => {
-    if (isDragging) return 'cursor-grabbing';
-    if (activeLineIndex !== null || includeLogo) return 'cursor-grab';
-    return 'cursor-default';
-  };
-
-  // Keyboard navigation for accessibility
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Enable keyboard navigation for active elements (text lines or logo)
-    if (activeLineIndex !== null || includeLogo) {
-      const STEP = 5; // pixels to move
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          const upEvent = new MouseEvent('mousemove', {
-            clientX: (previewRef.current?.getBoundingClientRect().left || 0) + (previewRef.current?.offsetWidth || 0) / 2,
-            clientY: (previewRef.current?.getBoundingClientRect().top || 0) + (previewRef.current?.offsetHeight || 0) / 2 - STEP
-          });
-          previewRef.current?.dispatchEvent(upEvent);
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          const downEvent = new MouseEvent('mousemove', {
-            clientX: (previewRef.current?.getBoundingClientRect().left || 0) + (previewRef.current?.offsetWidth || 0) / 2,
-            clientY: (previewRef.current?.getBoundingClientRect().top || 0) + (previewRef.current?.offsetHeight || 0) / 2 + STEP
-          });
-          previewRef.current?.dispatchEvent(downEvent);
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          const leftEvent = new MouseEvent('mousemove', {
-            clientX: (previewRef.current?.getBoundingClientRect().left || 0) + (previewRef.current?.offsetWidth || 0) / 2 - STEP,
-            clientY: (previewRef.current?.getBoundingClientRect().top || 0) + (previewRef.current?.offsetHeight || 0) / 2
-          });
-          previewRef.current?.dispatchEvent(leftEvent);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          const rightEvent = new MouseEvent('mousemove', {
-            clientX: (previewRef.current?.getBoundingClientRect().left || 0) + (previewRef.current?.offsetWidth || 0) / 2 + STEP,
-            clientY: (previewRef.current?.getBoundingClientRect().top || 0) + (previewRef.current?.offsetHeight || 0) / 2
-          });
-          previewRef.current?.dispatchEvent(rightEvent);
-          break;
-      }
+  // Instructions text based on context
+  const getInstructionText = () => {
+    if (activeLineIndex !== null) {
+      return t('preview.instructionDragText', "Click and drag to position the text");
+    } else if (includeLogo) {
+      return t('preview.instructionDragLogo', "Click and drag to position the logo");
+    } else {
+      return t('preview.instructionGeneral', "Select text or logo to position elements");
     }
   };
 
+  // Calculate stamp dimensions from the product size (e.g., "60x40")
+  const getSizeDimensions = () => {
+    const dimensions = productSize.split('x');
+    if (dimensions.length === 2) {
+      return {
+        width: parseInt(dimensions[0], 10),
+        height: parseInt(dimensions[1], 10)
+      };
+    }
+    return { width: 60, height: 40 }; // Default dimensions
+  };
+
+  const { width, height } = getSizeDimensions();
+  
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-gray-800">{t('preview.title', 'Preview')}</h3>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size={largeControls ? "default" : "sm"}
-            onClick={zoomOut}
-            disabled={zoomLevel <= 1}
-            title={t('preview.zoomOut', "Zoom Out")}
-            aria-label={t('preview.zoomOut', "Zoom Out")}
-          >
-            <ZoomOut size={largeControls ? 20 : 16} />
-          </Button>
-          <Button
-            variant="outline"
-            size={largeControls ? "default" : "sm"}
-            onClick={zoomIn}
-            disabled={zoomLevel >= 3}
-            title={t('preview.zoomIn', "Zoom In")}
-            aria-label={t('preview.zoomIn', "Zoom In")}
-          >
-            <ZoomIn size={largeControls ? 20 : 16} />
-          </Button>
-          <Button
-            variant="outline"
-            size={largeControls ? "default" : "sm"}
-            onClick={downloadAsPng}
-            title={t('preview.download', "Download Preview")}
-            aria-label={t('preview.download', "Download Preview")}
-          >
-            <Download size={largeControls ? 20 : 16} />
-          </Button>
-        </div>
-      </div>
-
-      <div
-        className={`relative border rounded-lg overflow-hidden ${
-          highContrast ? 'border-gray-900' : 'border-gray-200'
-        } mx-auto mb-4`}
-        style={{ maxWidth: '100%', height: '280px', ...getBackgroundStyle() }}
-      >
-        <div
-          ref={previewRef}
-          className={`flex items-center justify-center h-full w-full ${getCursorStyle()} ${
-            highContrast ? 'bg-black bg-opacity-5' : ''
-          }`}
-          style={{
-            transform: `scale(${zoomLevel})`,
-            transition: isDragging ? 'none' : 'transform 0.2s ease-out'
-          }}
-          role="application"
-          aria-label={t('preview.ariaLabel', 'Stamp preview area. Use arrow keys to position elements when selected.')}
-          tabIndex={0}
-          onKeyDown={handleKeyDown}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onMouseUp}
-        >
-          {previewImage ? (
-            <div className={`relative ${isDragging ? 'animate-pulse' : ''}`}>
-              <img
-                src={previewImage}
-                alt={t('preview.stampPreview', 'Stamp Preview')}
-                className={`max-w-full max-h-full object-contain ${
-                  highContrast ? 'contrast-125 brightness-110' : ''
-                }`}
-                style={{
-                  filter: isDragging ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.1))' : 'none',
-                }}
-              />
-              {activeLineIndex !== null && (
-                <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${
-                  highContrast ? 'bg-blue-700 bg-opacity-10' : 'bg-blue-500 bg-opacity-5'
-                }`}>
-                  <span className="text-xs text-blue-600 font-medium bg-white bg-opacity-90 px-2 py-1 rounded shadow-sm"
-                        aria-live="polite">
-                    {t('preview.movingText', 'Moving text line {{index}}', {index: activeLineIndex + 1})}
-                  </span>
-                </div>
-              )}
-              {includeLogo && !activeLineIndex && isDragging && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-xs text-blue-600 font-medium bg-white bg-opacity-90 px-2 py-1 rounded shadow-sm"
-                        aria-live="polite">
-                    {t('preview.movingLogo', 'Moving logo')}
-                  </span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center p-8 text-gray-400">
-              <p>{t('preview.noPreview', 'Preview will appear here')}</p>
-              <p className="text-sm mt-2">{t('preview.customizeStamp', 'Customize your stamp to see a preview')}</p>
-            </div>
+    <div>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className={`font-medium ${highContrast ? 'text-black' : 'text-gray-800'}`}>
+          {t('preview.title', "Preview")}
+        </h3>
+        <div className="flex items-center gap-2">
+          <HelpTooltip content={t('preview.zoomHelp', "Zoom in or out to see more detail")}>
+            <Button
+              variant="outline"
+              size={largeControls ? "default" : "icon"}
+              onClick={zoomOut}
+              disabled={!zoomOut || zoomLevel <= 1}
+              title={t('preview.zoomOut', "Zoom out")}
+              className={largeControls ? "h-10 w-10 p-0" : ""}
+            >
+              <ZoomOut size={largeControls ? 20 : 16} />
+            </Button>
+          </HelpTooltip>
+          
+          <span className="text-sm w-16 text-center">
+            {Math.round(zoomLevel * 100)}%
+          </span>
+          
+          <HelpTooltip content={t('preview.zoomHelp', "Zoom in or out to see more detail")}>
+            <Button
+              variant="outline"
+              size={largeControls ? "default" : "icon"}
+              onClick={zoomIn}
+              disabled={!zoomIn || zoomLevel >= 3}
+              title={t('preview.zoomIn', "Zoom in")}
+              className={largeControls ? "h-10 w-10 p-0" : ""}
+            >
+              <ZoomIn size={largeControls ? 20 : 16} />
+            </Button>
+          </HelpTooltip>
+          
+          {downloadAsPng && (
+            <HelpTooltip content={t('preview.downloadHelp', "Download your stamp design as a high-quality PNG image")}>
+              <Button
+                variant="outline"
+                size={largeControls ? "default" : "icon"}
+                onClick={downloadAsPng}
+                disabled={!previewImage}
+                title={t('preview.download', "Download")}
+                className={largeControls ? "h-10 w-10 p-0" : ""}
+              >
+                <Download size={largeControls ? 20 : 16} />
+              </Button>
+            </HelpTooltip>
           )}
         </div>
       </div>
       
-      <div className="text-sm text-gray-500 text-center">
-        {productSize && (
-          <p>{t('preview.physicalSize', 'Physical size: {{size}}mm', {size: productSize})}</p>
+      <div
+        className={`relative overflow-hidden rounded-lg ${getBackgroundStyle()} shadow-inner border border-gray-200 p-4 flex justify-center items-center transition-all`}
+        style={{
+          minHeight: '300px',
+          cursor: getCursorStyle(),
+          aspectRatio: width && height ? `${width}/${height}` : '3/2'
+        }}
+        role="button"
+        aria-label={getInstructionText()}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onMouseUp}
+        tabIndex={0}
+      >
+        {previewImage ? (
+          <div
+            className={`flex justify-center items-center transition-transform duration-300 ${
+              isAnimating ? 'scale-95 opacity-90' : 'scale-100 opacity-100'
+            }`}
+            style={{
+              transform: `scale(${zoomLevel})`,
+              transition: isAnimating ? 'all 0.3s ease-out' : 'transform 0.3s ease-out'
+            }}
+          >
+            <img
+              src={previewImage}
+              alt={t('preview.stampDesign', "Stamp design")}
+              className={`max-w-full max-h-full transition-all ${
+                background === 'dark' ? 'filter brightness-125 contrast-125' : ''
+              } ${isAnimating ? 'animate-bounce' : ''}`}
+            />
+          </div>
+        ) : (
+          <div className="text-gray-400 text-center">
+            {t('preview.noPreviewAvailable', "No preview available yet")}
+          </div>
         )}
-        <p className="text-xs mt-1">
-          {t('preview.dragInstructions', 'Click and drag elements to reposition them')}
-        </p>
+        
+        {isAnimating && (
+          <div className="absolute inset-0 bg-black opacity-5"></div>
+        )}
+      </div>
+      
+      <p className="text-xs text-gray-500 text-center mt-2">
+        {getInstructionText()}
+      </p>
+      
+      <div className="text-xs text-gray-400 flex justify-between mt-1">
+        <span>
+          {t('preview.size', "Size")}: {productSize}mm
+        </span>
+        <span>
+          {activeLineIndex !== null ? t('preview.editingLine', "Editing line {{line}}", { line: activeLineIndex + 1 }) : (
+            includeLogo ? t('preview.editingLogo', "Editing logo") : ''
+          )}
+        </span>
       </div>
     </div>
   );
