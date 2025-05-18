@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -23,6 +24,13 @@ export interface CartItem {
   previewImage?: string;
 }
 
+export interface TextEffect {
+  type: 'shadow' | 'outline' | 'none';
+  color?: string;
+  blur?: number;
+  thickness?: number;
+}
+
 export type StampTextLine = {
   text: string;
   fontSize: number;
@@ -37,6 +45,8 @@ export type StampTextLine = {
   yPosition?: number; // -100 to 100 percentage offset from default position
   // Added drag state
   isDragging?: boolean;
+  // Added text effects
+  textEffect?: TextEffect;
 };
 
 export interface StampDesign {

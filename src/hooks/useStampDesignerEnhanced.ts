@@ -19,7 +19,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     curved: false,
     xPosition: 0,
     yPosition: 0,
-    isDragging: false
+    isDragging: false,
+    textEffect: {
+      type: 'none'
+    }
   };
 
   const initializeLines = () => {
@@ -268,11 +271,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     const relativeX = ((clientX - centerX) / (previewRect.width / 2)) * 100;
     const relativeY = ((clientY - centerY) / (previewRect.height / 2)) * 100;
     
-    // Constrain movement within the stamp boundary
-    const maxRange = design.shape === 'circle' ? 80 : 90; // Slightly smaller for circle
-    const constrainedX = Math.max(-maxRange, Math.min(maxRange, relativeX));
-    const constrainedY = Math.max(-maxRange, Math.min(maxRange, relativeY));
-    
     // Update the position of the dragging element
     const draggingLineIndex = design.lines.findIndex(line => line.isDragging);
     
@@ -281,8 +279,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       const newLines = [...design.lines];
       newLines[draggingLineIndex] = {
         ...newLines[draggingLineIndex],
-        xPosition: constrainedX,
-        yPosition: constrainedY
+        xPosition: relativeX,
+        yPosition: relativeY
       };
       
       setHistory(prev => ({
@@ -295,8 +293,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         ...prev,
         present: {
           ...design,
-          logoX: constrainedX,
-          logoY: constrainedY
+          logoX: relativeX,
+          logoY: relativeY
         }
       }));
     }
@@ -516,6 +514,19 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Start building the SVG
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+            <feOffset dx="0" dy="1" result="offsetblur" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.5" />
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <rect width="100%" height="100%" fill="white"/>
     `;
     
@@ -551,7 +562,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         `;
       }
       
-      // Add text lines
+      // Add text lines with text effects
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
@@ -565,6 +576,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         const textX = centerX + xOffset;
         const textY = centerY + yOffset;
         
+        // Generate filters for text effects if needed
+        const textEffectId = `effect-${Math.random().toString(36).substr(2, 9)}`; // Unique ID
+        let textEffectFilter = '';
+        let textStroke = '';
+        
+        if (line.textEffect && line.textEffect.type === 'shadow') {
+          svgContent += `
+            <filter id="${textEffectId}">
+              <feDropShadow dx="0" dy="${line.textEffect.blur || 2}" stdDeviation="${line.textEffect.blur || 2}" 
+                            flood-color="${line.textEffect.color || '#000000'}" flood-opacity="0.5" />
+            </filter>
+          `;
+          textEffectFilter = `filter="url(#${textEffectId})"`;
+        } else if (line.textEffect && line.textEffect.type === 'outline') {
+          textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
+        }
+        
         if (line.curved) {
           // Calculate the path for curved text
           const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`; // Unique ID
@@ -575,7 +603,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
               <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
             </defs>
             <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${scaledFontSize}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
+                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke}>
               <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
                 ${line.text}
               </textPath>
@@ -592,7 +620,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           svgContent += `
             <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                   text-anchor="${textAnchor}" fill="${design.inkColor}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
+                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke}>
               ${line.text}
             </text>
           `;
@@ -614,52 +642,50 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       }
       
       // Add logo if included
-      if (design.includeLogo) {
-        const logoWidth = viewWidth * 0.2;
-        const logoHeight = viewHeight * 0.2;
+      const logoWidth = viewWidth * 0.2;
+      const logoHeight = viewHeight * 0.2;
+      
+      // Center coordinates
+      const centerX = viewWidth / 2;
+      const centerY = viewHeight / 2;
+      
+      // Use custom position if available, otherwise use preset positions
+      let logoX, logoY;
+      
+      if (design.logoX !== undefined && design.logoY !== undefined) {
+        // Convert from -100,100 range to viewBox coordinates
+        logoX = centerX + (design.logoX / 100) * (viewWidth/2 - logoWidth/2);
+        logoY = centerY + (design.logoY / 100) * (viewHeight/2 - logoHeight/2);
+      } else {
+        // Fallback to preset positions
+        logoX = centerX - logoWidth / 2;
+        logoY = centerY - logoHeight / 2;
         
-        // Center coordinates
-        const centerX = viewWidth / 2;
-        const centerY = viewHeight / 2;
-        
-        // Use custom position if available, otherwise use preset positions
-        let logoX, logoY;
-        
-        if (design.logoX !== undefined && design.logoY !== undefined) {
-          // Convert from -100,100 range to viewBox coordinates
-          logoX = centerX + (design.logoX / 100) * (viewWidth/2 - logoWidth/2);
-          logoY = centerY + (design.logoY / 100) * (viewHeight/2 - logoHeight/2);
-        } else {
-          // Fallback to preset positions
-          logoX = centerX - logoWidth / 2;
-          logoY = centerY - logoHeight / 2;
-          
-          switch (design.logoPosition) {
-            case 'top':
-              logoY = viewHeight * 0.1;
-              break;
-            case 'bottom':
-              logoY = viewHeight - logoHeight - viewHeight * 0.1;
-              break;
-            case 'left':
-              logoX = viewWidth * 0.1;
-              logoY = centerY - logoHeight / 2;
-              break;
-            case 'right':
-              logoX = viewWidth - logoWidth - viewWidth * 0.1;
-              logoY = centerY - logoHeight / 2;
-              break;
-          }
+        switch (design.logoPosition) {
+          case 'top':
+            logoY = viewHeight * 0.1;
+            break;
+          case 'bottom':
+            logoY = viewHeight - logoHeight - viewHeight * 0.1;
+            break;
+          case 'left':
+            logoX = viewWidth * 0.1;
+            logoY = centerY - logoHeight / 2;
+            break;
+          case 'right':
+            logoX = viewWidth - logoWidth - viewWidth * 0.1;
+            logoY = centerY - logoHeight / 2;
+            break;
         }
-        
-        svgContent += `
-          ${design.logoImage ? 
-            `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" preserveAspectRatio="xMidYMid meet" />` : 
-            `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
-        `;
       }
       
-      // Add text
+      svgContent += `
+        ${design.logoImage ? 
+          `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" preserveAspectRatio="xMidYMid meet" />` : 
+          `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
+      `;
+      
+      // Add text with text effects
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
@@ -678,6 +704,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         const textX = centerX + xOffset;
         const textY = centerY + yOffset;
         
+        // Generate filters for text effects
+        const textEffectId = `effect-${Math.random().toString(36).substr(2, 9)}`; // Unique ID
+        let textEffectFilter = '';
+        let textStroke = '';
+        
+        if (line.textEffect && line.textEffect.type === 'shadow') {
+          svgContent += `
+            <filter id="${textEffectId}">
+              <feDropShadow dx="0" dy="${line.textEffect.blur || 2}" stdDeviation="${line.textEffect.blur || 2}" 
+                            flood-color="${line.textEffect.color || '#000000'}" flood-opacity="0.5" />
+            </filter>
+          `;
+          textEffectFilter = `filter="url(#${textEffectId})"`;
+        } else if (line.textEffect && line.textEffect.type === 'outline') {
+          textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
+        }
+        
         // Set text-anchor based on alignment
         let textAnchor;
         if (line.alignment === 'left') textAnchor = 'start';
@@ -687,7 +730,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
-                ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}>
+                ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} 
+                ${textEffectFilter} ${textStroke}>
             ${line.text}
           </text>
         `;
@@ -721,63 +765,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return previewUrl;
   };
 
-  // Download preview as PNG
-  const downloadAsPng = () => {
-    if (!previewImage || !product) return;
-    
-    // Parse dimensions from product.size (format: "60x40") 
-    const sizeDimensions = product.size.split('x').map(dim => parseInt(dim.trim(), 10));
-    let pngWidth = 300;
-    let pngHeight = 200;
-    
-    // Set exact dimensions for the download based on product size
-    if (sizeDimensions.length === 2) {
-      // Use actual mm dimensions multiplied by 8 for better quality
-      // This makes 1mm = 8px in the output image
-      pngWidth = sizeDimensions[0] * 8;
-      pngHeight = sizeDimensions[1] * 8;
-      
-      if (design.shape === 'circle') {
-        // For circular stamps, use the larger dimension
-        pngWidth = pngHeight = Math.max(pngWidth, pngHeight);
-      }
-    }
-    
-    // Create a temporary image element to load the SVG
-    const img = new Image();
-    img.onload = function() {
-      // Create a canvas element
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      
-      // Set canvas dimensions to exact product dimensions in pixels
-      canvas.width = pngWidth;
-      canvas.height = pngHeight;
-      
-      // Fill with white background
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw the image scaled to fit the canvas properly
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      // Convert canvas to PNG data URL
-      const pngData = canvas.toDataURL('image/png');
-      
-      // Create download link
-      const downloadLink = document.createElement('a');
-      downloadLink.href = pngData;
-      downloadLink.download = `${product.name.replace(/\s+/g, '-')}-${product.size}-stamp.png`;
-      
-      // Trigger download
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    };
-    img.src = previewImage;
-  };
-
   return {
     design,
     updateLine,
@@ -798,7 +785,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     generatePreview,
     downloadAsPng,
     previewImage,
-    // New enhanced features
     validateDesign,
     undo,
     redo,
@@ -812,9 +798,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     zoomIn,
     zoomOut,
     zoomLevel,
-    // New features
     svgRef,
-    addElement
+    addElement,
+    applyTextEffect
   };
 };
 
