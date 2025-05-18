@@ -32,9 +32,6 @@ interface StampDesignerWizardProps {
   largeControls?: boolean;
 }
 
-// Define the WizardStep type here to avoid conflicts
-type StampWizardStep = 'shape' | 'text' | 'effects' | 'color' | 'logo' | 'advanced' | 'preview';
-
 const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   product,
   onAddToCart,
@@ -63,7 +60,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     stopDragging,
     handleDrag,
     previewImage,
-    downloadAsPng,
+    generatePreview,
     validateDesign,
     undo,
     redo,
@@ -78,9 +75,71 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     zoomOut,
     zoomLevel,
     svgRef,
-    addElement,
-    applyTextEffect,
+    addElement
   } = useStampDesignerEnhanced(product);
+  
+  // Implementation for downloadAsPng since it's needed but not provided by the hook
+  const downloadAsPng = () => {
+    if (!svgRef.current || !product) return;
+    
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    
+    // Set canvas dimensions (scale up for better quality)
+    canvas.width = 1000;
+    canvas.height = 800;
+    
+    // Create an image from the SVG
+    const img = new Image();
+    const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+    
+    img.onload = () => {
+      // Draw image to canvas (white background)
+      context.fillStyle = 'white';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `${product.name}-stamp.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+    };
+    
+    img.src = url;
+  };
+  
+  // Implementation of applyTextEffect which is needed but not provided by the hook
+  const applyTextEffect = (lineIndex: number, effect: {
+    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
+    color?: string;
+    blur?: number;
+    thickness?: number;
+  }) => {
+    const updatedLines = [...design.lines];
+    if (updatedLines[lineIndex]) {
+      updatedLines[lineIndex] = {
+        ...updatedLines[lineIndex],
+        textEffect: {
+          type: effect.type,
+          color: effect.color || '#000000',
+          blur: effect.blur || 2,
+          thickness: effect.thickness || 1
+        },
+        bold: effect.type === 'bold' ? true : updatedLines[lineIndex].bold,
+        italic: effect.type === 'italic' ? true : updatedLines[lineIndex].italic
+      };
+      
+      updateLine(lineIndex, updatedLines[lineIndex]);
+      generatePreview();
+    }
+  };
   
   const { addToCart } = useCart();
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
