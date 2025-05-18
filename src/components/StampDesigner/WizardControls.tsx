@@ -3,14 +3,14 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
-type WizardStep = 'shape' | 'text' | 'color' | 'logo' | 'preview';
+type StampWizardStep = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
 
 interface WizardControlsProps {
-  currentStep: WizardStep;
-  steps: { id: WizardStep; label: string; description: string }[];
+  currentStep: StampWizardStep;
+  steps: { id: StampWizardStep; label: string; description: string; labelKey?: string; descriptionKey?: string }[];
   onNext: () => void;
   onPrev: () => void;
-  onJump: (step: WizardStep) => void;
+  onJump: (step: StampWizardStep) => void;
 }
 
 const WizardControls: React.FC<WizardControlsProps> = ({

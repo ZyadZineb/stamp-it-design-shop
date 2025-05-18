@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
@@ -18,6 +17,7 @@ import BorderStyleSelector from './BorderStyleSelector';
 import DesignTemplates from './DesignTemplates';
 import AiSuggestions from './AiSuggestions';
 import AdvancedTools from './AdvancedTools';
+import ExportDesign from './ExportDesign';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StampDesignerWizardProps {
@@ -25,7 +25,8 @@ interface StampDesignerWizardProps {
   onAddToCart?: () => void;
 }
 
-type WizardStep = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
+// Define the WizardStep type here to avoid conflicts
+type StampWizardStep = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
 
 const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAddToCart }) => {
   const { toast } = useToast();
@@ -72,11 +73,11 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<WizardStep>('shape');
+  const [currentStep, setCurrentStep] = useState<StampWizardStep>('shape');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
   // Steps configuration
-  const steps: { id: WizardStep; label: string; labelKey?: string; description: string; descriptionKey?: string }[] = [
+  const steps: { id: StampWizardStep; label: string; labelKey?: string; description: string; descriptionKey?: string }[] = [
     { id: 'shape', labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
     { id: 'text', labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
     { id: 'color', labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
@@ -109,7 +110,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
     }
   };
   
-  const jumpToStep = (step: WizardStep) => {
+  const jumpToStep = (step: StampWizardStep) => {
     setCurrentStep(step);
   };
 
@@ -473,7 +474,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
           
           {currentStep === 'advanced' && (
             <AdvancedTools
-              svgRef={svgRef}
+              svgRef={svgRef.current}
               previewImage={previewImage}
               productName={product.name}
               downloadAsPng={downloadAsPng}
@@ -497,7 +498,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
               </div>
               
               <ExportDesign
-                svgRef={svgRef}
+                svgRef={svgRef.current}
                 previewImage={previewImage}
                 productName={product.name}
                 downloadAsPng={downloadAsPng}
@@ -527,7 +528,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
           
           <WizardControls 
             currentStep={currentStep} 
-            steps={steps}
+            steps={steps as any}
             onNext={goToNextStep}
             onPrev={goToPrevStep}
             onJump={jumpToStep}

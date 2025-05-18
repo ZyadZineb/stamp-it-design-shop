@@ -407,6 +407,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Add or update custom element (like QR code or barcode)
   const addElement = (element: { type: string, dataUrl: string, width: number, height: number }) => {
+    // Calculate the center coordinates for proper positioning
+    const viewWidth = product?.size.split('x')[0] ? parseInt(product.size.split('x')[0]) : 60;
+    const viewHeight = product?.size.split('x')[1] ? parseInt(product.size.split('x')[1]) : 40;
+    
+    // Define centerX and centerY based on viewBox dimensions
+    const centerX = viewWidth / 2;
+    const centerY = viewHeight / 2;
+    
     const newElement = {
       ...element,
       id: `element-${Date.now()}`,
