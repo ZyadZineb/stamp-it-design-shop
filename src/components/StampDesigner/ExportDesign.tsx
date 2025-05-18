@@ -5,7 +5,7 @@ import { Download, Share } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface ExportDesignProps {
-  svgRef: SVGSVGElement | null;
+  svgRef: string | null;
   previewImage: string | null;
   productName: string;
   downloadAsPng: () => void;

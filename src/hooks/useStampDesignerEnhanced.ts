@@ -66,7 +66,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  // Store the SVG content as a string, not as an SVGSVGElement
+  const svgRef = useRef<string | null>(null);
 
   // Update design when product changes
   useEffect(() => {
@@ -816,7 +817,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     svgContent += `</svg>`;
     
     const previewUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
-    svgRef.current = svgContent; // Store the SVG content for download
+    // Store the SVG content as a string
+    svgRef.current = svgContent;
     setPreviewImage(previewUrl);
     return previewUrl;
   };
@@ -836,6 +838,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     
     // Create an image from the SVG
     const img = new Image();
+    // Create a blob from the SVG string, not from the SVGSVGElement
     const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(svgBlob);
     
