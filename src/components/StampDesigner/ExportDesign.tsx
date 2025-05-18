@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Share } from 'lucide-react';
+import { Download, Share, Play } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface ExportDesignProps {
@@ -20,6 +20,8 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
   largeControls = false 
 }) => {
   const { t } = useTranslation();
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleShareDesign = async () => {
     if (navigator.share && previewImage) {
@@ -51,6 +53,14 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
         newWindow.document.write(`<img src="${previewImage}" alt="Stamp Design" />`);
       }
     }
+  };
+
+  const handleVirtualStamping = () => {
+    setShowAnimation(true);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 1500);
   };
 
   return (
@@ -85,15 +95,78 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
             {t('export.shareDesign', 'Share Design')}
           </Button>
         )}
+
+        <Button
+          onClick={handleVirtualStamping}
+          disabled={!previewImage}
+          variant="outline"
+          className={`flex items-center gap-2 ${largeControls ? "text-lg py-6" : ""}`}
+        >
+          <Play size={largeControls ? 24 : 18} />
+          {t('export.virtualStamping', 'Virtual Stamping')}
+        </Button>
       </div>
       
-      {previewImage && (
+      {previewImage && !showAnimation && (
         <div className="border rounded-md p-2 mt-2">
           <img 
             src={previewImage} 
             alt={t('export.stampDesign', 'Stamp design')}
             className="max-w-full h-auto"
           />
+        </div>
+      )}
+
+      {previewImage && showAnimation && (
+        <div className="border rounded-md p-2 mt-2 bg-amber-50">
+          <div className="relative">
+            <div className={`transition-all duration-1500 ${isAnimating ? 'opacity-100 scale-100' : 'opacity-80 scale-95'}`}>
+              <img 
+                src={previewImage} 
+                alt={t('export.stampDesign', 'Stamp design')}
+                className={`max-w-full h-auto transform transition-all duration-1000 
+                  ${isAnimating ? 'opacity-100 shadow-xl' : 'opacity-90'}`}
+                style={{
+                  filter: isAnimating ? 'contrast(1.2) brightness(0.95)' : 'none',
+                }}
+              />
+              <div 
+                className={`absolute inset-0 bg-amber-50 mix-blend-darken transition-opacity duration-1500 
+                  ${isAnimating ? 'opacity-0' : 'opacity-10'}`}
+              ></div>
+            </div>
+            {isAnimating && (
+              <div 
+                className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+                style={{ perspective: '1000px' }}
+              >
+                <div className="animate-bounce bg-white bg-opacity-80 px-3 py-2 rounded-lg shadow-lg">
+                  <p className="text-sm font-medium text-gray-800">
+                    {t('export.stamping', 'Applying stamp...')}
+                  </p>
+                </div>
+              </div>
+            )}
+            {!isAnimating && showAnimation && (
+              <div className="absolute bottom-2 right-2">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={handleVirtualStamping} 
+                  className="bg-white bg-opacity-70"
+                >
+                  {t('export.stampAgain', 'Stamp Again')}
+                </Button>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 text-center text-sm text-gray-600">
+            <p>
+              {isAnimating 
+                ? t('export.animatingStamp', 'Applying stamp to surface...')
+                : t('export.stampedResult', 'This is how your stamp will look when applied to paper')}
+            </p>
+          </div>
         </div>
       )}
     </div>
