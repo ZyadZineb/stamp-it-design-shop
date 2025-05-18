@@ -32,8 +32,8 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
         const file = new File([blob], `${productName.replace(/\s/g, '-')}-stamp-design.png`, { type: 'image/png' });
 
         await navigator.share({
-          title: t('export.shareTitle', 'My Custom Stamp Design'),
-          text: t('export.shareText', 'Check out my custom stamp design!'),
+          title: t('export.shareTitle', 'My Professional Stamp Design'),
+          text: t('export.shareText', 'Check out my professional stamp design!'),
           files: [file]
         });
       } catch (error) {
@@ -70,7 +70,7 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
       </h3>
       
       <p className={`text-sm text-gray-600 ${largeControls ? "text-base" : ""}`}>
-        {t('export.description', 'Download or share your stamp design')}
+        {t('export.description', 'Download or share your professional stamp design')}
       </p>
       
       <div className="flex flex-col sm:flex-row gap-3">
@@ -103,7 +103,7 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
           className={`flex items-center gap-2 ${largeControls ? "text-lg py-6" : ""}`}
         >
           <Play size={largeControls ? 24 : 18} />
-          {t('export.virtualStamping', 'Virtual Stamping')}
+          {t('export.printSimulation', 'Print Simulation')}
         </Button>
       </div>
       
@@ -120,29 +120,23 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
       {previewImage && showAnimation && (
         <div className="border rounded-md p-2 mt-2 bg-amber-50">
           <div className="relative">
-            <div className={`transition-all duration-1500 ${isAnimating ? 'opacity-100 scale-100' : 'opacity-80 scale-95'}`}>
+            <div className={`transition-all duration-500`}>
               <img 
                 src={previewImage} 
                 alt={t('export.stampDesign', 'Stamp design')}
-                className={`max-w-full h-auto transform transition-all duration-1000 
-                  ${isAnimating ? 'opacity-100 shadow-xl' : 'opacity-90'}`}
+                className="max-w-full h-auto"
                 style={{
-                  filter: isAnimating ? 'contrast(1.2) brightness(0.95)' : 'none',
+                  filter: isAnimating ? 'contrast(1.05)' : 'none',
                 }}
               />
-              <div 
-                className={`absolute inset-0 bg-amber-50 mix-blend-darken transition-opacity duration-1500 
-                  ${isAnimating ? 'opacity-0' : 'opacity-10'}`}
-              ></div>
             </div>
             {isAnimating && (
               <div 
                 className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
-                style={{ perspective: '1000px' }}
               >
-                <div className="animate-bounce bg-white bg-opacity-80 px-3 py-2 rounded-lg shadow-lg">
+                <div className="bg-white bg-opacity-80 px-3 py-2 rounded-lg">
                   <p className="text-sm font-medium text-gray-800">
-                    {t('export.stamping', 'Applying stamp...')}
+                    {t('export.printing', 'Preview print result...')}
                   </p>
                 </div>
               </div>
@@ -153,18 +147,18 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
                   variant="secondary" 
                   size="sm" 
                   onClick={handleVirtualStamping} 
-                  className="bg-white bg-opacity-70"
+                  className="bg-white"
                 >
-                  {t('export.stampAgain', 'Stamp Again')}
+                  {t('export.viewAgain', 'Show Print Result Again')}
                 </Button>
               </div>
             )}
           </div>
-          <div className="mt-2 text-center text-sm text-gray-600">
-            <p>
+          <div className="mt-2 text-sm text-gray-600 border-t pt-2">
+            <p className="text-center">
               {isAnimating 
-                ? t('export.animatingStamp', 'Applying stamp to surface...')
-                : t('export.stampedResult', 'This is how your stamp will look when applied to paper')}
+                ? t('export.simulatingPrint', 'Showing print simulation...')
+                : t('export.printResult', 'This is how your stamp will appear when printed on paper')}
             </p>
           </div>
         </div>

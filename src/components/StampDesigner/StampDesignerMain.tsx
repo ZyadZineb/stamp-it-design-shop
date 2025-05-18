@@ -11,6 +11,7 @@ import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
 import SampleDesigns from './SampleDesigns';
+import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
 
 interface StampDesignerMainProps {
   product: Product | null;
@@ -35,7 +36,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
     stopDragging,
     handleDrag,
     previewImage,
-    downloadAsPng
+    downloadAsPng,
+    zoomIn,
+    zoomOut,
+    zoomLevel,
+    applyTemplate
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
@@ -174,13 +179,18 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="border-b border-gray-200 p-4 bg-gray-50">
-        <h2 className="text-xl font-semibold">Custom Stamp Designer</h2>
+        <h2 className="text-xl font-semibold">Professional Stamp Designer</h2>
         <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         {/* Left panel: Design options */}
         <div className="space-y-6 overflow-y-auto max-h-[70vh]">
+          {/* Show professional circular templates only for circular stamps */}
+          {design.shape === 'circle' && (
+            <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
+          )}
+          
           <BorderStyleSelector 
             borderStyle={design.borderStyle} 
             onBorderStyleChange={setBorderStyle} 
@@ -231,6 +241,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             downloadAsPng={downloadAsPng}
+            zoomLevel={zoomLevel}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
           />
           
           <div className="space-y-4">

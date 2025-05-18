@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -25,10 +24,11 @@ export interface CartItem {
 }
 
 export interface TextEffect {
-  type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
+  type: 'shadow' | 'outline' | 'none' | 'separator';
   color?: string;
   blur?: number;
   thickness?: number;
+  separatorChar?: '★' | '•' | '|';
 }
 
 export type StampTextLine = {
@@ -58,11 +58,11 @@ export interface StampDesign {
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
   logoX: number;
   logoY: number;
-  logoImage?: string;
   logoDragging: boolean;
-  shape: 'rectangle' | 'circle' | 'square';
-  borderStyle: 'none' | 'single' | 'double';
-  elements?: StampElement[]; // Custom elements like QR codes
+  logoImage?: string;
+  shape: 'rectangle' | 'square' | 'circle';
+  borderStyle: 'single' | 'double' | 'triple' | 'none';
+  elements: StampElement[];
 }
 
 export interface StampElement {

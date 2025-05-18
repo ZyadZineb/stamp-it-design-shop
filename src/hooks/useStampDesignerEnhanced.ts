@@ -205,7 +205,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   };
 
   // Set border style with history tracking
-  const setBorderStyle = (style: 'single' | 'double' | 'none') => {
+  const setBorderStyle = (style: 'single' | 'double' | 'triple' | 'none') => {
     const updatedDesign = { ...design, borderStyle: style };
     updateHistory(updatedDesign);
   };
@@ -568,17 +568,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-            <feOffset dx="0" dy="1" result="offsetblur" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.5" />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          <!-- Remove shadow filters for a cleaner look -->
         </defs>
         <rect width="100%" height="100%" fill="white"/>
     `;
@@ -590,7 +580,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       const centerY = viewHeight / 2;
       const radius = Math.min(viewWidth, viewHeight) / 2 - 1; // Slightly smaller for border
       
-      // Add border(s)
+      // Add concentric border circles with proper spacing
       if (design.borderStyle === 'single') {
         svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
@@ -598,85 +588,144 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
           <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
+      } else if (design.borderStyle === 'triple') {
+        svgContent += `
+          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius - 3}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+        `;
       }
       
-      // Add logo if included
+      // Add logo if included - position it properly for circular stamps
       if (design.includeLogo) {
         const logoSize = radius / 3;
         // Use custom logo position if available
         const logoX = centerX + (design.logoX || 0) / 100 * (radius - logoSize);
         const logoY = centerY + (design.logoY || 0) / 100 * (radius - logoSize);
         
-        svgContent += `
-          <circle cx="${logoX}" cy="${logoY}" r="${logoSize}" fill="#f1f1f1" stroke="${design.inkColor}" stroke-width="0.2"/>
-          ${design.logoImage ? 
-            `<image href="${design.logoImage}" x="${logoX - logoSize}" y="${logoY - logoSize}" width="${logoSize * 2}" height="${logoSize * 2}" preserveAspectRatio="xMidYMid meet" />` : 
-            `<rect x="${logoX - logoSize/2}" y="${logoY - logoSize/2}" width="${logoSize}" height="${logoSize}" fill="#ddd"/>`}
-        `;
+        if (design.logoImage) {
+          svgContent += `
+            <image href="${design.logoImage}" x="${logoX - logoSize}" y="${logoY - logoSize}" 
+                   width="${logoSize * 2}" height="${logoSize * 2}" 
+                   preserveAspectRatio="xMidYMid meet" />
+          `;
+        }
       }
       
-      // Add text lines with text effects
-      design.lines.forEach((line) => {
+      // Improved handling of text lines for circular stamps
+      design.lines.forEach((line, index) => {
         if (!line.text.trim()) return; // Skip empty lines
         
         // Calculate font size scaled to viewBox
         const scaledFontSize = (line.fontSize / 20) * (radius / 10);
         
-        // Apply position adjustments
-        const xOffset = (line.xPosition || 0) / 100 * radius;
-        const yOffset = (line.yPosition || 0) / 100 * radius;
-        
-        const textX = centerX + xOffset;
-        const textY = centerY + yOffset;
-        
-        // Generate filters for text effects if needed
-        const textEffectId = `effect-${Math.random().toString(36).substr(2, 9)}`; // Unique ID
-        let textEffectFilter = '';
-        let textStroke = '';
-        
-        if (line.textEffect && line.textEffect.type === 'shadow') {
-          svgContent += `
-            <filter id="${textEffectId}">
-              <feDropShadow dx="0" dy="${line.textEffect.blur || 2}" stdDeviation="${line.textEffect.blur || 2}" 
-                            flood-color="${line.textEffect.color || '#000000'}" flood-opacity="0.5" />
-            </filter>
-          `;
-          textEffectFilter = `filter="url(#${textEffectId})"`;
-        } else if (line.textEffect && line.textEffect.type === 'outline') {
-          textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
-        }
-        
-        // Add letter-spacing if specified
-        const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
-        
+        // Enhanced curved text implementation
         if (line.curved) {
-          // Calculate the path for curved text
-          const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`; // Unique ID
-          const pathRadius = radius - (radius * 0.2); // Smaller radius for curved text
+          // Generate unique ID for each text path
+          const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`;
           
+          // Calculate proper radius for text path based on line position in the stamp
+          // This creates concentric text rings with proper spacing
+          let textPathRadius = radius;
+          if (index === 0) { 
+            // Outer ring - close to the border
+            textPathRadius = radius - scaledFontSize / 2;
+          } else if (index === design.lines.length - 1 && design.lines.length > 2) {
+            // Inner ring (if there are more than 2 lines)
+            textPathRadius = radius * 0.65;
+          } else {
+            // Middle rings with proper spacing
+            textPathRadius = radius - (index * (radius / (design.lines.length + 1)));
+          }
+          
+          // Create precise circular path for text
+          // The path is slightly inset from the border for better visual appearance
           svgContent += `
             <defs>
-              <path id="${pathId}" d="M ${centerX - pathRadius}, ${centerY} a ${pathRadius},${pathRadius} 0 1,1 ${pathRadius * 2},0 a ${pathRadius},${pathRadius} 0 1,1 -${pathRadius * 2},0" />
+              <path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
+                a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0 
+                a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />
             </defs>
-            <text fill="${design.inkColor}" font-family="${line.fontFamily}" font-size="${scaledFontSize}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke} ${letterSpacing}>
-              <textPath href="#${pathId}" startOffset="${50 + (line.xPosition || 0) / 2}%" text-anchor="middle">
+          `;
+          
+          // Calculate proper text offset based on the circumference of the circle
+          // This ensures even text distribution around the circle
+          const textStartOffset = `${50 + (line.xPosition || 0) / 2}%`;
+          
+          // Add letter-spacing for curved text to prevent distortion
+          const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
+          
+          svgContent += `
+            <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+                  ${line.bold ? 'font-weight="bold"' : ''} 
+                  ${line.italic ? 'font-style="italic"' : ''} 
+                  fill="${design.inkColor}"
+                  letter-spacing="${letterSpacing}" text-anchor="middle">
+              <textPath href="#${pathId}" startOffset="${textStartOffset}">
                 ${line.text}
               </textPath>
             </text>
           `;
+          
+          // Add decorative separators between text segments if requested
+          if (line.textEffect && line.textEffect.type === 'separator') {
+            // Calculate positions for evenly spaced separators
+            const separatorCount = 4; // Default to 4 separators (at cardinal points)
+            for (let i = 0; i < separatorCount; i++) {
+              const angle = (i / separatorCount) * 2 * Math.PI;
+              const starX = centerX + textPathRadius * Math.cos(angle);
+              const starY = centerY + textPathRadius * Math.sin(angle);
+              
+              // Add star, dot, or other separator
+              svgContent += `
+                <text x="${starX}" y="${starY}" font-size="${scaledFontSize * 0.8}" 
+                      text-anchor="middle" dominant-baseline="middle" fill="${design.inkColor}">
+                  ★
+                </text>
+              `;
+            }
+          }
         } else {
-          // Regular text with position adjustments
-          // Set text-anchor based on alignment
+          // Non-curved text for center content
+          // Apply position adjustments for proper center alignment
+          const xOffset = (line.xPosition || 0) / 100 * (radius / 2);
+          const yOffset = (line.yPosition || 0) / 100 * (radius / 2);
+          
+          // For center content, ensure proper vertical distribution
+          // Calculate vertical offset based on number of center lines
+          const centerLines = design.lines.filter(l => !l.curved).length;
+          const lineIndex = design.lines.filter((l, i) => !l.curved && i < index).length;
+          
+          // Calculate vertical spacing
+          let verticalPosition = centerY;
+          if (centerLines > 1) {
+            // Distribute lines evenly in the center area
+            const totalHeight = centerLines * scaledFontSize * 1.2; // Account for line height
+            const startY = centerY - totalHeight / 2 + scaledFontSize / 2;
+            verticalPosition = startY + lineIndex * scaledFontSize * 1.2;
+          }
+          
+          const textX = centerX + xOffset;
+          const textY = verticalPosition + yOffset;
+          
+          // Set text-anchor based on alignment for proper text positioning
           let textAnchor;
           if (line.alignment === 'left') textAnchor = 'start';
           else if (line.alignment === 'right') textAnchor = 'end';
           else textAnchor = 'middle';
           
+          // Add letter-spacing if specified
+          const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
+          
           svgContent += `
-            <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
-                  text-anchor="${textAnchor}" fill="${design.inkColor}"
-                  ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} ${textEffectFilter} ${textStroke} ${letterSpacing}>
+            <text x="${textX}" y="${textY}" 
+                  font-family="${line.fontFamily}" 
+                  font-size="${scaledFontSize}" 
+                  text-anchor="${textAnchor}" 
+                  fill="${design.inkColor}"
+                  ${line.bold ? 'font-weight="bold"' : ''} 
+                  ${line.italic ? 'font-style="italic"' : ''} 
+                  ${letterSpacing}>
               ${line.text}
             </text>
           `;
@@ -694,6 +743,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `
           <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
           <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+        `;
+      } else if (design.borderStyle === 'triple') {
+        svgContent += `
+          <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <rect x="3.5" y="3.5" width="${viewWidth - 7}" height="${viewHeight - 7}" rx="${cornerRadius - 1}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
       }
       
