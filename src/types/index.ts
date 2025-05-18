@@ -25,7 +25,7 @@ export interface CartItem {
 }
 
 export interface TextEffect {
-  type: 'shadow' | 'outline' | 'none';
+  type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
   color?: string;
   blur?: number;
   thickness?: number;
