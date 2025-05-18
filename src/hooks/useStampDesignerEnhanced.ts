@@ -696,6 +696,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     
     // Add custom elements (QR codes, barcodes, etc.)
     if (design.elements && design.elements.length > 0) {
+      // Calculate center coordinates for element positioning
+      const centerX = viewWidth / 2;
+      const centerY = viewHeight / 2;
+      
       design.elements.forEach((element) => {
         const elementX = centerX + (element.x / 100) * (viewWidth/2 - element.width/2);
         const elementY = centerY + (element.y / 100) * (viewHeight/2 - element.height/2);
