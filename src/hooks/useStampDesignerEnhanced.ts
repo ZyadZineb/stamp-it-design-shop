@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product } from '../types';
 
@@ -43,7 +42,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     logoY: 0,
     logoDragging: false,
     shape: product?.shape || 'rectangle',
-    borderStyle: 'single'
+    borderStyle: 'single',
+    elements: [] // Add elements array for QR codes, barcodes, etc.
   };
 
   // Design history for undo/redo functionality
@@ -405,6 +405,24 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     updateHistory(updatedDesign);
   };
 
+  // Add or update custom element (like QR code or barcode)
+  const addElement = (element: { type: string, dataUrl: string, width: number, height: number }) => {
+    const newElement = {
+      ...element,
+      id: `element-${Date.now()}`,
+      x: 0,
+      y: 0,
+      isDragging: false
+    };
+    
+    const updatedDesign = { 
+      ...design, 
+      elements: [...(design.elements || []), newElement] 
+    };
+    
+    updateHistory(updatedDesign);
+  };
+
   // Zoom functions
   const zoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 3));
@@ -668,6 +686,20 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       });
     }
     
+    // Add custom elements (QR codes, barcodes, etc.)
+    if (design.elements && design.elements.length > 0) {
+      design.elements.forEach((element) => {
+        const elementX = centerX + (element.x / 100) * (viewWidth/2 - element.width/2);
+        const elementY = centerY + (element.y / 100) * (viewHeight/2 - element.height/2);
+        
+        svgContent += `
+          <image href="${element.dataUrl}" x="${elementX}" y="${elementY}" 
+                width="${element.width}" height="${element.height}" 
+                preserveAspectRatio="xMidYMid meet" />
+        `;
+      });
+    }
+    
     // Close the SVG
     svgContent += `</svg>`;
     
@@ -767,7 +799,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     applyTemplate,
     zoomIn,
     zoomOut,
-    zoomLevel
+    zoomLevel,
+    // New features
+    svgRef,
+    addElement
   };
 };
 

@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -44,12 +43,23 @@ export interface StampDesign {
   lines: StampTextLine[];
   inkColor: string;
   includeLogo: boolean;
-  logoImage?: string;
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  // Added custom logo positioning
-  logoX?: number; // -100 to 100 percentage offset
-  logoY?: number; // -100 to 100 percentage offset
-  logoDragging?: boolean;
-  shape: 'rectangle' | 'circle' | 'square'; // Match the product shape
-  borderStyle?: 'single' | 'double' | 'none'; // Added border style options
+  logoX: number;
+  logoY: number;
+  logoImage?: string;
+  logoDragging: boolean;
+  shape: 'rectangle' | 'circle' | 'square';
+  borderStyle: 'none' | 'single' | 'double';
+  elements?: StampElement[]; // Custom elements like QR codes
+}
+
+export interface StampElement {
+  id: string;
+  type: string;
+  dataUrl: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  isDragging: boolean;
 }

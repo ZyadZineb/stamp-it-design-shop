@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut } from 'lucide-react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
 import { Product } from '@/types';
 import { useCart } from '@/contexts/CartContext';
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useTranslation } from 'react-i18next';
 import WizardControls from './WizardControls';
 import TextLinesEditor from './TextLinesEditor';
 import StampPreview from './StampPreviewEnhanced';
@@ -14,6 +16,8 @@ import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
 import DesignTemplates from './DesignTemplates';
+import AiSuggestions from './AiSuggestions';
+import AdvancedTools from './AdvancedTools';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StampDesignerWizardProps {
@@ -21,11 +25,12 @@ interface StampDesignerWizardProps {
   onAddToCart?: () => void;
 }
 
-type WizardStep = 'shape' | 'text' | 'color' | 'logo' | 'preview';
+type WizardStep = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
 
 const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAddToCart }) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   
   // Use the enhanced stamp designer hook
   const { 
@@ -59,6 +64,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
     zoomIn,
     zoomOut,
     zoomLevel,
+    svgRef,
+    addElement,
   } = useStampDesignerEnhanced(product);
   
   const { addToCart } = useCart();
@@ -69,12 +76,13 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
   // Steps configuration
-  const steps: { id: WizardStep; label: string; description: string }[] = [
-    { id: 'shape', label: 'Shape & Border', description: 'Choose your stamp shape and border style' },
-    { id: 'text', label: 'Text', description: 'Add and position your text' },
-    { id: 'color', label: 'Color', description: 'Select ink color' },
-    { id: 'logo', label: 'Logo', description: 'Add a logo if needed' },
-    { id: 'preview', label: 'Preview', description: 'Review and finalize your design' }
+  const steps: { id: WizardStep; label: string; labelKey?: string; description: string; descriptionKey?: string }[] = [
+    { id: 'shape', labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
+    { id: 'text', labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
+    { id: 'color', labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
+    { id: 'logo', labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
+    { id: 'advanced', labelKey: 'wizard.steps.advanced.label', label: 'Advanced', descriptionKey: 'wizard.steps.advanced.description', description: 'Add QR codes and barcodes' },
+    { id: 'preview', labelKey: 'wizard.steps.preview.label', label: 'Preview', descriptionKey: 'wizard.steps.preview.description', description: 'Review and finalize your design' }
   ];
   
   // Get current step index
@@ -198,8 +206,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   const handleSaveDesign = () => {
     saveDesign();
     toast({
-      title: "Design saved",
-      description: "Your design has been saved and will be available when you return",
+      title: t('design.saved', "Design saved"),
+      description: t('design.savedDescription', "Your design has been saved and will be available when you return"),
     });
   };
 
@@ -207,8 +215,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   const handleLoadDesign = () => {
     loadDesign();
     toast({
-      title: "Design loaded",
-      description: "Your saved design has been loaded",
+      title: t('design.loaded', "Design loaded"),
+      description: t('design.loadedDescription', "Your saved design has been loaded"),
     });
   };
 
@@ -225,13 +233,32 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
       addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
       
       toast({
-        title: "Added to cart",
-        description: "Your custom stamp has been added to your cart",
+        title: t('cart.added', "Added to cart"),
+        description: t('cart.addedDescription', "Your custom stamp has been added to your cart"),
       });
       
       // Call the optional callback
       if (onAddToCart) onAddToCart();
     }
+  };
+  
+  // Handle applying AI suggestions
+  const handleApplySuggestion = (suggestion: any) => {
+    // This is a stub implementation - in a real app, you would parse the suggestion
+    // and apply appropriate changes to the design
+    toast({
+      title: t('ai.suggestionApplied', "Suggestion applied"),
+      description: suggestion.suggestion,
+    });
+  };
+  
+  // Handle adding elements like QR codes or barcodes
+  const handleAddElement = (element: { type: string, dataUrl: string, width: number, height: number }) => {
+    addElement(element);
+    toast({
+      title: t('design.elementAdded', `${element.type === 'qrcode' ? 'QR Code' : 'Barcode'} added`),
+      description: t('design.elementAddedDescription', "Element added to your design. Adjust position in the preview."),
+    });
   };
 
   // Cleanup event listeners
@@ -256,11 +283,11 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   useEffect(() => {
     if (product && hasSavedDesign()) {
       toast({
-        title: "Saved design found",
-        description: "You have a saved design. Would you like to load it?",
+        title: t('design.savedFound', "Saved design found"),
+        description: t('design.savedFoundDescription', "You have a saved design. Would you like to load it?"),
         action: (
           <Button onClick={handleLoadDesign} variant="outline" size="sm">
-            Load Design
+            {t('design.loadDesign', "Load Design")}
           </Button>
         ),
       });
@@ -270,7 +297,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   if (!product) {
     return (
       <div className="p-8 text-center bg-white rounded-lg">
-        <p className="text-gray-500">Please select a product to start designing your stamp.</p>
+        <p className="text-gray-500">{t('design.selectProduct', "Please select a product to start designing your stamp.")}</p>
       </div>
     );
   }
@@ -278,8 +305,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="border-b border-gray-200 p-4 bg-gray-50">
-        <h2 className="text-xl font-semibold">Custom Stamp Designer</h2>
-        <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
+        <h2 className="text-xl font-semibold">{t('design.title', "Custom Stamp Designer")}</h2>
+        <p className="text-sm text-gray-600">{t('design.subtitle', "Designing:")} {product.name} ({product.size})</p>
         
         {/* Progress indicator */}
         <div className="mt-4">
@@ -290,7 +317,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
                 key={step.id} 
                 className={`text-xs ${index <= currentStepIndex ? 'text-brand-blue font-medium' : 'text-gray-400'}`}
               >
-                {step.label}
+                {step.labelKey ? t(step.labelKey) : step.label}
               </div>
             ))}
           </div>
@@ -303,7 +330,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
           <div className="flex items-start">
             <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5" />
             <div>
-              <h3 className="text-sm font-medium text-red-800">Please fix the following issues:</h3>
+              <h3 className="text-sm font-medium text-red-800">{t('validation.fixIssues', "Please fix the following issues:")}</h3>
               <ul className="mt-1 text-sm text-red-700 list-disc list-inside">
                 {validationErrors.map((error, index) => (
                   <li key={index}>{error}</li>
@@ -322,7 +349,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
             size="sm" 
             onClick={undo} 
             disabled={!canUndo}
-            title="Undo"
+            title={t('actions.undo', "Undo")}
           >
             <Undo size={16} />
           </Button>
@@ -331,7 +358,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
             size="sm" 
             onClick={redo} 
             disabled={!canRedo}
-            title="Redo"
+            title={t('actions.redo', "Redo")}
           >
             <Redo size={16} />
           </Button>
@@ -344,17 +371,17 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
                 variant="outline" 
                 size="sm" 
                 onClick={handleLoadDesign}
-                title="Load Saved Design"
+                title={t('design.loadSavedDesign', "Load Saved Design")}
               >
-                Load Design
+                {t('design.loadDesign', "Load Design")}
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={clearSavedDesign}
-                title="Clear Saved Design"
+                title={t('design.clearSavedDesign', "Clear Saved Design")}
               >
-                Clear Saved
+                {t('design.clearSaved', "Clear Saved")}
               </Button>
             </>
           ) : (
@@ -362,10 +389,10 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
               variant="outline" 
               size="sm" 
               onClick={handleSaveDesign}
-              title="Save Design for Later"
+              title={t('design.saveDesignForLater', "Save Design for Later")}
             >
               <Save size={16} className="mr-1" />
-              Save Design
+              {t('design.saveDesign', "Save Design")}
             </Button>
           )}
         </div>
@@ -384,56 +411,97 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ product, onAd
                 onSelectTemplate={applyTemplate} 
                 productShape={design.shape} 
               />
+              <AiSuggestions 
+                design={design} 
+                onApplySuggestion={handleApplySuggestion}
+              />
             </>
           )}
           
           {currentStep === 'text' && (
-            <TextLinesEditor
-              lines={design.lines}
-              maxLines={product.lines}
-              shape={design.shape}
-              activeLineIndex={activeLineIndex}
-              setActiveLineIndex={setActiveLineIndex}
-              updateLine={updateLine}
-              addLine={addLine}
-              removeLine={removeLine}
-              toggleCurvedText={toggleCurvedText}
-              updateTextPosition={updateTextPosition}
-            />
+            <>
+              <TextLinesEditor
+                lines={design.lines}
+                maxLines={product.lines}
+                shape={design.shape}
+                activeLineIndex={activeLineIndex}
+                setActiveLineIndex={setActiveLineIndex}
+                updateLine={updateLine}
+                addLine={addLine}
+                removeLine={removeLine}
+                toggleCurvedText={toggleCurvedText}
+                updateTextPosition={updateTextPosition}
+              />
+              <AiSuggestions 
+                design={design} 
+                onApplySuggestion={handleApplySuggestion}
+              />
+            </>
           )}
           
           {currentStep === 'color' && (
-            <ColorSelector 
-              inkColors={product.inkColors} 
-              selectedColor={design.inkColor} 
-              onColorSelect={setInkColor}
-            />
+            <>
+              <ColorSelector 
+                inkColors={product.inkColors} 
+                selectedColor={design.inkColor} 
+                onColorSelect={setInkColor}
+              />
+              <AiSuggestions 
+                design={design} 
+                onApplySuggestion={handleApplySuggestion}
+              />
+            </>
           )}
           
           {currentStep === 'logo' && (
-            <LogoUploader
-              includeLogo={design.includeLogo}
-              toggleLogo={toggleLogo}
-              logoX={design.logoX}
-              logoY={design.logoY}
-              uploadedLogo={uploadedLogo}
-              onLogoUpload={handleLogoUpload}
-              updateLogoPosition={updateLogoPosition}
+            <>
+              <LogoUploader
+                includeLogo={design.includeLogo}
+                toggleLogo={toggleLogo}
+                logoX={design.logoX}
+                logoY={design.logoY}
+                uploadedLogo={uploadedLogo}
+                onLogoUpload={handleLogoUpload}
+                updateLogoPosition={updateLogoPosition}
+              />
+              <AiSuggestions 
+                design={design}
+                onApplySuggestion={handleApplySuggestion}
+              />
+            </>
+          )}
+          
+          {currentStep === 'advanced' && (
+            <AdvancedTools
+              svgRef={svgRef}
+              previewImage={previewImage}
+              productName={product.name}
+              downloadAsPng={downloadAsPng}
+              onAddElement={handleAddElement}
             />
           )}
           
           {currentStep === 'preview' && (
-            <div className="bg-gray-50 p-4 rounded-md">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-medium">{product.name}</h3>
-                <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-md">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-medium">{product.name}</h3>
+                  <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+                </div>
+                <Button
+                  onClick={handleAddToCart}
+                  className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  {t('cart.addToCart', "Add to Cart")}
+                </Button>
               </div>
-              <Button
-                onClick={handleAddToCart}
-                className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-              >
-                Add to Cart
-              </Button>
+              
+              <ExportDesign
+                svgRef={svgRef}
+                previewImage={previewImage}
+                productName={product.name}
+                downloadAsPng={downloadAsPng}
+              />
             </div>
           )}
         </div>
