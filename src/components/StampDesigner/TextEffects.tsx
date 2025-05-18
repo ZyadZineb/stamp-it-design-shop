@@ -19,9 +19,10 @@ interface TextEffectsProps {
     blur?: number;
     thickness?: number;
   };
+  largeControls?: boolean;
 }
 
-const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect }) => {
+const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect, largeControls = false }) => {
   const { t } = useTranslation();
   const [effect, setEffect] = useState<'shadow' | 'outline' | 'bold' | 'italic' | 'none'>(currentEffect.type || 'none');
   const [color, setColor] = useState(currentEffect.color || '#000000');
@@ -84,7 +85,7 @@ const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect 
         <div className="grid gap-2">
           <Label htmlFor="effect-type">{t('textEffects.effectType', 'Effect Type')}</Label>
           <Select value={effect} onValueChange={(value: any) => handleEffectChange(value)}>
-            <SelectTrigger id="effect-type">
+            <SelectTrigger id="effect-type" className={largeControls ? "text-lg h-12" : ""}>
               <SelectValue placeholder={t('textEffects.selectEffect', 'Select effect')} />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +107,7 @@ const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect 
                 id="effect-color"
                 value={color}
                 onChange={(e) => handleColorChange(e.target.value)}
-                className="w-10 h-10 border rounded cursor-pointer"
+                className={`w-10 h-10 border rounded cursor-pointer ${largeControls ? "w-12 h-12" : ""}`}
               />
               <span className="text-sm text-gray-500">{color}</span>
             </div>

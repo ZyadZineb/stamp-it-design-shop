@@ -12,6 +12,7 @@ interface LogoUploaderProps {
   uploadedLogo: string | null;
   onLogoUpload: () => void;
   updateLogoPosition: (x: number, y: number) => void;
+  largeControls?: boolean;
 }
 
 const LogoUploader: React.FC<LogoUploaderProps> = ({
@@ -21,12 +22,13 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
   logoY = 0,
   uploadedLogo,
   onLogoUpload,
-  updateLogoPosition
+  updateLogoPosition,
+  largeControls = false
 }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center">
-        <h3 className="font-medium text-gray-800">Include Logo</h3>
+        <h3 className={`font-medium text-gray-800 ${largeControls ? "text-lg" : ""}`}>Include Logo</h3>
         <label className="relative inline-flex items-center cursor-pointer ml-3">
           <input 
             type="checkbox" 
@@ -34,25 +36,25 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
             onChange={toggleLogo} 
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+          <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue ${largeControls ? "w-14 h-8 after:h-7 after:w-7" : ""}`}></div>
         </label>
       </div>
       
       {includeLogo && (
         <div className="space-y-2">
           <div 
-            className="border-dashed border-2 border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+            className={`border-dashed border-2 border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors ${largeControls ? "p-6" : ""}`}
             onClick={onLogoUpload}
           >
             <div className="flex justify-center mb-2">
-              <ImageIcon size={24} className="text-gray-400" />
+              <ImageIcon size={largeControls ? 32 : 24} className="text-gray-400" />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className={`text-sm text-gray-500 ${largeControls ? "text-base" : ""}`}>
               {uploadedLogo ? "Logo uploaded! Click to change" : "Click to upload your logo"}
             </p>
             {uploadedLogo && (
               <div className="mt-2 p-2 bg-gray-100 rounded-md">
-                <img src={uploadedLogo} alt="Uploaded logo" className="h-16 mx-auto object-contain" />
+                <img src={uploadedLogo} alt="Uploaded logo" className={`h-16 mx-auto object-contain ${largeControls ? "h-20" : ""}`} />
               </div>
             )}
           </div>

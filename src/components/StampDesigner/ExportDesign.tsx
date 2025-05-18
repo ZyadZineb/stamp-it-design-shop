@@ -1,140 +1,101 @@
 
 import React from 'react';
-import { Download, Share2, Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
+import { Download, Share } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface ExportDesignProps {
-  svgRef: string | null;
+  svgRef: SVGSVGElement | null;
   previewImage: string | null;
   productName: string;
   downloadAsPng: () => void;
+  largeControls?: boolean;
 }
 
 const ExportDesign: React.FC<ExportDesignProps> = ({ 
   svgRef, 
   previewImage, 
   productName, 
-  downloadAsPng 
+  downloadAsPng,
+  largeControls = false 
 }) => {
-  const { toast } = useToast();
-  
-  const handleDownloadSVG = () => {
-    if (!svgRef) {
-      toast({
-        title: "Cannot export design",
-        description: "No design to export",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      const blob = new Blob([svgRef], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${productName.replace(/\s+/g, '-')}-stamp.svg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error exporting SVG:", error);
-      toast({
-        title: "Failed to export SVG",
-        description: "Please try again later",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleShare = async () => {
-    if (!previewImage) {
-      toast({
-        title: "Cannot share design",
-        description: "No design to share",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      if (navigator.share) {
-        // Convert data URL to Blob
+  const { t } = useTranslation();
+
+  const handleShareDesign = async () => {
+    if (navigator.share && previewImage) {
+      try {
+        // Convert the data URL to a file
         const response = await fetch(previewImage);
         const blob = await response.blob();
-        const file = new File([blob], `${productName.replace(/\s+/g, '-')}-stamp.png`, { type: blob.type });
-        
+        const file = new File([blob], `${productName.replace(/\s/g, '-')}-stamp-design.png`, { type: 'image/png' });
+
         await navigator.share({
-          title: 'My Custom Stamp Design',
-          text: 'Check out my custom stamp design!',
+          title: t('export.shareTitle', 'My Custom Stamp Design'),
+          text: t('export.shareText', 'Check out my custom stamp design!'),
           files: [file]
         });
-      } else {
-        // Fallback for browsers that don't support Web Share API
-        toast({
-          title: "Sharing not supported",
-          description: "Your browser doesn't support direct sharing. Try downloading and sharing manually.",
-        });
+      } catch (error) {
+        console.error('Error sharing design:', error);
+        // Fallback - open in new window
+        if (previewImage) {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`<img src="${previewImage}" alt="Stamp Design" />`);
+          }
+        }
       }
-    } catch (error) {
-      console.error("Error sharing design:", error);
-      toast({
-        title: "Failed to share design",
-        description: "Please try again later",
-        variant: "destructive"
-      });
+    } else if (previewImage) {
+      // Fallback for browsers that don't support the Web Share API
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`<img src="${previewImage}" alt="Stamp Design" />`);
+      }
     }
   };
-  
+
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-800">Export & Share</h3>
+      <h3 className={`font-medium text-gray-800 ${largeControls ? "text-lg" : ""}`}>
+        {t('export.title', 'Export Design')}
+      </h3>
       
-      <div className="space-y-2">
-        <Label htmlFor="export-format">Export Format</Label>
-        <Select defaultValue="png">
-          <SelectTrigger id="export-format">
-            <SelectValue placeholder="Select format" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="png">PNG Image</SelectItem>
-            <SelectItem value="svg">SVG Vector</SelectItem>
-            <SelectItem value="pdf">PDF Document (Coming Soon)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <p className={`text-sm text-gray-600 ${largeControls ? "text-base" : ""}`}>
+        {t('export.description', 'Download or share your stamp design')}
+      </p>
       
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button 
           onClick={downloadAsPng} 
+          disabled={!previewImage}
           variant="outline"
-          className="flex items-center gap-2 w-full"
+          className={`flex items-center gap-2 ${largeControls ? "text-lg py-6" : ""}`}
         >
-          <Download size={16} />
-          Download as PNG
+          <Download size={largeControls ? 24 : 18} />
+          {t('export.downloadImage', 'Download as Image')}
         </Button>
         
-        <Button 
-          onClick={handleDownloadSVG} 
-          variant="outline"
-          className="flex items-center gap-2 w-full"
-        >
-          <Download size={16} />
-          Download as SVG
-        </Button>
-        
-        <Button 
-          onClick={handleShare} 
-          variant="outline"
-          className="flex items-center gap-2 w-full"
-        >
-          <Share2 size={16} />
-          Share Design
-        </Button>
+        {navigator.share && (
+          <Button 
+            onClick={handleShareDesign} 
+            disabled={!previewImage}
+            variant="outline"
+            className={`flex items-center gap-2 ${largeControls ? "text-lg py-6" : ""}`}
+          >
+            <Share size={largeControls ? 24 : 18} />
+            {t('export.shareDesign', 'Share Design')}
+          </Button>
+        )}
       </div>
+      
+      {previewImage && (
+        <div className="border rounded-md p-2 mt-2">
+          <img 
+            src={previewImage} 
+            alt={t('export.stampDesign', 'Stamp design')}
+            className="max-w-full h-auto"
+          />
+        </div>
+      )}
     </div>
   );
 };

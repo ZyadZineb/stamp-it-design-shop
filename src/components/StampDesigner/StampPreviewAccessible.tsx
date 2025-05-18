@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ZoomIn, ZoomOut, Download } from 'lucide-react';
@@ -161,10 +160,16 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
         aria-label={getInstructionText()}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
+        onMouseUp={onMouseUp ? (e) => {
+          // Convert TouchEvent to expected format for the onMouseUp handler
+          onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
+        } : undefined}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
-        onTouchEnd={onMouseUp}
+        onTouchEnd={onMouseUp ? (e) => {
+          // Convert TouchEvent to expected format for the onMouseUp handler
+          onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
+        } : undefined}
         tabIndex={0}
       >
         {previewImage ? (

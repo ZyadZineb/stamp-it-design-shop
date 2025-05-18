@@ -18,7 +18,7 @@ import {
   Trash,
   ChevronDown,
   ChevronUp,
-  LetterCase
+  Type
 } from 'lucide-react';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 import { StampTextLine } from "@/types";
@@ -312,7 +312,7 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                           onClick={() => toggleCurvedText(index)}
                           title={t('textEditor.curvedText', 'Curved Text')}
                         >
-                          <LetterCase size={largeControls ? 20 : 16} />
+                          <Type size={largeControls ? 20 : 16} />
                         </Button>
                       )}
                     </div>
