@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -11,7 +12,7 @@ export interface Product {
   images: string[];
   description: string;
   featured?: boolean;
-  shape?: 'rectangle' | 'circle' | 'square'; // Add shape property
+  shape?: 'rectangle' | 'circle' | 'square';
 }
 
 export interface CartItem {

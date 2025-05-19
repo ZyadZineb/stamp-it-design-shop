@@ -88,9 +88,10 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
         ],
         inkColor: 'blue',
         includeLogo: true,
-        logoPosition: 'center',
+        logoPosition: 'center' as const,
         logoX: 0,
-        logoY: -40
+        logoY: -40,
+        elements: [] // Add missing elements array
       }
     },
     {
@@ -154,7 +155,11 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
           }
         ],
         inkColor: 'blue',
-        includeLogo: false
+        includeLogo: false,
+        logoPosition: 'center' as const,
+        logoX: 0,
+        logoY: 0,
+        elements: [] // Add missing elements array
       }
     },
     {
@@ -219,9 +224,10 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
         ],
         inkColor: 'black',
         includeLogo: true,
-        logoPosition: 'center',
+        logoPosition: 'center' as const,
         logoX: 0,
-        logoY: -35
+        logoY: -35,
+        elements: [] // Add missing elements array
       }
     }
   ];
