@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { ImageIcon, MoveHorizontal, MoveVertical } from 'lucide-react';
+import { ImageIcon, MoveHorizontal, MoveVertical, Upload, X } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface LogoUploaderProps {
   includeLogo: boolean;
@@ -26,71 +28,131 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
   largeControls = false
 }) => {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center">
-        <h3 className={`font-medium text-gray-800 ${largeControls ? "text-lg" : ""}`}>Include Logo</h3>
-        <label className="relative inline-flex items-center cursor-pointer ml-3">
-          <input 
-            type="checkbox" 
-            checked={includeLogo} 
-            onChange={toggleLogo} 
-            className="sr-only peer"
-          />
-          <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue ${largeControls ? "w-14 h-8 after:h-7 after:w-7" : ""}`}></div>
-        </label>
-      </div>
-      
-      {includeLogo && (
-        <div className="space-y-2">
-          <div 
-            className={`border-dashed border-2 border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors ${largeControls ? "p-6" : ""}`}
-            onClick={onLogoUpload}
+    <Card className="mb-4">
+      <CardContent className="p-4">
+        <h3 className={`font-medium text-lg mb-3 ${largeControls ? "text-xl" : ""}`}>Add Your Logo</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Start with your logo for best results. We'll help position your text around it.
+        </p>
+        
+        <div className="flex items-center mb-4">
+          <Button 
+            variant={includeLogo ? "default" : "outline"} 
+            size="sm"
+            className={`mr-3 ${includeLogo ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+            onClick={toggleLogo}
           >
-            <div className="flex justify-center mb-2">
-              <ImageIcon size={largeControls ? 32 : 24} className="text-gray-400" />
+            {includeLogo ? "Logo Enabled" : "Add Logo"}
+          </Button>
+          
+          {includeLogo && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={toggleLogo}
+            >
+              <X className="h-4 w-4 mr-1" /> Remove Logo
+            </Button>
+          )}
+        </div>
+        
+        {includeLogo && (
+          <div className="space-y-4">
+            <div 
+              className={`border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors ${largeControls ? "p-8" : ""}`}
+              onClick={onLogoUpload}
+            >
+              {!uploadedLogo ? (
+                <>
+                  <div className="flex justify-center mb-3">
+                    <Upload size={largeControls ? 32 : 24} className="text-blue-500" />
+                  </div>
+                  <h4 className={`font-medium ${largeControls ? "text-lg" : ""}`}>
+                    Upload Your Logo
+                  </h4>
+                  <p className={`text-sm text-gray-500 ${largeControls ? "text-base mt-2" : ""}`}>
+                    Click to upload an image file or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    Recommended: Square PNG or SVG with transparent background
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="mt-2 p-4 bg-gray-50 rounded-md border">
+                    <img src={uploadedLogo} alt="Uploaded logo" className={`h-20 mx-auto object-contain ${largeControls ? "h-24" : ""}`} />
+                    <p className="text-sm text-blue-600 mt-3">Click to change logo</p>
+                  </div>
+                </>
+              )}
             </div>
-            <p className={`text-sm text-gray-500 ${largeControls ? "text-base" : ""}`}>
-              {uploadedLogo ? "Logo uploaded! Click to change" : "Click to upload your logo"}
-            </p>
+            
             {uploadedLogo && (
-              <div className="mt-2 p-2 bg-gray-100 rounded-md">
-                <img src={uploadedLogo} alt="Uploaded logo" className={`h-16 mx-auto object-contain ${largeControls ? "h-20" : ""}`} />
+              <div className="space-y-4">
+                <h4 className="font-medium text-sm">Logo Position</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-gray-500 flex items-center gap-1 mb-2">
+                      <MoveHorizontal size={14} /> Horizontal Position
+                    </Label>
+                    <Slider
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[logoX]}
+                      onValueChange={(value) => updateLogoPosition(value[0], logoY)}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>Left</span>
+                      <span>Center</span>
+                      <span>Right</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-500 flex items-center gap-1 mb-2">
+                      <MoveVertical size={14} /> Vertical Position
+                    </Label>
+                    <Slider
+                      min={-100}
+                      max={100}
+                      step={1}
+                      value={[logoY]}
+                      onValueChange={(value) => updateLogoPosition(logoX, value[0])}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>Top</span>
+                      <span>Center</span>
+                      <span>Bottom</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <ImageIcon size={12} /> You can also drag the logo directly on the preview area
+                </p>
               </div>
             )}
           </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
-                <MoveHorizontal size={14} /> Logo Horizontal Position
-              </Label>
-              <Slider
-                min={-100}
-                max={100}
-                step={1}
-                value={[logoX]}
-                onValueChange={(value) => updateLogoPosition(value[0], logoY)}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
-                <MoveVertical size={14} /> Logo Vertical Position
-              </Label>
-              <Slider
-                min={-100}
-                max={100}
-                step={1}
-                value={[logoY]}
-                onValueChange={(value) => updateLogoPosition(logoX, value[0])}
-                className="w-full"
-              />
-            </div>
+        )}
+        
+        {!includeLogo && (
+          <div className="rounded-md bg-gray-50 p-4 text-center">
+            <p className="text-sm text-gray-500">
+              Proceed without a logo to create a text-only stamp design
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="mt-3"
+              onClick={() => {}}
+            >
+              Continue to Text Design
+            </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-1">You can also drag the logo directly on the preview area</p>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

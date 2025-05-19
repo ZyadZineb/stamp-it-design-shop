@@ -27,7 +27,7 @@ export interface UseStampDesignerReturn {
   applyTemplate: (template: Partial<StampDesign>) => void;
 }
 
-// Set up default stamp text line
+// Set up default stamp text line - removing shadow effects
 const defaultLine: StampTextLine = {
   text: '',
   fontSize: 16,
@@ -36,6 +36,7 @@ const defaultLine: StampTextLine = {
   italic: false,
   alignment: 'center',
   curved: false,
+  letterSpacing: 0
 };
 
 export const useStampDesigner = (product: Product | null): UseStampDesignerReturn => {

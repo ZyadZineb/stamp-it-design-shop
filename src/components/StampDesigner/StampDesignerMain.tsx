@@ -48,6 +48,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color'>('templates');
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -168,6 +169,22 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
     };
   }, [isDragging, stopDragging]);
 
+  // Navigate to the next step
+  const goToNextStep = () => {
+    if (currentStep === 'templates') setCurrentStep('logo');
+    else if (currentStep === 'logo') setCurrentStep('text');
+    else if (currentStep === 'text') setCurrentStep('border');
+    else if (currentStep === 'border') setCurrentStep('color');
+  };
+
+  // Navigate to the previous step
+  const goToPrevStep = () => {
+    if (currentStep === 'color') setCurrentStep('border');
+    else if (currentStep === 'border') setCurrentStep('text');
+    else if (currentStep === 'text') setCurrentStep('logo');
+    else if (currentStep === 'logo') setCurrentStep('templates');
+  };
+
   if (!product) {
     return (
       <div className="p-8 text-center bg-white rounded-lg">
@@ -181,49 +198,115 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
       <div className="border-b border-gray-200 p-4 bg-gray-50">
         <h2 className="text-xl font-semibold">Professional Stamp Designer</h2>
         <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
+        
+        {/* Design progress indicator */}
+        <div className="flex mt-4 border-t pt-4">
+          <div 
+            className={`text-sm flex-1 text-center font-medium ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('templates')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'templates' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
+            Templates
+          </div>
+          <div 
+            className={`text-sm flex-1 text-center font-medium ${currentStep === 'logo' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('logo')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'logo' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
+            Logo
+          </div>
+          <div 
+            className={`text-sm flex-1 text-center font-medium ${currentStep === 'text' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('text')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
+            Text
+          </div>
+          <div 
+            className={`text-sm flex-1 text-center font-medium ${currentStep === 'border' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('border')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'border' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>4</div>
+            Border
+          </div>
+          <div 
+            className={`text-sm flex-1 text-center font-medium ${currentStep === 'color' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('color')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'color' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>5</div>
+            Color
+          </div>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         {/* Left panel: Design options */}
         <div className="space-y-6 overflow-y-auto max-h-[70vh]">
-          {/* Show professional circular templates only for circular stamps */}
-          {design.shape === 'circle' && (
+          {/* Show design step based on current step */}
+          {currentStep === 'templates' && design.shape === 'circle' && (
             <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
           )}
+
+          {currentStep === 'logo' && (
+            <LogoUploader
+              includeLogo={design.includeLogo}
+              toggleLogo={toggleLogo}
+              logoX={design.logoX}
+              logoY={design.logoY}
+              uploadedLogo={uploadedLogo}
+              onLogoUpload={handleLogoUpload}
+              updateLogoPosition={updateLogoPosition}
+            />
+          )}
           
-          <BorderStyleSelector 
-            borderStyle={design.borderStyle} 
-            onBorderStyleChange={setBorderStyle} 
-          />
+          {currentStep === 'text' && (
+            <TextLinesEditor
+              lines={design.lines}
+              maxLines={product.lines}
+              shape={design.shape}
+              activeLineIndex={activeLineIndex}
+              setActiveLineIndex={setActiveLineIndex}
+              updateLine={updateLine}
+              addLine={addLine}
+              removeLine={removeLine}
+              toggleCurvedText={toggleCurvedText}
+              updateTextPosition={updateTextPosition}
+            />
+          )}
           
-          <TextLinesEditor
-            lines={design.lines}
-            maxLines={product.lines}
-            shape={design.shape}
-            activeLineIndex={activeLineIndex}
-            setActiveLineIndex={setActiveLineIndex}
-            updateLine={updateLine}
-            addLine={addLine}
-            removeLine={removeLine}
-            toggleCurvedText={toggleCurvedText}
-            updateTextPosition={updateTextPosition}
-          />
+          {currentStep === 'border' && (
+            <BorderStyleSelector 
+              borderStyle={design.borderStyle} 
+              onBorderStyleChange={setBorderStyle} 
+            />
+          )}
           
-          <ColorSelector 
-            inkColors={product.inkColors} 
-            selectedColor={design.inkColor} 
-            onColorSelect={setInkColor}
-          />
+          {currentStep === 'color' && (
+            <ColorSelector 
+              inkColors={product.inkColors} 
+              selectedColor={design.inkColor} 
+              onColorSelect={setInkColor}
+            />
+          )}
           
-          <LogoUploader
-            includeLogo={design.includeLogo}
-            toggleLogo={toggleLogo}
-            logoX={design.logoX}
-            logoY={design.logoY}
-            uploadedLogo={uploadedLogo}
-            onLogoUpload={handleLogoUpload}
-            updateLogoPosition={updateLogoPosition}
-          />
+          {/* Step navigation buttons */}
+          <div className="flex justify-between pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={goToPrevStep}
+              disabled={currentStep === 'templates'}
+            >
+              Previous
+            </Button>
+            
+            <Button
+              variant="default"
+              onClick={goToNextStep}
+              disabled={currentStep === 'color'}
+            >
+              Next
+            </Button>
+          </div>
         </div>
         
         {/* Right panel: Preview and add to cart */}
