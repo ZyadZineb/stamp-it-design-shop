@@ -12,13 +12,21 @@ import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
 import SampleDesigns from './SampleDesigns';
 import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
+import AutoArrange from './AutoArrange';
 
 interface StampDesignerMainProps {
   product: Product | null;
   onAddToCart?: () => void;
+  highContrast?: boolean;
+  largeControls?: boolean;
 }
 
-const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToCart }) => {
+const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ 
+  product, 
+  onAddToCart,
+  highContrast = false,
+  largeControls = false
+}) => {
   const { 
     design, 
     updateLine, 
@@ -40,7 +48,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
     zoomIn,
     zoomOut,
     zoomLevel,
-    applyTemplate
+    applyTemplate,
+    updateMultipleLines
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
@@ -48,7 +57,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color'>('templates');
+  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color'>('logo');
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -199,7 +208,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
         <h2 className="text-xl font-semibold">Professional Stamp Designer</h2>
         <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
         
-        {/* Design progress indicator */}
+        {/* Design progress indicator emphasizing logo-first approach */}
         <div className="flex mt-4 border-t pt-4">
           <div 
             className={`text-sm flex-1 text-center font-medium ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
@@ -256,28 +265,40 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
               uploadedLogo={uploadedLogo}
               onLogoUpload={handleLogoUpload}
               updateLogoPosition={updateLogoPosition}
+              largeControls={largeControls}
             />
           )}
           
           {currentStep === 'text' && (
-            <TextLinesEditor
-              lines={design.lines}
-              maxLines={product.lines}
-              shape={design.shape}
-              activeLineIndex={activeLineIndex}
-              setActiveLineIndex={setActiveLineIndex}
-              updateLine={updateLine}
-              addLine={addLine}
-              removeLine={removeLine}
-              toggleCurvedText={toggleCurvedText}
-              updateTextPosition={updateTextPosition}
-            />
+            <>
+              <TextLinesEditor
+                lines={design.lines}
+                maxLines={product.lines}
+                shape={design.shape}
+                activeLineIndex={activeLineIndex}
+                setActiveLineIndex={setActiveLineIndex}
+                updateLine={updateLine}
+                addLine={addLine}
+                removeLine={removeLine}
+                toggleCurvedText={toggleCurvedText}
+                updateTextPosition={updateTextPosition}
+                largeControls={largeControls}
+              />
+              
+              {/* Add Auto-Arrange button for improved layout */}
+              <AutoArrange 
+                design={design}
+                onArrange={updateMultipleLines}
+                shape={design.shape}
+              />
+            </>
           )}
           
           {currentStep === 'border' && (
             <BorderStyleSelector 
               borderStyle={design.borderStyle} 
-              onBorderStyleChange={setBorderStyle} 
+              onBorderStyleChange={setBorderStyle}
+              largeControls={largeControls}
             />
           )}
           
@@ -286,6 +307,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
               inkColors={product.inkColors} 
               selectedColor={design.inkColor} 
               onColorSelect={setInkColor}
+              largeControls={largeControls}
             />
           )}
           
@@ -294,7 +316,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
             <Button
               variant="outline"
               onClick={goToPrevStep}
-              disabled={currentStep === 'templates'}
+              disabled={currentStep === 'logo'} // Start with logo as first step
+              className={largeControls ? "text-lg py-3 px-5" : ""}
             >
               Previous
             </Button>
@@ -303,6 +326,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
               variant="default"
               onClick={goToNextStep}
               disabled={currentStep === 'color'}
+              className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
             >
               Next
             </Button>
@@ -339,9 +363,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ product, onAddToC
               </div>
               <Button
                 onClick={handleAddToCart}
-                className="w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
               >
-                <ShoppingCart size={18} />
+                <ShoppingCart size={largeControls ? 24 : 18} />
                 Add to Cart
               </Button>
             </div>

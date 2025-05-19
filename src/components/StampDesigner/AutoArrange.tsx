@@ -24,21 +24,65 @@ const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onArrange, shape }) =
     
     // Distribute the lines evenly based on shape
     if (shape === 'circle') {
-      // For circular stamps, position text evenly along a circle
-      nonEmptyLines.forEach((line, index) => {
-        // Set curved for circle stamps
-        line.curved = true;
-        
-        // Adjust position based on index
-        const yOffset = (index - Math.floor(nonEmptyLines.length / 2)) * 20;
-        line.yPosition = yOffset;
-        
-        // Adjust font size based on line count
-        line.fontSize = Math.max(16, 24 - nonEmptyLines.length * 1.5);
-        
-        // Ensure alignment is centered for curved text
-        line.alignment = 'center';
+      // For circular stamps, identify which lines should be on top/bottom arcs and which in center
+      const centerLines: StampTextLine[] = [];
+      const arcLines: StampTextLine[] = [];
+      
+      // Heuristic: Longer lines (>15 chars) likely belong in center, shorter ones on arcs
+      nonEmptyLines.forEach(line => {
+        if (line.text.length > 15 || (line.text.includes(',') && line.text.length > 10)) {
+          centerLines.push({...line, curved: false});
+        } else {
+          arcLines.push({...line, curved: true});
+        }
       });
+      
+      // Position arc lines around the circle perimeter
+      if (arcLines.length > 0) {
+        arcLines.forEach((line, index) => {
+          // Determine if line should be on top or bottom based on position in array
+          const isTopHalf = index < Math.ceil(arcLines.length / 2);
+          const arcPosition = isTopHalf ? -70 : 70; // -70 for top, 70 for bottom
+          
+          // Set curved for circle stamps
+          line.curved = true;
+          
+          // Adjust position based on top/bottom
+          line.yPosition = arcPosition;
+          
+          // Adjust font size based on line count
+          line.fontSize = Math.max(16, 24 - arcLines.length * 1.5);
+          
+          // Ensure alignment is centered for curved text
+          line.alignment = 'center';
+        });
+      }
+      
+      // Position center lines in the middle of the stamp
+      if (centerLines.length > 0) {
+        centerLines.forEach((line, index) => {
+          // Calculate vertical position for center lines
+          const totalLines = centerLines.length;
+          const middleIndex = (totalLines - 1) / 2;
+          const relativePosition = index - middleIndex;
+          const spacing = 20; // Spacing between lines
+          
+          line.curved = false;
+          line.yPosition = relativePosition * spacing;
+          line.xPosition = 0; // center horizontally
+          line.fontSize = Math.max(14, 20 - centerLines.length * 1.2);
+          line.alignment = 'center';
+        });
+      }
+      
+      // Combine both sets of lines
+      const arrangedLines = [...arcLines, ...centerLines];
+      
+      // Merge with empty lines
+      const emptyLines = updatedLines.filter(line => !line.text.trim().length);
+      const finalLines = [...arrangedLines, ...emptyLines];
+      
+      onArrange(finalLines);
     } else {
       // For rectangular or square stamps, distribute vertically
       nonEmptyLines.forEach((line, index) => {
@@ -57,18 +101,18 @@ const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onArrange, shape }) =
         // Center alignment for better default appearance
         line.alignment = 'center';
       });
+      
+      // Merge updated non-empty lines back with empty lines
+      const emptyLines = updatedLines.filter(line => !line.text.trim().length);
+      const finalLines = [...nonEmptyLines, ...emptyLines];
+      
+      onArrange(finalLines);
     }
-    
-    // Merge updated non-empty lines back with empty lines
-    const emptyLines = updatedLines.filter(line => !line.text.trim().length);
-    const finalLines = [...nonEmptyLines, ...emptyLines];
-    
-    onArrange(finalLines);
   };
 
   return (
     <div className="mb-4">
-      <HelpTooltip content={t('design.autoArrangeTooltip', "Automatically adjust text position and formatting for optimal layout based on your stamp shape and text content.")}>
+      <HelpTooltip content={t('design.autoArrangeTooltip', "Intelligently arrange text for optimal layout based on your stamp shape. Places curved text along the edges and centered text in the middle.")}>
         <Button 
           onClick={handleAutoArrange} 
           variant="outline" 

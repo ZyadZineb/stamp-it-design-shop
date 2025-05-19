@@ -30,7 +30,7 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
   return (
     <Card className="mb-4">
       <CardContent className="p-4">
-        <h3 className={`font-medium text-lg mb-3 ${largeControls ? "text-xl" : ""}`}>Add Your Logo</h3>
+        <h3 className={`font-medium text-lg mb-3 ${largeControls ? "text-xl" : ""}`}>Start with Your Logo</h3>
         <p className="text-sm text-gray-500 mb-4">
           Start with your logo for best results. We'll help position your text around it.
         </p>
@@ -131,6 +131,12 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
                 <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                   <ImageIcon size={12} /> You can also drag the logo directly on the preview area
                 </p>
+                
+                <div className="bg-blue-50 p-3 rounded-md mt-4">
+                  <p className="text-sm text-blue-600">
+                    <strong>Tip:</strong> After positioning your logo, click "Next" to add and arrange your text.
+                  </p>
+                </div>
               </div>
             )}
           </div>

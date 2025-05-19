@@ -25,9 +25,10 @@ export interface UseStampDesignerReturn {
   zoomOut: () => void;
   zoomLevel: number;
   applyTemplate: (template: Partial<StampDesign>) => void;
+  updateMultipleLines: (updatedLines: StampTextLine[]) => void;
 }
 
-// Set up default stamp text line - removing shadow effects
+// Set up default stamp text line - no shadow effects
 const defaultLine: StampTextLine = {
   text: '',
   fontSize: 16,
@@ -36,7 +37,9 @@ const defaultLine: StampTextLine = {
   italic: false,
   alignment: 'center',
   curved: false,
-  letterSpacing: 0
+  letterSpacing: 0,
+  xPosition: 0,
+  yPosition: 0
 };
 
 export const useStampDesigner = (product: Product | null): UseStampDesignerReturn => {
@@ -65,7 +68,8 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomIn,
     zoomOut,
     zoomLevel,
-    applyTemplate
+    applyTemplate,
+    updateMultipleLines
   } = enhancedDesigner;
 
   // Return the same interface
@@ -90,6 +94,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomIn,
     zoomOut,
     zoomLevel,
-    applyTemplate
+    applyTemplate,
+    updateMultipleLines
   };
 };

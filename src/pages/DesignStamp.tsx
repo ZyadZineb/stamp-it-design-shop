@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +7,6 @@ import StampDesigner from '../components/StampDesigner';
 import { getProductById, products } from '../data/products';
 import { Product } from '../types';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import AccessibilitySettings from '../components/StampDesigner/AccessibilitySettings';
 
 const DesignStamp = () => {
@@ -73,10 +70,10 @@ const DesignStamp = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className={`text-3xl font-bold ${highContrast ? 'text-black' : 'text-gray-800'} mb-3`}>
-                {t('designStamp.title', 'Design Your Custom Stamp')}
+                {t('designStamp.title', 'Design Your Professional Stamp')}
               </h1>
               <p className={`${highContrast ? 'text-black' : 'text-gray-600'} max-w-3xl`}>
-                {t('designStamp.subtitle', 'Create a custom stamp that perfectly suits your needs. Choose a product, customize your text, select ink color, and see a preview of your stamp before ordering.')}
+                {t('designStamp.subtitle', 'Create a clean, professional stamp design with our easy-to-use designer. Follow our step-by-step process for optimal results.')}
               </p>
             </div>
             <div className="hidden sm:block">
@@ -173,7 +170,7 @@ const DesignStamp = () => {
                   {t('designStamp.step2Title', 'Customize Your Design')}
                 </h3>
                 <p className={`${highContrast ? 'text-black' : 'text-gray-600'}`}>
-                  {t('designStamp.step2Description', 'Add your text, adjust formatting, select ink color, and even add your logo or QR code.')}
+                  {t('designStamp.step2Description', 'Add your logo first, then customize text, adjust formatting, select ink color, and add borders.')}
                 </p>
               </div>
               
@@ -185,7 +182,7 @@ const DesignStamp = () => {
                   {t('designStamp.step3Title', 'Preview & Order')}
                 </h3>
                 <p className={`${highContrast ? 'text-black' : 'text-gray-600'}`}>
-                  {t('designStamp.step3Description', 'See a preview of your stamp before adding to cart and completing your purchase.')}
+                  {t('designStamp.step3Description', 'See an accurate preview of your stamp before adding to cart and completing your purchase.')}
                 </p>
               </div>
             </div>

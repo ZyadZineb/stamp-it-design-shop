@@ -20,9 +20,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     xPosition: 0,
     yPosition: 0,
     isDragging: false,
-    textEffect: {
-      type: 'none'
-    },
     letterSpacing: 0
   };
 
@@ -568,7 +565,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <!-- Remove shadow filters for a cleaner look -->
+          <!-- No shadow filters -->
         </defs>
         <rect width="100%" height="100%" fill="white"/>
     `;
@@ -612,14 +609,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       }
       
-      // Improved handling of text lines for circular stamps
+      // Improved handling of text lines for circular stamps with proper text orientation
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return; // Skip empty lines
         
         // Calculate font size scaled to viewBox
         const scaledFontSize = (line.fontSize / 20) * (radius / 10);
         
-        // Enhanced curved text implementation
+        // Enhanced curved text implementation with proper orientation
         if (line.curved) {
           // Generate unique ID for each text path
           const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`;
@@ -638,15 +635,29 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             textPathRadius = radius - (index * (radius / (design.lines.length + 1)));
           }
           
-          // Create precise circular path for text
-          // The path is slightly inset from the border for better visual appearance
-          svgContent += `
-            <defs>
-              <path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
-                a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0 
-                a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />
-            </defs>
-          `;
+          // Determine if text should be on top or bottom half based on y position
+          const isBottomHalf = line.yPosition > 0;
+          
+          // Create precise circular path for text, with proper direction for top/bottom
+          if (isBottomHalf) {
+            // For bottom text - reverse direction for proper upside-down rendering
+            svgContent += `
+              <defs>
+                <path id="${pathId}" d="M ${centerX + textPathRadius}, ${centerY} 
+                  a ${textPathRadius},${textPathRadius} 0 1,0 -${textPathRadius * 2},0 
+                  a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0" />
+              </defs>
+            `;
+          } else {
+            // For top text - normal direction
+            svgContent += `
+              <defs>
+                <path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
+                  a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0 
+                  a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />
+              </defs>
+            `;
+          }
           
           // Calculate proper text offset based on the circumference of the circle
           // This ensures even text distribution around the circle
@@ -666,25 +677,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
               </textPath>
             </text>
           `;
-          
-          // Add decorative separators between text segments if requested
-          if (line.textEffect && line.textEffect.type === 'separator') {
-            // Calculate positions for evenly spaced separators
-            const separatorCount = 4; // Default to 4 separators (at cardinal points)
-            for (let i = 0; i < separatorCount; i++) {
-              const angle = (i / separatorCount) * 2 * Math.PI;
-              const starX = centerX + textPathRadius * Math.cos(angle);
-              const starY = centerY + textPathRadius * Math.sin(angle);
-              
-              // Add star, dot, or other separator
-              svgContent += `
-                <text x="${starX}" y="${starY}" font-size="${scaledFontSize * 0.8}" 
-                      text-anchor="middle" dominant-baseline="middle" fill="${design.inkColor}">
-                  ★
-                </text>
-              `;
-            }
-          }
         } else {
           // Non-curved text for center content
           // Apply position adjustments for proper center alignment
@@ -731,7 +723,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           `;
         }
       });
-      
     } else {
       // For rectangular stamps
       const cornerRadius = viewWidth * 0.05; // 5% of width as corner radius
@@ -798,7 +789,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         `;
       }
       
-      // Add text with text effects
+      // Add text without shadow or outline effects
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
         
@@ -813,23 +804,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         const textX = centerX + xOffset;
         const textY = centerY + yOffset;
         
-        // Generate filters for text effects
-        const textEffectId = `effect-${Math.random().toString(36).substr(2, 9)}`; // Unique ID
-        let textEffectFilter = '';
-        let textStroke = '';
-        
-        if (line.textEffect && line.textEffect.type === 'shadow') {
-          svgContent += `
-            <filter id="${textEffectId}">
-              <feDropShadow dx="0" dy="${line.textEffect.blur || 2}" stdDeviation="${line.textEffect.blur || 2}" 
-                            flood-color="${line.textEffect.color || '#000000'}" flood-opacity="0.5" />
-            </filter>
-          `;
-          textEffectFilter = `filter="url(#${textEffectId})"`;
-        } else if (line.textEffect && line.textEffect.type === 'outline') {
-          textStroke = `stroke="${line.textEffect.color || '#000000'}" stroke-width="${line.textEffect.thickness || 1}" paint-order="stroke fill"`;
-        }
-        
         // Add letter-spacing if specified
         const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
         
@@ -843,7 +817,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
                 ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} 
-                ${textEffectFilter} ${textStroke} ${letterSpacing}>
+                ${letterSpacing}>
             ${line.text}
           </text>
         `;
