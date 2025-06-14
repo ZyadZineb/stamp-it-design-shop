@@ -99,7 +99,7 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
     width,
     height
   } = getSizeDimensions();
-  return <div>
+  return <div className="-bottom-0 ">
       <div className="flex justify-between items-center mb-2">
         <h3 className={`font-medium ${highContrast ? 'text-black' : 'text-gray-800'}`}>
           {t('preview.title', "Preview")}
