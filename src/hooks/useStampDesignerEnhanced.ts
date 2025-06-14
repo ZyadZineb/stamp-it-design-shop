@@ -751,9 +751,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           // Letter spacing for clarity
           const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
 
+          // Calculate startOffset based on xPosition for arc positioning
+          const baseStartOffset = 50; // Default center position
+          const arcPositionAdjustment = (line.xPosition || 0) / 100 * 30; // Scale the adjustment
+          const startOffset = baseStartOffset + arcPositionAdjustment;
+
           // text-anchor, transform for bottom arc (SVG transform on the group)
           const textAnchor = 'middle';
-          // Shift/rotate for bottom arc (SVG transform on the group)
+          
           svgContent += `
           <g${isBottom ? ` transform="rotate(180 ${centerX} ${centerY})"` : ''}>
             <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
@@ -761,7 +766,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
                   ${line.italic ? 'font-style="italic"' : ''} 
                   fill="${design.inkColor}"
                   letter-spacing="${letterSpacing}" text-anchor="${textAnchor}">
-              <textPath href="#${pathId}" startOffset="50%">
+              <textPath href="#${pathId}" startOffset="${startOffset}%">
                 ${line.text}
               </textPath>
             </text>
@@ -894,7 +899,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
-                ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''} 
+                ${line.bold ? 'font-weight="bold"' : ''}
+                ${line.italic ? 'font-style="italic"' : ''}
                 ${letterSpacing}>
             ${line.text}
           </text>
