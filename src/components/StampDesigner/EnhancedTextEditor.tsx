@@ -204,19 +204,19 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                       <Italic size={largeControls ? 20 : 16} />
                       {t('textEditor.italic', 'Italique')}
                     </Button>
-                    {shape === 'circle' && (
-                      <Button
-                        variant={line.curved ? "default" : "outline"}
-                        size={largeControls ? "default" : "sm"}
-                        onClick={() => toggleCurvedText(index)}
-                        className="flex items-center gap-2"
-                        title={t('textEditor.curvedText', 'Curved Text')}
-                      >
-                        <Type size={largeControls ? 20 : 16} />
-                        {t('textEditor.curved', 'Courbé')}
-                      </Button>
-                    )}
-                    {shape === 'circle' && line.curved && (
+                    {/* Curved text now available for ALL shapes */}
+                    <Button
+                      variant={line.curved ? "default" : "outline"}
+                      size={largeControls ? "default" : "sm"}
+                      onClick={() => toggleCurvedText(index)}
+                      className="flex items-center gap-2"
+                      title={t('textEditor.curvedText', 'Curved Text')}
+                    >
+                      <Type size={largeControls ? 20 : 16} />
+                      {t('textEditor.curved', 'Courbé')}
+                    </Button>
+                    {/* Flip button for curved text - available for ALL shapes */}
+                    {line.curved && (
                       <Button
                         variant="outline"
                         size={largeControls ? "default" : "sm"}
