@@ -12,7 +12,7 @@ import BorderStyleSelector from './BorderStyleSelector';
 import SampleDesigns from './SampleDesigns';
 import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
 import AutoArrange from './AutoArrange';
-import PreviewOnPaper from './PreviewOnPaper';
+import StampPreviewAccessible from './StampPreviewAccessible';
 
 interface StampDesignerMainProps {
   product: Product | null;
@@ -264,37 +264,92 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             onClick={() => setCurrentStep('preview')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>6</div>
-            Aperçu
+            Preview
           </div>
         </div>
       </div>
       
-      {/* Layout changes for preview step to show full design */}
+      {/* Layout changes for preview step to show clean design */}
       {currentStep === 'preview' ? (
-        <div className="p-6">
-          <PreviewOnPaper
-            previewImage={previewImage}
-            productName={product.name}
-            highContrast={highContrast}
-            largeControls={largeControls}
-          />
-          
-          {/* Add to cart section for preview step */}
-          <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="font-medium text-lg">{product.name}</h3>
-                <p className="text-sm text-gray-600">{product.size}</p>
-              </div>
-              <span className="font-bold text-xl text-brand-red">{product.price} DHS TTC</span>
+        <div className="p-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-center mb-8">Final Preview</h2>
+            
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 mb-8">
+              <StampPreviewAccessible
+                previewImage={previewImage}
+                productSize={product.size}
+                isDragging={isDragging}
+                activeLineIndex={activeLineIndex}
+                includeLogo={design.includeLogo}
+                onMouseDown={(e) => {
+                  setIsDragging(true);
+                  handlePreviewClick(e);
+                }}
+                onMouseMove={(e) => {
+                  if (!isDragging || !previewRef.current) return;
+                  const rect = previewRef.current.getBoundingClientRect();
+                  handleDrag(e, rect);
+                }}
+                onMouseUp={() => {
+                  setIsDragging(false);
+                  stopDragging();
+                }}
+                onTouchStart={(e) => {
+                  setIsDragging(true);
+                  if (!previewRef.current || e.touches.length === 0) return;
+    
+                  const rect = previewRef.current.getBoundingClientRect();
+                  const touch = e.touches[0];
+                  
+                  const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
+                  const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
+                  
+                  if (activeLineIndex !== null) {
+                    updateTextPosition(activeLineIndex, relativeX, relativeY);
+                    startTextDrag(activeLineIndex);
+                  } else if (design.includeLogo) {
+                    updateLogoPosition(relativeX, relativeY);
+                    startLogoDrag();
+                  }
+                }}
+                onTouchMove={(e) => {
+                  if (!isDragging || !previewRef.current) return;
+                  const rect = previewRef.current.getBoundingClientRect();
+                  handleDrag(e, rect);
+                }}
+                downloadAsPng={downloadAsPng}
+                zoomIn={zoomIn}
+                zoomOut={zoomOut}
+                zoomLevel={zoomLevel}
+                background="paper"
+                highContrast={highContrast}
+                largeControls={largeControls}
+              />
             </div>
-            <Button
-              onClick={handleAddToCart}
-              className={`w-full py-4 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-3 ${largeControls ? "text-lg py-5" : ""}`}
-            >
-              <ShoppingCart size={largeControls ? 24 : 20} />
-              Ajouter au panier
-            </Button>
+            
+            {/* Product info and add to cart */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">Size: {product.size}</p>
+                  <p className="text-sm text-gray-600">Ink Color: {design.inkColor}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-gray-900">{product.price} DHS</span>
+                  <p className="text-sm text-gray-600">TTC</p>
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleAddToCart}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium rounded-lg transition-colors flex items-center justify-center gap-3"
+              >
+                <ShoppingCart size={24} />
+                Add to Cart
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
@@ -332,7 +387,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   onGlobalAlignmentChange={setGlobalAlignment}
                 />
                 
-                {/* Add Auto-Arrange button for improved layout */}
                 <AutoArrange 
                   design={design}
                   onEnhancedAutoArrange={enhancedAutoArrange}
@@ -367,7 +421,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 disabled={currentStep === 'logo'}
                 className={largeControls ? "text-lg py-3 px-5" : ""}
               >
-                Précédent
+                Previous
               </Button>
               
               <Button
@@ -376,7 +430,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 disabled={currentStep === 'preview'}
                 className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
               >
-                {currentStep === 'color' ? 'Aperçu' : 'Suivant'}
+                {currentStep === 'color' ? 'Preview' : 'Next'}
               </Button>
             </div>
           </div>
@@ -391,11 +445,42 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 isDragging={isDragging}
                 activeLineIndex={activeLineIndex}
                 includeLogo={design.includeLogo}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
+                onMouseDown={(e) => {
+                  setIsDragging(true);
+                  handlePreviewClick(e);
+                }}
+                onMouseMove={(e) => {
+                  if (!isDragging || !previewRef.current) return;
+                  const rect = previewRef.current.getBoundingClientRect();
+                  handleDrag(e, rect);
+                }}
+                onMouseUp={() => {
+                  setIsDragging(false);
+                  stopDragging();
+                }}
+                onTouchStart={(e) => {
+                  setIsDragging(true);
+                  if (!previewRef.current || e.touches.length === 0) return;
+    
+                  const rect = previewRef.current.getBoundingClientRect();
+                  const touch = e.touches[0];
+                  
+                  const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
+                  const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
+                  
+                  if (activeLineIndex !== null) {
+                    updateTextPosition(activeLineIndex, relativeX, relativeY);
+                    startTextDrag(activeLineIndex);
+                  } else if (design.includeLogo) {
+                    updateLogoPosition(relativeX, relativeY);
+                    startLogoDrag();
+                  }
+                }}
+                onTouchMove={(e) => {
+                  if (!isDragging || !previewRef.current) return;
+                  const rect = previewRef.current.getBoundingClientRect();
+                  handleDrag(e, rect);
+                }}
                 downloadAsPng={downloadAsPng}
                 zoomLevel={zoomLevel}
                 onZoomIn={zoomIn}
@@ -416,7 +501,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
                 >
                   <ShoppingCart size={largeControls ? 24 : 18} />
-                  Ajouter au panier
+                  Add to Cart
                 </Button>
               </div>
             </div>
