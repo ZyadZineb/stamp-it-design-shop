@@ -269,150 +269,160 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        {/* Left panel: Design options */}
-        <div className="space-y-6 overflow-y-auto max-h-[70vh]">
-          {/* Show design step based on current step */}
-          {currentStep === 'templates' && design.shape === 'circle' && (
-            <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
-          )}
-
-          {currentStep === 'logo' && (
-            <LogoUploader
-              includeLogo={design.includeLogo}
-              toggleLogo={toggleLogo}
-              logoX={design.logoX}
-              logoY={design.logoY}
-              uploadedLogo={uploadedLogo}
-              onLogoUpload={handleLogoUpload}
-              updateLogoPosition={updateLogoPosition}
-              largeControls={largeControls}
-            />
-          )}
+      {/* Layout changes for preview step to show full design */}
+      {currentStep === 'preview' ? (
+        <div className="p-6">
+          <PreviewOnPaper
+            previewImage={previewImage}
+            productName={product.name}
+            highContrast={highContrast}
+            largeControls={largeControls}
+          />
           
-          {currentStep === 'text' && (
-            <>
-              <TextLinesEditor
-                lines={design.lines}
-                product={product}
-                onUpdateLine={updateLine}
-                onAddLine={addLine}
-                onRemoveLine={removeLine}
-                onToggleCurvedText={toggleCurvedText}
-                globalAlignment={design.globalAlignment}
-                onGlobalAlignmentChange={setGlobalAlignment}
-              />
-              
-              {/* Add Auto-Arrange button for improved layout */}
-              <AutoArrange 
-                design={design}
-                onEnhancedAutoArrange={enhancedAutoArrange}
-                shape={getCompatibleShape(design.shape)}
-              />
-            </>
-          )}
-          
-          {currentStep === 'border' && (
-            <BorderStyleSelector 
-              borderStyle={design.borderStyle} 
-              borderThickness={design.borderThickness}
-              onBorderStyleChange={setBorderStyle}
-              onBorderThicknessChange={setBorderThickness}
-              largeControls={largeControls}
-            />
-          )}
-          
-          {currentStep === 'color' && (
-            <ColorSelector 
-              inkColors={product.inkColors} 
-              selectedColor={design.inkColor} 
-              onColorSelect={setInkColor}
-            />
-          )}
-          
-          {currentStep === 'preview' && (
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-medium mb-3">Aperçu final de votre tampon</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Vérifiez que tous les éléments sont bien positionnés avant de commander.
-                </p>
+          {/* Add to cart section for preview step */}
+          <div className="mt-8 bg-gray-50 p-6 rounded-lg">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="font-medium text-lg">{product.name}</h3>
+                <p className="text-sm text-gray-600">{product.size}</p>
               </div>
-              
-              <PreviewOnPaper
-                previewImage={previewImage}
-                productName={product.name}
-                highContrast={highContrast}
-                largeControls={largeControls}
-              />
-              
-              <SampleDesigns />
+              <span className="font-bold text-xl text-brand-red">{product.price} DHS TTC</span>
             </div>
-          )}
-          
-          {/* Step navigation buttons */}
-          <div className="flex justify-between pt-4 border-t">
             <Button
-              variant="outline"
-              onClick={goToPrevStep}
-              disabled={currentStep === 'logo'}
-              className={largeControls ? "text-lg py-3 px-5" : ""}
+              onClick={handleAddToCart}
+              className={`w-full py-4 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-3 ${largeControls ? "text-lg py-5" : ""}`}
             >
-              Précédent
-            </Button>
-            
-            <Button
-              variant="default"
-              onClick={goToNextStep}
-              disabled={currentStep === 'preview'}
-              className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
-            >
-              {currentStep === 'color' ? 'Aperçu' : 'Suivant'}
+              <ShoppingCart size={largeControls ? 24 : 20} />
+              Ajouter au panier
             </Button>
           </div>
         </div>
-        
-        {/* Right panel: Preview and add to cart */}
-        <div className="space-y-6 min-h-[70vh]">
-          <div className="sticky top-0">
-            <StampPreview
-              previewImage={previewImage}
-              productSize={product.size}
-              previewRef={previewRef}
-              isDragging={isDragging}
-              activeLineIndex={activeLineIndex}
-              includeLogo={design.includeLogo}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              downloadAsPng={downloadAsPng}
-              zoomLevel={zoomLevel}
-              onZoomIn={zoomIn}
-              onZoomOut={zoomOut}
-            />
-          </div>
-          
-          <div className="space-y-4">
-            {currentStep !== 'preview' && <SampleDesigns />}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          {/* Left panel: Design options */}
+          <div className="space-y-6 overflow-y-auto max-h-[70vh]">
+            {/* Show design step based on current step */}
+            {currentStep === 'templates' && design.shape === 'circle' && (
+              <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
+            )}
+
+            {currentStep === 'logo' && (
+              <LogoUploader
+                includeLogo={design.includeLogo}
+                toggleLogo={toggleLogo}
+                logoX={design.logoX}
+                logoY={design.logoY}
+                uploadedLogo={uploadedLogo}
+                onLogoUpload={handleLogoUpload}
+                updateLogoPosition={updateLogoPosition}
+                largeControls={largeControls}
+              />
+            )}
             
-            <div className="bg-gray-50 p-4 rounded-md">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-medium">{product.name}</h3>
-                <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
-              </div>
+            {currentStep === 'text' && (
+              <>
+                <TextLinesEditor
+                  lines={design.lines}
+                  product={product}
+                  onUpdateLine={updateLine}
+                  onAddLine={addLine}
+                  onRemoveLine={removeLine}
+                  onToggleCurvedText={toggleCurvedText}
+                  globalAlignment={design.globalAlignment}
+                  onGlobalAlignmentChange={setGlobalAlignment}
+                />
+                
+                {/* Add Auto-Arrange button for improved layout */}
+                <AutoArrange 
+                  design={design}
+                  onEnhancedAutoArrange={enhancedAutoArrange}
+                  shape={getCompatibleShape(design.shape)}
+                />
+              </>
+            )}
+            
+            {currentStep === 'border' && (
+              <BorderStyleSelector 
+                borderStyle={design.borderStyle} 
+                borderThickness={design.borderThickness}
+                onBorderStyleChange={setBorderStyle}
+                onBorderThicknessChange={setBorderThickness}
+                largeControls={largeControls}
+              />
+            )}
+            
+            {currentStep === 'color' && (
+              <ColorSelector 
+                inkColors={product.inkColors} 
+                selectedColor={design.inkColor} 
+                onColorSelect={setInkColor}
+              />
+            )}
+            
+            {/* Step navigation buttons */}
+            <div className="flex justify-between pt-4 border-t">
               <Button
-                onClick={handleAddToCart}
-                className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
+                variant="outline"
+                onClick={goToPrevStep}
+                disabled={currentStep === 'logo'}
+                className={largeControls ? "text-lg py-3 px-5" : ""}
               >
-                <ShoppingCart size={largeControls ? 24 : 18} />
-                Ajouter au panier
+                Précédent
+              </Button>
+              
+              <Button
+                variant="default"
+                onClick={goToNextStep}
+                disabled={currentStep === 'preview'}
+                className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
+              >
+                {currentStep === 'color' ? 'Aperçu' : 'Suivant'}
               </Button>
             </div>
           </div>
+          
+          {/* Right panel: Preview and add to cart */}
+          <div className="space-y-6 min-h-[70vh]">
+            <div className="sticky top-0">
+              <StampPreview
+                previewImage={previewImage}
+                productSize={product.size}
+                previewRef={previewRef}
+                isDragging={isDragging}
+                activeLineIndex={activeLineIndex}
+                includeLogo={design.includeLogo}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                downloadAsPng={downloadAsPng}
+                zoomLevel={zoomLevel}
+                onZoomIn={zoomIn}
+                onZoomOut={zoomOut}
+              />
+            </div>
+            
+            <div className="space-y-4">
+              {currentStep !== 'preview' && <SampleDesigns />}
+              
+              <div className="bg-gray-50 p-4 rounded-md">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-medium">{product.name}</h3>
+                  <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+                </div>
+                <Button
+                  onClick={handleAddToCart}
+                  className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
+                >
+                  <ShoppingCart size={largeControls ? 24 : 18} />
+                  Ajouter au panier
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
