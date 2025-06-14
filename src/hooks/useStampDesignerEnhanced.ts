@@ -76,6 +76,31 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Store the SVG content as a string, not as an SVGSVGElement
   const svgRef = useRef<string | null>(null);
 
+  // Auto-center content helper function
+  const autoCenterContent = () => {
+    const lines = [...design.lines];
+    const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
+    
+    if (nonEmptyLines.length === 0) return lines;
+
+    // Reset all positions to center for auto-layout
+    nonEmptyLines.forEach((line, index) => {
+      const totalLines = nonEmptyLines.length;
+      
+      // Calculate vertical spacing to center all lines as a group
+      const lineHeight = 20; // Base line height for spacing
+      const totalHeight = (totalLines - 1) * lineHeight;
+      const startY = -totalHeight / 2;
+      
+      // Center horizontally and distribute vertically
+      line.xPosition = 0; // Always center horizontally
+      line.yPosition = startY + (index * lineHeight);
+      line.alignment = 'center'; // Ensure text alignment is centered
+    });
+
+    return lines;
+  };
+
   // Update design when product changes
   useEffect(() => {
     if (product) {
@@ -95,9 +120,19 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }
   }, [product]);
 
-  // Auto-generate preview whenever design changes
+  // Auto-generate preview whenever design changes with auto-centering
   useEffect(() => {
     if (product) {
+      // Auto-center content before generating preview
+      const centeredLines = autoCenterContent();
+      if (JSON.stringify(centeredLines) !== JSON.stringify(design.lines)) {
+        // Update design with centered content
+        const centeredDesign = { ...design, lines: centeredLines };
+        setHistory(prev => ({
+          ...prev,
+          present: centeredDesign
+        }));
+      }
       generatePreview();
     }
   }, [design, product]);
@@ -111,35 +146,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }));
   };
 
-  // Undo functionality
-  const undo = () => {
-    if (!canUndo) return;
-
-    setHistory(prev => {
-      const newPresent = prev.past[prev.past.length - 1];
-      return {
-        past: prev.past.slice(0, -1),
-        present: newPresent,
-        future: [prev.present, ...prev.future]
-      };
-    });
-  };
-
-  // Redo functionality
-  const redo = () => {
-    if (!canRedo) return;
-
-    setHistory(prev => {
-      const newPresent = prev.future[0];
-      return {
-        past: [...prev.past, prev.present],
-        present: newPresent,
-        future: prev.future.slice(1)
-      };
-    });
-  };
-
-  // Update text line with history tracking
+  // Update text line with history tracking and auto-centering
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
     newLines[index] = { ...newLines[index], ...updates };
@@ -358,6 +365,34 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }));
   };
 
+  // Undo functionality
+  const undo = () => {
+    if (!canUndo) return;
+
+    setHistory(prev => {
+      const newPresent = prev.past[prev.past.length - 1];
+      return {
+        past: prev.past.slice(0, -1),
+        present: newPresent,
+        future: [prev.present, ...prev.future]
+      };
+    });
+  };
+
+  // Redo functionality
+  const redo = () => {
+    if (!canRedo) return;
+
+    setHistory(prev => {
+      const newPresent = prev.future[0];
+      return {
+        past: [...prev.past, prev.present],
+        present: newPresent,
+        future: prev.future.slice(1)
+      };
+    });
+  };
+
   // Save design to local storage
   const saveDesign = () => {
     if (!product) return;
@@ -515,472 +550,380 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return errors;
   };
 
-  // --- ENHANCED AUTO-ARRANGE FUNCTION ---
-  /**
-   * intelligent, shape/content aware auto layout
-   */
+  // Enhanced auto-arrange function with perfect centering
   const enhancedAutoArrange = () => {
     const lines = [...design.lines];
     const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
     if (nonEmptyLines.length === 0) return;
 
-    if (design.shape === 'circle') {
-      // Split into perimeter (curved) and center lines
+    // Auto-center all content based on shape
+    if (design.shape === 'circle' || design.shape === 'ellipse') {
+      // For circular/elliptical stamps
       const perimeterLines: StampTextLine[] = [];
       const centerLines: StampTextLine[] = [];
 
       nonEmptyLines.forEach((line, idx) => {
         // If curved or short, place on perimeter
         if (line.curved || line.text.length <= 15) {
-          perimeterLines.push({ ...line, curved: true, textPosition: idx % 2 === 0 ? 'top' : 'bottom' });
+          perimeterLines.push({ 
+            ...line, 
+            curved: true, 
+            textPosition: idx % 2 === 0 ? 'top' : 'bottom',
+            xPosition: 0 // Center horizontally
+          });
         } else {
-          centerLines.push({ ...line, curved: false, textPosition: 'top' });
+          centerLines.push({ 
+            ...line, 
+            curved: false, 
+            textPosition: 'top',
+            xPosition: 0 // Center horizontally
+          });
         }
       });
 
-      // Position perimeter lines evenly: first half top, second half bottom
+      // Position perimeter lines
       perimeterLines.forEach((l, idx) => {
         const isTop = l.textPosition === 'top';
-        // Alternate Y for visual evenness (adapt as needed)
-        l.yPosition = isTop ? -70 : 70;
-        l.xPosition = 0;
+        l.yPosition = isTop ? -60 : 60; // Adjusted for better centering
         l.fontSize = Math.max(16, 28 - perimeterLines.length * 2);
         l.alignment = 'center';
-        l.textPosition = isTop ? 'top' : 'bottom';
       });
-      // Center lines in middle
+
+      // Center lines in middle with proper vertical spacing
       centerLines.forEach((l, idx) => {
         const centerCount = centerLines.length;
-        const mid = (centerCount - 1) / 2;
-        l.yPosition = (idx - mid) * 14;
-        l.xPosition = 0;
+        const totalHeight = (centerCount - 1) * 16;
+        const startY = -totalHeight / 2;
+        l.yPosition = startY + (idx * 16);
         l.fontSize = Math.max(14, 22 - centerCount);
         l.alignment = 'center';
-        l.textPosition = 'top';
       });
-      // Merge
+
       const arranged = [...perimeterLines, ...centerLines];
-      // Fill up to lines.length to prevent index error
       const result = arranged.concat(lines.slice(arranged.length).map(l => ({ ...l, text: '' })));
       updateMultipleLines(result.slice(0, lines.length));
     } else {
-      // Rectangular/square: stack all vertically, centered
+      // For rectangular/square stamps - perfect vertical centering
+      const totalLines = nonEmptyLines.length;
+      const lineHeight = 18; // Consistent line height
+      const totalContentHeight = (totalLines - 1) * lineHeight;
+      const startY = -totalContentHeight / 2;
+
       nonEmptyLines.forEach((l, idx) => {
-        l.xPosition = 0;
-        const total = nonEmptyLines.length;
-        l.yPosition = ((idx + 1) - (total + 1) / 2) * 20;
+        l.xPosition = 0; // Always center horizontally
+        l.yPosition = startY + (idx * lineHeight);
         l.alignment = 'center';
         l.curved = false;
-        l.textPosition = 'top';
-        l.fontSize = Math.max(14, 20 - total);
+        l.fontSize = Math.max(14, 20 - totalLines);
       });
-      // Merge and fill as above
+
       const arranged = [...nonEmptyLines, ...lines.slice(nonEmptyLines.length).map(l => ({ ...l, text: '' }))];
       updateMultipleLines(arranged.slice(0, lines.length));
     }
   };
 
-  // Generate preview image - FIXED CENTERING FOR ALL SHAPES
+  // Generate preview image with perfect centering
   const generatePreview = (): string => {
     if (!product) {
       return '';
     }
 
-    // Parse dimensions from product.size (format: "48x18mm" -> width x height)
+    // Parse dimensions from product.size (format: "38x14mm" -> 380x140 px at 10px per mm)
     const sizeDimensions = product.size.replace('mm', '').split('x').map(dim => parseInt(dim.trim(), 10));
-    let displayWidth = 300;
-    let displayHeight = 200;
+    let canvasWidth = 380; // Default for 38mm at 10px per mm
+    let canvasHeight = 140; // Default for 14mm at 10px per mm
 
-    // Calculate SVG display dimensions maintaining aspect ratio
     if (sizeDimensions.length === 2) {
-      const [productWidth, productHeight] = sizeDimensions;
-      const aspectRatio = productWidth / productHeight;
-      
-      // Set consistent base size and scale proportionally
-      if (design.shape === 'circle') {
-        const diameter = Math.max(productWidth, productHeight);
-        displayWidth = displayHeight = 300;
-      } else if (design.shape === 'ellipse') {
-        displayWidth = 300;
-        displayHeight = Math.round(300 / aspectRatio);
-      } else {
-        // Rectangle/square
-        displayWidth = 300;
-        displayHeight = Math.round(300 / aspectRatio);
-      }
+      // Convert mm to pixels at 10 pixels per mm for exact real-world size
+      canvasWidth = sizeDimensions[0] * 10;
+      canvasHeight = sizeDimensions[1] * 10;
     }
 
-    // ViewBox dimensions (actual stamp size) - CENTERED PROPERLY
-    const viewWidth = sizeDimensions[0] || 60;
-    const viewHeight = sizeDimensions[1] || 40;
-    
     // Calculate true center coordinates
-    const centerX = viewWidth / 2;
-    const centerY = viewHeight / 2;
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
 
+    // Create SVG with exact stamp dimensions
     let svgContent = `
-      <svg width="${displayWidth}" height="${displayHeight}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-        </defs>
-        <rect width="100%" height="100%" fill="white"/>
+      <svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
+        <defs></defs>
+        <rect width="100%" height="100%" fill="transparent"/>
     `;
 
-    // --- ELLIPSE SHAPE SUPPORT - PROPERLY CENTERED ---
+    // Add shape-specific borders and content
     if (design.shape === 'ellipse') {
-      const rx = centerX - 1; // Full radius minus border space
-      const ry = centerY - 1;
+      const rx = (canvasWidth / 2) - 5; // Padding from edges
+      const ry = (canvasHeight / 2) - 5;
 
-      // Borders - centered around true center
+      // Add borders
       if (design.borderStyle === 'single') {
-        const strokeWidth = design.borderThickness || 0.5;
+        const strokeWidth = design.borderThickness || 2;
         svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
-        const strokeWidth = design.borderThickness || 0.5;
+        const strokeWidth = design.borderThickness || 2;
         svgContent += `
           <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-2}" ry="${ry-2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-8}" ry="${ry-8}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'wavy') {
-        const strokeWidth = design.borderThickness || 0.5;
-        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included - centered with offset
+      // Add logo if included
       if (design.includeLogo && design.logoImage) {
-        const logoSize = Math.min(rx, ry) * 0.4;
-        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (rx * 0.4);
-        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (ry * 0.4);
+        const logoSize = Math.min(rx, ry) * 0.3;
+        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (rx * 0.3);
+        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (ry * 0.3);
         svgContent += `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
-      // Render text for ellipse - properly centered
+      // Render text with perfect centering
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
-        const scaledFontSize = Math.min(rx, ry) / 6;
+        
+        const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
+        const fontSize = (line.fontSize / 16) * baseFontSize;
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          
-          const baseRadius = Math.min(rx, ry) * 0.7;
-          const radiusAdjustment = (line.yPosition || 0) / 100 * (Math.min(rx, ry) * 0.2);
-          const textPathRadius = Math.max(10, baseRadius + radiusAdjustment);
-
+          const textRadius = Math.min(rx, ry) * 0.7 + (line.yPosition || 0) / 100 * (Math.min(rx, ry) * 0.2);
           const isBottom = line.textPosition === 'bottom';
           
-          svgContent += `<defs>`;
-          if (isBottom) {
-            svgContent += `<ellipse id="${pathId}" cx="${centerX}" cy="${centerY}" rx="${textPathRadius}" ry="${textPathRadius * (ry/rx)}" />`;
-          } else {
-            svgContent += `<ellipse id="${pathId}" cx="${centerX}" cy="${centerY}" rx="${textPathRadius}" ry="${textPathRadius * (ry/rx)}" />`;
-          }
-          svgContent += `</defs>`;
-
-          const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
-          const baseStartOffset = 50;
-          const arcPositionAdjustment = (line.xPosition || 0) / 100 * 25;
-          const startOffset = baseStartOffset + arcPositionAdjustment;
-
+          svgContent += `<defs><ellipse id="${pathId}" cx="${centerX}" cy="${centerY}" rx="${textRadius}" ry="${textRadius * (ry/rx)}" /></defs>`;
+          
+          const startOffset = 50 + (line.xPosition || 0) / 100 * 25;
+          
           if (isBottom) {
             svgContent += `
             <g transform="rotate(180 ${centerX} ${centerY})">
-              <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+              <text font-family="${line.fontFamily}" font-size="${fontSize}"
                     ${line.bold ? 'font-weight="bold"' : ''} 
                     ${line.italic ? 'font-style="italic"' : ''} 
-                    fill="${design.inkColor}"
-                    letter-spacing="${letterSpacing}" text-anchor="middle">
+                    fill="${design.inkColor}" text-anchor="middle">
                 <textPath href="#${pathId}" startOffset="${100 - startOffset}%">
                   ${line.text}
                 </textPath>
               </text>
-            </g>
-            `;
+            </g>`;
           } else {
             svgContent += `
-            <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+            <text font-family="${line.fontFamily}" font-size="${fontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
-                  fill="${design.inkColor}"
-                  letter-spacing="${letterSpacing}" text-anchor="middle">
+                  fill="${design.inkColor}" text-anchor="middle">
               <textPath href="#${pathId}" startOffset="${startOffset}%">
                 ${line.text}
               </textPath>
-            </text>
-            `;
+            </text>`;
           }
         } else {
-          // Straight text for ellipse - centered at true center
-          const x = centerX + (line.xPosition || 0) / 100 * rx * 0.4;
-          const y = centerY + (line.yPosition || 0) / 100 * ry * 0.4;
-          let textAnchor;
-          if (line.alignment === 'left') textAnchor = 'start';
-          else if (line.alignment === 'right') textAnchor = 'end';
-          else textAnchor = 'middle';
-          const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
+          // Straight text - perfectly centered
+          const textX = centerX + (line.xPosition || 0) / 100 * (canvasWidth * 0.2);
+          const textY = centerY + fontSize/3 + (line.yPosition || 0) / 100 * (canvasHeight * 0.2);
+          
           svgContent += `
-            <text x="${x}" y="${y}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
-              text-anchor="${textAnchor}" fill="${design.inkColor}"
-              ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}
-              ${letterSpacing}>
+            <text x="${textX}" y="${textY}" 
+                  font-family="${line.fontFamily}" 
+                  font-size="${fontSize}" 
+                  text-anchor="middle" 
+                  fill="${design.inkColor}"
+                  ${line.bold ? 'font-weight="bold"' : ''} 
+                  ${line.italic ? 'font-style="italic"' : ''}>
               ${line.text}
-            </text>
-          `;
+            </text>`;
         }
       });
 
     } else if (design.shape === 'circle') {
-      // For circular stamps - centered around true center
-      const radius = Math.min(centerX, centerY) - 1; // Full radius minus border space
+      const radius = Math.min(centerX, centerY) - 5;
 
-      // Add borders - centered
+      // Add borders
       if (design.borderStyle === 'single') {
-        const strokeWidth = design.borderThickness || 0.5;
+        const strokeWidth = design.borderThickness || 2;
         svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
-        const strokeWidth = design.borderThickness || 0.5;
+        const strokeWidth = design.borderThickness || 2;
         svgContent += `
           <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
-          <circle cx="${centerX}" cy="${centerY}" r="${radius - 2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius - 8}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'wavy') {
-        const strokeWidth = design.borderThickness || 0.5;
-        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included - centered
-      if (design.includeLogo) {
-        const logoSize = radius * 0.4;
-        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (radius * 0.4);
-        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (radius * 0.4);
-
-        if (design.logoImage) {
-          svgContent += `
-            <image href="${design.logoImage}" x="${logoX}" y="${logoY}" 
-                   width="${logoSize}" height="${logoSize}" 
-                   preserveAspectRatio="xMidYMid meet" />
-          `;
-        }
+      // Add logo if included
+      if (design.includeLogo && design.logoImage) {
+        const logoSize = radius * 0.3;
+        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (radius * 0.3);
+        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (radius * 0.3);
+        svgContent += `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
-      // Text rendering for circles - centered properly
+      // Render text with perfect centering
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
-
-        const scaledFontSize = radius / 6;
+        
+        const baseFontSize = radius / 8;
+        const fontSize = (line.fontSize / 16) * baseFontSize;
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          
-          const baseRadius = radius * 0.7;
-          const radiusAdjustment = (line.yPosition || 0) / 100 * (radius * 0.2);
-          const textPathRadius = Math.max(10, baseRadius + radiusAdjustment);
-
+          const textRadius = radius * 0.7 + (line.yPosition || 0) / 100 * (radius * 0.2);
           const isBottom = line.textPosition === 'bottom';
           
           svgContent += `<defs>`;
           if (isBottom) {
-            svgContent += `<path id="${pathId}" d="M ${centerX + textPathRadius} ${centerY} 
-              a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX + textRadius} ${centerY} a ${textRadius},${textRadius} 0 1,1 -${textRadius * 2},0" />`;
           } else {
-            svgContent += `<path id="${pathId}" d="M ${centerX - textPathRadius} ${centerY} 
-              a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX - textRadius} ${centerY} a ${textRadius},${textRadius} 0 1,0 ${textRadius * 2},0" />`;
           }
           svgContent += `</defs>`;
 
-          const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
-          const baseStartOffset = 50;
-          const arcPositionAdjustment = (line.xPosition || 0) / 100 * 25;
-          const startOffset = baseStartOffset + arcPositionAdjustment;
+          const startOffset = 50 + (line.xPosition || 0) / 100 * 25;
 
           if (isBottom) {
             svgContent += `
             <g transform="rotate(180 ${centerX} ${centerY})">
-              <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+              <text font-family="${line.fontFamily}" font-size="${fontSize}"
                     ${line.bold ? 'font-weight="bold"' : ''} 
                     ${line.italic ? 'font-style="italic"' : ''} 
-                    fill="${design.inkColor}"
-                    letter-spacing="${letterSpacing}" text-anchor="middle">
+                    fill="${design.inkColor}" text-anchor="middle">
                 <textPath href="#${pathId}" startOffset="${100 - startOffset}%">
                   ${line.text}
                 </textPath>
               </text>
-            </g>
-            `;
+            </g>`;
           } else {
             svgContent += `
-            <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+            <text font-family="${line.fontFamily}" font-size="${fontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
-                  fill="${design.inkColor}"
-                  letter-spacing="${letterSpacing}" text-anchor="middle">
+                  fill="${design.inkColor}" text-anchor="middle">
               <textPath href="#${pathId}" startOffset="${startOffset}%">
                 ${line.text}
               </textPath>
-            </text>
-            `;
+            </text>`;
           }
         } else {
-          // Straight text for circles - centered with proper vertical spacing
+          // Straight text - perfectly centered with proper vertical distribution
           const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim());
           const lineIndex = nonEmptyLines.findIndex(l => l === line);
           
-          // Calculate vertical spacing for multiple lines
-          let textY = centerY;
+          let textY = centerY + fontSize/3;
           if (nonEmptyLines.length > 1) {
-            const totalSpacing = (nonEmptyLines.length - 1) * scaledFontSize * 1.2;
-            const startY = centerY - totalSpacing / 2;
-            textY = startY + lineIndex * scaledFontSize * 1.2;
+            const totalHeight = (nonEmptyLines.length - 1) * fontSize * 1.2;
+            const startY = centerY - totalHeight / 2 + fontSize/3;
+            textY = startY + lineIndex * fontSize * 1.2;
           }
           
-          const textX = centerX + (line.xPosition || 0) / 100 * radius * 0.4;
-          textY += (line.yPosition || 0) / 100 * radius * 0.4;
+          const textX = centerX + (line.xPosition || 0) / 100 * (radius * 0.4);
+          textY += (line.yPosition || 0) / 100 * (radius * 0.4);
           
-          let textAnchor;
-          if (line.alignment === 'left') textAnchor = 'start';
-          else if (line.alignment === 'right') textAnchor = 'end';
-          else textAnchor = 'middle';
-          
-          const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
           svgContent += `
             <text x="${textX}" y="${textY}"
                   font-family="${line.fontFamily}"
-                  font-size="${scaledFontSize}"
-                  text-anchor="${textAnchor}"
+                  font-size="${fontSize}"
+                  text-anchor="middle"
                   fill="${design.inkColor}"
                   ${line.bold ? 'font-weight="bold"' : ''}
-                  ${line.italic ? 'font-style="italic"' : ''}
-                  ${letterSpacing}>
+                  ${line.italic ? 'font-style="italic"' : ''}>
               ${line.text}
-            </text>
-          `;
+            </text>`;
         }
       });
+
     } else {
-      // For rectangular and square stamps - FIXED CENTERING
+      // Rectangular stamps - perfect centering with proper padding
+      const padding = 10;
       
-      // Add border(s) - properly centered with minimal offset
+      // Add borders
       if (design.borderStyle === 'single') {
-        const strokeWidth = design.borderThickness || 0.5;
-        const offset = strokeWidth / 2;
-        svgContent += `<rect x="${offset}" y="${offset}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
-        const strokeWidth = design.borderThickness || 0.5;
-        const offset1 = strokeWidth / 2;
-        const offset2 = strokeWidth / 2 + 2;
+        const strokeWidth = design.borderThickness || 2;
         svgContent += `
-          <rect x="${offset1}" y="${offset1}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
-          <rect x="${offset2}" y="${offset2}" width="${viewWidth - strokeWidth - 4}" height="${viewHeight - strokeWidth - 4}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <rect x="${padding + 8}" y="${padding + 8}" width="${canvasWidth - (padding + 8)*2}" height="${canvasHeight - (padding + 8)*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'wavy') {
-        const strokeWidth = design.borderThickness || 0.5;
-        const offset = strokeWidth / 2;
-        svgContent += `<rect x="${offset}" y="${offset}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included - centered
-      if (design.includeLogo) {
-        const logoSize = Math.min(viewWidth, viewHeight) * 0.25;
-        const logoX = centerX - logoSize / 2 + (design.logoX || 0) / 100 * (viewWidth / 4);
-        const logoY = centerY - logoSize / 2 + (design.logoY || 0) / 100 * (viewHeight / 4);
-
-        if (design.logoImage) {
-          svgContent += `
-            <image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" />
-          `;
-        }
+      // Add logo if included
+      if (design.includeLogo && design.logoImage) {
+        const logoSize = Math.min(canvasWidth, canvasHeight) * 0.2;
+        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (canvasWidth * 0.2);
+        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (canvasHeight * 0.2);
+        svgContent += `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
-      // Add text with curved text support for rectangles/squares - properly centered
+      // Render text with perfect centering
+      const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim());
+      const baseFontSize = Math.min(canvasWidth, canvasHeight) / 12;
+      
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
-
-        const scaledFontSize = Math.min(viewWidth, viewHeight) / 8;
+        
+        const fontSize = (line.fontSize / 16) * baseFontSize;
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          
-          const baseRadiusX = (viewWidth / 2) * 0.7;
-          const baseRadiusY = (viewHeight / 2) * 0.5;
-          const radiusAdjustmentX = (line.yPosition || 0) / 100 * (baseRadiusX * 0.2);
-          const radiusAdjustmentY = (line.yPosition || 0) / 100 * (baseRadiusY * 0.2);
-          const textPathRadiusX = Math.max(10, baseRadiusX + radiusAdjustmentX);
-          const textPathRadiusY = Math.max(10, baseRadiusY + radiusAdjustmentY);
-
+          const radiusX = (canvasWidth / 2) * 0.7 + (line.yPosition || 0) / 100 * (canvasWidth * 0.1);
+          const radiusY = (canvasHeight / 2) * 0.5 + (line.yPosition || 0) / 100 * (canvasHeight * 0.1);
           const isBottom = line.textPosition === 'bottom';
           
           svgContent += `<defs>`;
           if (isBottom) {
-            svgContent += `<path id="${pathId}" d="M ${centerX + textPathRadiusX} ${centerY} 
-              a ${textPathRadiusX},${textPathRadiusY} 0 1,1 -${textPathRadiusX * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX + radiusX} ${centerY} a ${radiusX},${radiusY} 0 1,1 -${radiusX * 2},0" />`;
           } else {
-            svgContent += `<path id="${pathId}" d="M ${centerX - textPathRadiusX} ${centerY} 
-              a ${textPathRadiusX},${textPathRadiusY} 0 1,0 ${textPathRadiusX * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX - radiusX} ${centerY} a ${radiusX},${radiusY} 0 1,0 ${radiusX * 2},0" />`;
           }
           svgContent += `</defs>`;
 
-          const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
-          const baseStartOffset = 50;
-          const arcPositionAdjustment = (line.xPosition || 0) / 100 * 25;
-          const startOffset = baseStartOffset + arcPositionAdjustment;
+          const startOffset = 50 + (line.xPosition || 0) / 100 * 25;
 
           if (isBottom) {
             svgContent += `
             <g transform="rotate(180 ${centerX} ${centerY})">
-              <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+              <text font-family="${line.fontFamily}" font-size="${fontSize}"
                     ${line.bold ? 'font-weight="bold"' : ''} 
                     ${line.italic ? 'font-style="italic"' : ''} 
-                    fill="${design.inkColor}"
-                    letter-spacing="${letterSpacing}" text-anchor="middle">
+                    fill="${design.inkColor}" text-anchor="middle">
                 <textPath href="#${pathId}" startOffset="${100 - startOffset}%">
                   ${line.text}
                 </textPath>
               </text>
-            </g>
-            `;
+            </g>`;
           } else {
             svgContent += `
-            <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+            <text font-family="${line.fontFamily}" font-size="${fontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
-                  fill="${design.inkColor}"
-                  letter-spacing="${letterSpacing}" text-anchor="middle">
+                  fill="${design.inkColor}" text-anchor="middle">
               <textPath href="#${pathId}" startOffset="${startOffset}%">
                 ${line.text}
               </textPath>
-            </text>
-            `;
+            </text>`;
           }
         } else {
-          // Straight text for rectangles - properly centered
-          const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim());
+          // Straight text - perfectly centered with equal spacing
           const lineIndex = nonEmptyLines.findIndex(l => l === line);
           
-          // Calculate vertical spacing for multiple lines - centered around true center
-          let textY = centerY + scaledFontSize / 3; // Adjust for baseline
+          let textY = centerY + fontSize/3;
           if (nonEmptyLines.length > 1) {
-            const totalSpacing = (nonEmptyLines.length - 1) * scaledFontSize * 1.2;
-            const startY = centerY - totalSpacing / 2 + scaledFontSize / 3;
-            textY = startY + lineIndex * scaledFontSize * 1.2;
+            const totalHeight = (nonEmptyLines.length - 1) * fontSize * 1.2;
+            const startY = centerY - totalHeight / 2 + fontSize/3;
+            textY = startY + lineIndex * fontSize * 1.2;
           }
           
-          const textX = centerX + (line.xPosition || 0) / 100 * (viewWidth / 4);
-          textY += (line.yPosition || 0) / 100 * (viewHeight / 4);
-
-          const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
-
-          let textAnchor;
-          if (line.alignment === 'left') textAnchor = 'start';
-          else if (line.alignment === 'right') textAnchor = 'end';
-          else textAnchor = 'middle';
+          const textX = centerX + (line.xPosition || 0) / 100 * (canvasWidth * 0.2);
+          textY += (line.yPosition || 0) / 100 * (canvasHeight * 0.2);
 
           svgContent += `
-            <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
-                  text-anchor="${textAnchor}" fill="${design.inkColor}"
-                  ${line.bold ? 'font-weight="bold"' : ''}
-                  ${line.italic ? 'font-style="italic"' : ''}
-                  ${letterSpacing}>
+            <text x="${textX}" y="${textY}" 
+                  font-family="${line.fontFamily}" 
+                  font-size="${fontSize}" 
+                  text-anchor="middle" 
+                  fill="${design.inkColor}"
+                  ${line.bold ? 'font-weight="bold"' : ''} 
+                  ${line.italic ? 'font-style="italic"' : ''}>
               ${line.text}
-            </text>
-          `;
+            </text>`;
         }
       });
     }
@@ -988,8 +931,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Add custom elements (QR codes, barcodes, etc.) - centered
     if (design.elements && design.elements.length > 0) {
       design.elements.forEach((element) => {
-        const elementX = centerX + (element.x / 100) * (viewWidth / 4) - element.width / 2;
-        const elementY = centerY + (element.y / 100) * (viewHeight / 4) - element.height / 2;
+        const elementX = centerX + (element.x / 100) * (canvasWidth / 4) - element.width / 2;
+        const elementY = centerY + (element.y / 100) * (canvasHeight / 4) - element.height / 2;
 
         svgContent += `
           <image href="${element.dataUrl}" x="${elementX}" y="${elementY}" 
@@ -1009,27 +952,26 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return previewUrl;
   };
 
-  // Download preview as PNG with proper size and transparent background
+  // Download preview as PNG with exact stamp size and transparent background
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
 
-    // Create a canvas element with proper dimensions
+    // Create a canvas element with exact stamp dimensions
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    // Parse dimensions from product.size (format: "38x14mm" -> 380x140 px at 10px per mm)
+    // Parse dimensions and convert to pixels at 10px per mm for real-world accuracy
     const sizeDimensions = product.size.replace('mm', '').split('x').map(dim => parseInt(dim.trim(), 10));
     let canvasWidth = 380; // Default for 38mm
     let canvasHeight = 140; // Default for 14mm
 
     if (sizeDimensions.length === 2) {
-      // Convert mm to pixels at 10 pixels per mm for high quality
       canvasWidth = sizeDimensions[0] * 10;
       canvasHeight = sizeDimensions[1] * 10;
     }
 
-    // Set canvas dimensions to actual stamp size
+    // Set canvas dimensions to exact stamp size
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
