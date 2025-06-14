@@ -580,7 +580,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }
   };
 
-  // Generate preview image
+  // Generate preview image - FIXED CENTERING
   const generatePreview = (): string => {
     if (!product) {
       return '';
@@ -645,16 +645,17 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included
+      // Add logo if included - FIXED CENTERING
       if (design.includeLogo && design.logoImage) {
-        const logoW = rx * 0.6;
+        const logoW = rx * 0.4;
         const logoH = ry * 0.4;
-        const logoX = centerX - logoW/2 + (design.logoX || 0)/100 * (rx * 0.4);
-        const logoY = centerY - logoH/2 + (design.logoY || 0)/100 * (ry * 0.4);
+        // Center logo and apply offset
+        const logoX = centerX - logoW/2 + (design.logoX || 0) / 100 * (rx * 0.3);
+        const logoY = centerY - logoH/2 + (design.logoY || 0) / 100 * (ry * 0.3);
         svgContent += `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
-      // Render text for ellipse
+      // Render text for ellipse - FIXED CENTERING
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
         const scaledFontSize = (line.fontSize / 16) * Math.min(rx, ry) / 6;
@@ -709,9 +710,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             `;
           }
         } else {
-          // Straight text for ellipse - centered positioning
-          const x = centerX + (line.xPosition || 0) / 100 * rx * 0.6;
-          const y = centerY + (line.yPosition || 0) / 100 * ry * 0.6;
+          // Straight text for ellipse - FIXED CENTERING
+          const x = centerX + (line.xPosition || 0) / 100 * rx * 0.5;
+          const y = centerY + (line.yPosition || 0) / 100 * ry * 0.5;
           let textAnchor;
           if (line.alignment === 'left') textAnchor = 'start';
           else if (line.alignment === 'right') textAnchor = 'end';
@@ -729,7 +730,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       });
 
     } else if (design.shape === 'circle') {
-      // For circular stamps - always centered
+      // For circular stamps - FIXED CENTERING
       const radius = Math.min(centerX, centerY) - 1;
 
       // Add borders
@@ -747,22 +748,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included - centered positioning
+      // Add logo if included - FIXED CENTERING
       if (design.includeLogo) {
-        const logoSize = radius / 3;
-        const logoX = centerX - logoSize + (design.logoX || 0) / 100 * (radius - logoSize);
-        const logoY = centerY - logoSize + (design.logoY || 0) / 100 * (radius - logoSize);
+        const logoSize = radius * 0.4;
+        // Center logo properly and apply offset
+        const logoX = centerX - logoSize/2 + (design.logoX || 0) / 100 * (radius * 0.3);
+        const logoY = centerY - logoSize/2 + (design.logoY || 0) / 100 * (radius * 0.3);
 
         if (design.logoImage) {
           svgContent += `
             <image href="${design.logoImage}" x="${logoX}" y="${logoY}" 
-                   width="${logoSize * 2}" height="${logoSize * 2}" 
+                   width="${logoSize}" height="${logoSize}" 
                    preserveAspectRatio="xMidYMid meet" />
           `;
         }
       }
 
-      // Text rendering for circles - centered positioning
+      // Text rendering for circles - FIXED CENTERING
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
 
@@ -820,24 +822,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             `;
           }
         } else {
-          // Straight text for circles - centered positioning
-          const baseRadius = radius;
-          const xOffset = (line.xPosition || 0) / 100 * (baseRadius / 3);
-          const yOffset = (line.yPosition || 0) / 100 * (baseRadius / 3);
+          // Straight text for circles - FIXED CENTERING
+          const baseXOffset = (line.xPosition || 0) / 100 * (radius * 0.5);
+          const baseYOffset = (line.yPosition || 0) / 100 * (radius * 0.5);
           
           // Center multiple lines vertically
-          const centerLines = design.lines.filter(l => !l.curved && l.text.trim()).length;
+          const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim()).length;
           const lineIndex = design.lines.filter((l, i) => !l.curved && l.text.trim() && i < index).length;
           let verticalPosition = centerY;
           
-          if (centerLines > 1) {
-            const totalHeight = centerLines * scaledFontSize * 1.2;
+          if (nonEmptyLines > 1) {
+            const totalHeight = nonEmptyLines * scaledFontSize * 1.2;
             const startY = centerY - totalHeight / 2 + scaledFontSize / 2;
             verticalPosition = startY + lineIndex * scaledFontSize * 1.2;
           }
           
-          const textX = centerX + xOffset;
-          const textY = verticalPosition + yOffset;
+          const textX = centerX + baseXOffset;
+          const textY = verticalPosition + baseYOffset;
           
           let textAnchor;
           if (line.alignment === 'left') textAnchor = 'start';
@@ -860,7 +861,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       });
     } else {
-      // For rectangular and square stamps - centered positioning
+      // For rectangular and square stamps - FIXED CENTERING
       const cornerRadius = Math.min(viewWidth, viewHeight) * 0.05;
 
       // Add border(s)
@@ -878,11 +879,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
-      // Add logo if included - centered positioning
+      // Add logo if included - FIXED CENTERING
       if (design.includeLogo) {
         const logoWidth = Math.min(viewWidth, viewHeight) * 0.25;
         const logoHeight = logoWidth;
 
+        // Center logo properly and apply offset
         let logoX = centerX - logoWidth / 2 + (design.logoX || 0) / 100 * (viewWidth / 4);
         let logoY = centerY - logoHeight / 2 + (design.logoY || 0) / 100 * (viewHeight / 4);
 
@@ -893,7 +895,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       }
 
-      // Add text with curved text support for rectangles/squares - centered positioning
+      // Add text with curved text support for rectangles/squares - FIXED CENTERING
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
 
@@ -954,23 +956,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             `;
           }
         } else {
-          // Straight text for rectangles - centered positioning
-          const xOffset = (line.xPosition || 0) / 100 * (viewWidth / 4);
-          const yOffset = (line.yPosition || 0) / 100 * (viewHeight / 4);
+          // Straight text for rectangles - FIXED CENTERING
+          const baseXOffset = (line.xPosition || 0) / 100 * (viewWidth / 4);
+          const baseYOffset = (line.yPosition || 0) / 100 * (viewHeight / 4);
           
           // Center multiple lines vertically
-          const centerLines = design.lines.filter(l => !l.curved && l.text.trim()).length;
+          const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim()).length;
           const lineIndex = design.lines.filter((l, i) => !l.curved && l.text.trim() && i < index).length;
           let verticalPosition = centerY;
           
-          if (centerLines > 1) {
-            const totalHeight = centerLines * scaledFontSize * 1.2;
+          if (nonEmptyLines > 1) {
+            const totalHeight = nonEmptyLines * scaledFontSize * 1.2;
             const startY = centerY - totalHeight / 2 + scaledFontSize / 2;
             verticalPosition = startY + lineIndex * scaledFontSize * 1.2;
           }
           
-          const textX = centerX + xOffset;
-          const textY = verticalPosition + yOffset;
+          const textX = centerX + baseXOffset;
+          const textY = verticalPosition + baseYOffset;
 
           const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
 
@@ -992,7 +994,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       });
     }
 
-    // Add custom elements (QR codes, barcodes, etc.) - centered positioning
+    // Add custom elements (QR codes, barcodes, etc.) - FIXED CENTERING
     if (design.elements && design.elements.length > 0) {
       design.elements.forEach((element) => {
         const elementX = centerX + (element.x / 100) * (viewWidth / 4) - element.width / 2;
