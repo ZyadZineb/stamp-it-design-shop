@@ -1009,38 +1009,55 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return previewUrl;
   };
 
-  // Download preview as PNG
+  // Download preview as PNG with proper size and transparent background
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
 
-    // Create a canvas element
+    // Create a canvas element with proper dimensions
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    // Set canvas dimensions (scale up for better quality)
-    canvas.width = 1000;
-    canvas.height = 800;
+    // Parse dimensions from product.size (format: "38x14mm" -> 380x140 px at 10px per mm)
+    const sizeDimensions = product.size.replace('mm', '').split('x').map(dim => parseInt(dim.trim(), 10));
+    let canvasWidth = 380; // Default for 38mm
+    let canvasHeight = 140; // Default for 14mm
+
+    if (sizeDimensions.length === 2) {
+      // Convert mm to pixels at 10 pixels per mm for high quality
+      canvasWidth = sizeDimensions[0] * 10;
+      canvasHeight = sizeDimensions[1] * 10;
+    }
+
+    // Set canvas dimensions to actual stamp size
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
 
     // Create an image from the SVG
     const img = new Image();
-    // Create a blob from the SVG string, not from the SVGSVGElement
+    // Create a blob from the SVG string
     const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      // Draw image to canvas (white background)
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear canvas (transparent background)
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw image to canvas without background (preserves transparency)
       context.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       // Create download link
       const link = document.createElement('a');
-      link.download = `${product.name}-stamp.png`;
+      link.download = `${product.name.replace(/\s/g, '-')}-stamp-${canvasWidth}x${canvasHeight}px.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
 
       // Clean up
+      URL.revokeObjectURL(url);
+    };
+
+    img.onerror = () => {
+      console.error('Failed to load SVG for PNG export');
       URL.revokeObjectURL(url);
     };
 

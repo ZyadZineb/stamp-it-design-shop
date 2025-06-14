@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand } from 'lucide-react';
+import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand, HelpCircle } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
 import { Product } from '@/types';
 import { useCart } from '@/contexts/CartContext';
@@ -26,6 +27,8 @@ type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'preview';
 interface StampDesignerWizardProps {
   product: Product | null;
   onAddToCart?: () => void;
+  onPreview?: () => void;
+  currentStep?: 'customize' | 'preview' | 'order';
   highContrast?: boolean;
   largeControls?: boolean;
 }
@@ -33,6 +36,8 @@ interface StampDesignerWizardProps {
 const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   product,
   onAddToCart,
+  onPreview,
+  currentStep: parentStep = 'customize',
   highContrast = false,
   largeControls = false
 }) => {
@@ -89,13 +94,48 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   const [previewBackground, setPreviewBackground] = useState<string>('none');
   const [showAnimation, setShowAnimation] = useState(false);
   
-  // Steps configuration
+  // Steps configuration with enhanced tooltips
   const steps = [
-    { id: 'shape' as WizardStepType, labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
-    { id: 'text' as WizardStepType, labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
-    { id: 'color' as WizardStepType, labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
-    { id: 'logo' as WizardStepType, labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
-    { id: 'preview' as WizardStepType, labelKey: 'wizard.steps.preview.label', label: 'Preview', descriptionKey: 'wizard.steps.preview.description', description: 'Review and finalize your design' }
+    { 
+      id: 'shape' as WizardStepType, 
+      labelKey: 'wizard.steps.shape.label', 
+      label: 'Shape & Border', 
+      descriptionKey: 'wizard.steps.shape.description', 
+      description: 'Choose your stamp shape and border style',
+      tooltip: 'Set up the basic appearance of your stamp'
+    },
+    { 
+      id: 'text' as WizardStepType, 
+      labelKey: 'wizard.steps.text.label', 
+      label: 'Text', 
+      descriptionKey: 'wizard.steps.text.description', 
+      description: 'Add and position your text',
+      tooltip: 'Click to edit font size, drag text to reposition'
+    },
+    { 
+      id: 'color' as WizardStepType, 
+      labelKey: 'wizard.steps.color.label', 
+      label: 'Color', 
+      descriptionKey: 'wizard.steps.color.description', 
+      description: 'Select ink color',
+      tooltip: 'Choose from available ink colors'
+    },
+    { 
+      id: 'logo' as WizardStepType, 
+      labelKey: 'wizard.steps.logo.label', 
+      label: 'Logo', 
+      descriptionKey: 'wizard.steps.logo.description', 
+      description: 'Add a logo if needed',
+      tooltip: 'Upload and position your company logo'
+    },
+    { 
+      id: 'preview' as WizardStepType, 
+      labelKey: 'wizard.steps.preview.label', 
+      label: 'Preview', 
+      descriptionKey: 'wizard.steps.preview.description', 
+      description: 'Review and finalize your design',
+      tooltip: 'Final review before ordering'
+    }
   ];
   
   // Get current step index
@@ -111,6 +151,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       const nextIndex = currentStepIndex + 1;
       if (nextIndex < steps.length) {
         setCurrentStep(steps[nextIndex].id);
+      } else if (onPreview) {
+        onPreview();
       }
     }
   };
@@ -335,8 +377,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
 
   if (!product) {
     return (
-      <div className={`p-8 text-center bg-white rounded-lg ${highContrast ? 'border-2 border-gray-800' : ''}`}>
-        <p className={`${highContrast ? 'text-black' : 'text-gray-500'}`}>
+      <div className={`p-6 sm:p-8 text-center bg-white rounded-lg ${highContrast ? 'border-2 border-gray-800' : ''}`}>
+        <p className={`text-base sm:text-lg ${highContrast ? 'text-black' : 'text-gray-500'}`}>
           {t('design.selectProduct', "Please select a product to start designing your stamp.")}
         </p>
       </div>
@@ -345,14 +387,15 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden ${highContrast ? 'border-2 border-gray-800' : ''}`}>
-      <div className={`border-b ${highContrast ? 'border-gray-800 bg-gray-100' : 'border-gray-200 bg-gray-50'} p-4`}>
+      <div className={`border-b ${highContrast ? 'border-gray-800 bg-gray-100' : 'border-gray-200 bg-gradient-to-r from-brand-blue to-blue-600'} p-4 sm:p-6`}>
         <div className="flex justify-between items-center">
-          <h2 className={`text-xl font-semibold ${highContrast ? 'text-black' : ''}`}>
+          <h2 className={`text-lg sm:text-xl font-semibold ${highContrast ? 'text-black' : 'text-white'}`}>
             {t('design.title', "Custom Stamp Designer")}
           </h2>
           
           <HelpTooltip content={t('design.productInfo', `Designing a ${product.name} stamp (${product.size}). You can add up to ${product.lines} lines of text and choose from ${product.inkColors.length} ink colors.`)}>
-            <span className={`text-sm ${highContrast ? 'text-black' : 'text-gray-600'}`}>
+            <span className={`text-xs sm:text-sm ${highContrast ? 'text-black' : 'text-white/90'} flex items-center gap-1`}>
+              <HelpCircle size={16} />
               {product.name} ({product.size})
             </span>
           </HelpTooltip>
@@ -362,23 +405,24 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         <div className="mt-4">
           <Progress 
             value={progress} 
-            className={`h-2 ${highContrast ? 'bg-gray-300' : ''}`} 
+            className={`h-2 ${highContrast ? 'bg-gray-300' : 'bg-white/20'}`} 
           />
           <div className="flex justify-between mt-2">
             {steps.map((step, index) => (
-              <div 
-                key={step.id} 
-                className={`text-xs ${isMobile ? 'hidden sm:block' : ''} ${
-                  index <= currentStepIndex 
-                    ? (highContrast ? 'text-black font-bold' : 'text-brand-blue font-medium') 
-                    : (highContrast ? 'text-gray-600' : 'text-gray-400')
-                }`}
-              >
-                {step.labelKey ? t(step.labelKey) : step.label}
-              </div>
+              <HelpTooltip key={step.id} content={step.tooltip}>
+                <div 
+                  className={`text-xs cursor-help ${isMobile ? 'hidden sm:block' : ''} ${
+                    index <= currentStepIndex 
+                      ? (highContrast ? 'text-black font-bold' : 'text-white font-medium') 
+                      : (highContrast ? 'text-gray-600' : 'text-white/60')
+                  }`}
+                >
+                  {step.labelKey ? t(step.labelKey) : step.label}
+                </div>
+              </HelpTooltip>
             ))}
           </div>
-          <p className="text-sm text-center mt-1 text-gray-500">
+          <p className="text-xs sm:text-sm text-center mt-1 text-white/80">
             {t('wizard.stepOf', 'Step {{current}} of {{total}}', { current: currentStepIndex + 1, total: steps.length })}:
             {' '}
             <strong>{t(steps[currentStepIndex].labelKey || '', steps[currentStepIndex].label)}</strong>
@@ -390,7 +434,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       {validationErrors.length > 0 && (
         <div className={`${highContrast ? 'bg-red-100' : 'bg-red-50'} border-l-4 border-red-500 p-4 m-4`}>
           <div className="flex items-start">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-medium text-red-800">
                 {t('validation.fixIssues', "Please fix the following issues:")}
@@ -405,68 +449,81 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         </div>
       )}
       
-      {/* Undo/Redo controls */}
-      <div className={`p-4 border-b ${highContrast ? 'border-gray-800' : 'border-gray-200'} flex justify-between items-center`}>
+      {/* Undo/Redo controls with tooltips */}
+      <div className={`p-4 border-b ${highContrast ? 'border-gray-800' : 'border-gray-200'} flex justify-between items-center flex-wrap gap-2`}>
         <div className="flex space-x-2">
-          <Button 
-            variant={highContrast ? "default" : "outline"} 
-            size={largeControls ? "default" : "sm"} 
-            onClick={undo} 
-            disabled={!canUndo}
-            title={t('actions.undo', "Undo")}
-            className={largeControls ? "h-10 w-10 p-0" : ""}
-          >
-            <Undo size={largeControls ? 20 : 16} />
-          </Button>
-          <Button 
-            variant={highContrast ? "default" : "outline"} 
-            size={largeControls ? "default" : "sm"} 
-            onClick={redo} 
-            disabled={!canRedo}
-            title={t('actions.redo', "Redo")}
-            className={largeControls ? "h-10 w-10 p-0" : ""}
-          >
-            <Redo size={largeControls ? 20 : 16} />
-          </Button>
-        </div>
-        
-        <div className="flex space-x-2">
-          {hasSavedDesign() ? (
-            <>
-              <Button 
-                variant={highContrast ? "default" : "outline"} 
-                size={largeControls ? "default" : "sm"} 
-                onClick={handleLoadDesign}
-                title={t('design.loadSavedDesign', "Load Saved Design")}
-              >
-                {t('design.loadDesign', "Load Design")}
-              </Button>
-              <Button 
-                variant={highContrast ? "default" : "outline"} 
-                size={largeControls ? "default" : "sm"} 
-                onClick={clearSavedDesign}
-                title={t('design.clearSavedDesign', "Clear Saved Design")}
-              >
-                {t('design.clearSaved', "Clear Saved")}
-              </Button>
-            </>
-          ) : (
+          <HelpTooltip content={t('actions.undoTooltip', "Undo last action")}>
             <Button 
               variant={highContrast ? "default" : "outline"} 
               size={largeControls ? "default" : "sm"} 
-              onClick={handleSaveDesign}
-              title={t('design.saveDesignForLater', "Save Design for Later")}
+              onClick={undo} 
+              disabled={!canUndo}
+              title={t('actions.undo', "Undo")}
+              className={`${largeControls ? "h-12 w-12 p-0" : "min-h-[44px]"} ${!canUndo ? 'opacity-50' : 'hover:bg-brand-blue hover:text-white'}`}
             >
-              <Save size={largeControls ? 20 : 16} className="mr-1" />
-              {t('design.saveDesign', "Save Design")}
+              <Undo size={largeControls ? 20 : 16} />
             </Button>
+          </HelpTooltip>
+          <HelpTooltip content={t('actions.redoTooltip', "Redo last undone action")}>
+            <Button 
+              variant={highContrast ? "default" : "outline"} 
+              size={largeControls ? "default" : "sm"} 
+              onClick={redo} 
+              disabled={!canRedo}
+              title={t('actions.redo', "Redo")}
+              className={`${largeControls ? "h-12 w-12 p-0" : "min-h-[44px]"} ${!canRedo ? 'opacity-50' : 'hover:bg-brand-blue hover:text-white'}`}
+            >
+              <Redo size={largeControls ? 20 : 16} />
+            </Button>
+          </HelpTooltip>
+        </div>
+        
+        <div className="flex space-x-2 flex-wrap">
+          {hasSavedDesign() ? (
+            <>
+              <HelpTooltip content={t('design.loadSavedDesignTooltip', "Load your previously saved design")}>
+                <Button 
+                  variant={highContrast ? "default" : "outline"} 
+                  size={largeControls ? "default" : "sm"} 
+                  onClick={handleLoadDesign}
+                  title={t('design.loadSavedDesign', "Load Saved Design")}
+                  className="min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue"
+                >
+                  {t('design.loadDesign', "Load Design")}
+                </Button>
+              </HelpTooltip>
+              <HelpTooltip content={t('design.clearSavedDesignTooltip', "Clear saved design from storage")}>
+                <Button 
+                  variant={highContrast ? "default" : "outline"} 
+                  size={largeControls ? "default" : "sm"} 
+                  onClick={clearSavedDesign}
+                  title={t('design.clearSavedDesign', "Clear Saved Design")}
+                  className="min-h-[44px] hover:bg-red-500 hover:text-white border-red-500 text-red-500"
+                >
+                  {t('design.clearSaved', "Clear Saved")}
+                </Button>
+              </HelpTooltip>
+            </>
+          ) : (
+            <HelpTooltip content={t('design.saveDesignForLaterTooltip', "Save your current design to continue later")}>
+              <Button 
+                variant={highContrast ? "default" : "outline"} 
+                size={largeControls ? "default" : "sm"} 
+                onClick={handleSaveDesign}
+                title={t('design.saveDesignForLater', "Save Design for Later")}
+                className="min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue"
+              >
+                <Save size={largeControls ? 20 : 16} className="mr-1" />
+                {t('design.saveDesign', "Save Design")}
+              </Button>
+            </HelpTooltip>
           )}
         </div>
       </div>
       
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-6 ${isMobile ? 'flex flex-col-reverse' : ''}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 ${isMobile ? 'flex flex-col-reverse' : ''}`}>
         {/* Left panel: Design options based on current step */}
-        <div className={`space-y-6 overflow-y-auto max-h-[70vh] ${largeControls ? 'text-lg' : ''}`}>
+        <div className={`space-y-4 sm:space-y-6 overflow-y-auto max-h-[70vh] ${largeControls ? 'text-lg' : ''}`}>
           {/* Auto-arrange button - Show on text step */}
           {currentStep === 'text' && (
             <AutoArrange 
@@ -532,16 +589,16 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           
           {currentStep === 'preview' && (
             <div className="space-y-4">
-              <div className={`${highContrast ? 'bg-gray-100' : 'bg-gray-50'} p-4 rounded-md`}>
+              <div className={`${highContrast ? 'bg-gray-100' : 'bg-gradient-to-r from-green-50 to-green-100'} p-4 rounded-md border border-green-200`}>
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium">{product.name}</h3>
-                  <span className={`font-bold ${highContrast ? 'text-black' : 'text-brand-red'}`}>{product.price} DHS TTC</span>
+                  <h3 className="font-medium text-brand-blue">{product.name}</h3>
+                  <span className={`font-bold text-lg ${highContrast ? 'text-black' : 'text-brand-red'}`}>{product.price} DHS TTC</span>
                 </div>
                 <Button
                   onClick={handleAddToCart}
                   className={`w-full py-3 ${highContrast ? 'bg-red-800' : 'bg-brand-red'} text-white rounded-md hover:bg-red-700 transition-colors ${
                     largeControls ? 'text-lg py-4' : ''
-                  }`}
+                  } min-h-[48px] font-semibold`}
                 >
                   {t('cart.addToCart', "Add to Cart")}
                 </Button>
@@ -569,7 +626,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         </div>
         
         {/* Right panel: Preview and navigation controls */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <StampPreviewAccessible
             previewImage={previewImage}
             productSize={product.size}
