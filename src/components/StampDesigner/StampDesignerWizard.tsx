@@ -13,7 +13,6 @@ import StampPreviewAccessible from './StampPreviewAccessible';
 import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
-import DesignTemplates from './DesignTemplates';
 import AdvancedTools from './AdvancedTools';
 import ExportDesign from './ExportDesign';
 import TextEffects from './TextEffects';
@@ -489,11 +488,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               <BorderStyleSelector 
                 borderStyle={design.borderStyle} 
                 onBorderStyleChange={setBorderStyle} 
-              />
-              <DesignTemplates 
-                onSelectTemplate={applyTemplate} 
-                // Fix: ProfessionalCircularTemplates and similar only accept supported shapes
-                productShape={design.shape === "ellipse" ? "rectangle" : design.shape}
               />
             </>
           )}

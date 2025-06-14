@@ -126,17 +126,6 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
     setExpandedLine(expandedLine === index ? null : index);
   };
 
-  const applyEffect = (index: number, effectType: 'shadow' | 'outline' | 'bold' | 'italic' | 'none') => {
-    if (applyTextEffect) {
-      applyTextEffect(index, {
-        type: effectType,
-        color: '#000000',
-        blur: 2,
-        thickness: 1
-      });
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -320,36 +309,6 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                         <AlignRight size={largeControls ? 20 : 16} />
                       </Button>
                     </div>
-                  </div>
-                </div>
-                
-                {/* Text Effects */}
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">
-                    {t('textEditor.effects', 'Text Effects')}
-                  </div>
-                  <div className="flex gap-1 flex-wrap">
-                    <Button
-                      variant={line.textEffect?.type === 'none' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyEffect(index, 'none')}
-                    >
-                      {t('textEditor.effectNone', 'None')}
-                    </Button>
-                    <Button
-                      variant={line.textEffect?.type === 'shadow' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyEffect(index, 'shadow')}
-                    >
-                      {t('textEditor.effectShadow', 'Shadow')}
-                    </Button>
-                    <Button
-                      variant={line.textEffect?.type === 'outline' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyEffect(index, 'outline')}
-                    >
-                      {t('textEditor.effectOutline', 'Outline')}
-                    </Button>
                   </div>
                 </div>
                 
