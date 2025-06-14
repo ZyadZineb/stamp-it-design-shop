@@ -23,28 +23,22 @@ import {
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 import { StampTextLine } from "@/types";
 
-// Font categories for better organization
-const fontCategories = {
-  professional: [
-    { name: 'Arial', value: 'Arial, sans-serif' },
-    { name: 'Helvetica', value: 'Helvetica, sans-serif' },
-    { name: 'Calibri', value: 'Calibri, sans-serif' },
-    { name: 'Times New Roman', value: 'Times New Roman, serif' },
-    { name: 'Georgia', value: 'Georgia, serif' }
-  ],
-  creative: [
-    { name: 'Brush Script', value: 'Brush Script MT, cursive' },
-    { name: 'Comic Sans', value: 'Comic Sans MS, cursive' },
-    { name: 'Impact', value: 'Impact, fantasy' },
-    { name: 'Lucida Handwriting', value: 'Lucida Handwriting, cursive' }
-  ],
-  classic: [
-    { name: 'Garamond', value: 'Garamond, serif' },
-    { name: 'Bookman', value: 'Bookman, serif' },
-    { name: 'Courier New', value: 'Courier New, monospace' },
-    { name: 'Palatino', value: 'Palatino, serif' }
-  ]
-};
+// All available fonts in one list
+const availableFonts = [
+  { name: 'Arial', value: 'Arial, sans-serif' },
+  { name: 'Helvetica', value: 'Helvetica, sans-serif' },
+  { name: 'Calibri', value: 'Calibri, sans-serif' },
+  { name: 'Times New Roman', value: 'Times New Roman, serif' },
+  { name: 'Georgia', value: 'Georgia, serif' },
+  { name: 'Brush Script', value: 'Brush Script MT, cursive' },
+  { name: 'Comic Sans', value: 'Comic Sans MS, cursive' },
+  { name: 'Impact', value: 'Impact, fantasy' },
+  { name: 'Lucida Handwriting', value: 'Lucida Handwriting, cursive' },
+  { name: 'Garamond', value: 'Garamond, serif' },
+  { name: 'Bookman', value: 'Bookman, serif' },
+  { name: 'Courier New', value: 'Courier New, monospace' },
+  { name: 'Palatino', value: 'Palatino, serif' }
+];
 
 interface EnhancedTextEditorProps {
   lines: StampTextLine[];
@@ -82,7 +76,6 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
 }) => {
   const { t } = useTranslation();
   const [expandedLine, setExpandedLine] = useState<number | null>(null);
-  const [activeFontCategory, setActiveFontCategory] = useState('professional');
   
   const handleTextChange = (index: number, text: string) => {
     updateLine(index, { text });
@@ -155,23 +148,6 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
         >
           <span>{t('textEditor.help', 'Help')}</span>
         </HelpTooltip>
-      </div>
-      
-      {/* Font category selector */}
-      <div className="text-sm text-gray-600 mb-2">
-        {t('textEditor.fontCategory', 'Font Category')}:
-      </div>
-      <div className="flex gap-2 mb-4">
-        {Object.keys(fontCategories).map((category) => (
-          <Button
-            key={category}
-            variant={activeFontCategory === category ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveFontCategory(category)}
-          >
-            {t(`textEditor.category.${category}`, category.charAt(0).toUpperCase() + category.slice(1))}
-          </Button>
-        ))}
       </div>
       
       <div className="space-y-4">
@@ -249,8 +225,7 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                         <SelectValue placeholder={t('textEditor.selectFont', 'Select font')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Show fonts from selected category */}
-                        {fontCategories[activeFontCategory as keyof typeof fontCategories].map((font) => (
+                        {availableFonts.map((font) => (
                           <SelectItem key={font.value} value={font.value}>
                             <span style={{ fontFamily: font.value }}>{font.name}</span>
                           </SelectItem>
