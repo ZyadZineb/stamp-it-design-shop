@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { StampDesign, StampTextLine, Product, TextEffect, StampElement } from '../types';
+import { StampDesign, StampTextLine, Product, StampElement } from '../types';
 
 interface DesignHistoryState {
   past: StampDesign[];
@@ -9,6 +9,7 @@ interface DesignHistoryState {
 
 // Main hook function
 const useStampDesignerEnhanced = (product: Product | null) => {
+  // Add textPosition to model
   const defaultLine: StampTextLine = {
     text: '',
     fontSize: 16,
@@ -20,12 +21,13 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     xPosition: 0,
     yPosition: 0,
     isDragging: false,
-    letterSpacing: 0
+    letterSpacing: 0,
+    textPosition: 'top'
   };
 
   const initializeLines = () => {
     if (!product) return [{ ...defaultLine }];
-    
+
     // Create empty lines based on product capacity
     const lines: StampTextLine[] = [];
     for (let i = 0; i < (product?.lines || 1); i++) {
@@ -75,7 +77,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         inkColor: product?.inkColors[0] || design.inkColor,
         shape: product?.shape || 'rectangle'
       };
-      
+
       // Update history with new design but don't track this as a user action
       setHistory({
         past: [],
@@ -104,7 +106,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Undo functionality
   const undo = () => {
     if (!canUndo) return;
-    
+
     setHistory(prev => {
       const newPresent = prev.past[prev.past.length - 1];
       return {
@@ -118,7 +120,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Redo functionality
   const redo = () => {
     if (!canRedo) return;
-    
+
     setHistory(prev => {
       const newPresent = prev.future[0];
       return {
@@ -133,28 +135,28 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
     newLines[index] = { ...newLines[index], ...updates };
-    
+
     const updatedDesign = { ...design, lines: newLines };
     updateHistory(updatedDesign);
   };
-  
+
   // Update multiple lines at once (for auto-arrange)
   const updateMultipleLines = (updatedLines: StampTextLine[]) => {
     // Validate that we aren't trying to add more lines than exist
     if (updatedLines.length > design.lines.length) {
       updatedLines = updatedLines.slice(0, design.lines.length);
     }
-    
+
     // Create a new array with the same length as the original
     const newLines = [...design.lines];
-    
+
     // Update only the lines that are provided
     updatedLines.forEach((line, index) => {
       if (index < newLines.length) {
         newLines[index] = { ...newLines[index], ...line };
       }
     });
-    
+
     const updatedDesign = { ...design, lines: newLines };
     updateHistory(updatedDesign);
   };
@@ -208,8 +210,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   };
 
   // Toggle curved text with history tracking
-  const toggleCurvedText = (index: number) => {
-    updateLine(index, { curved: !design.lines[index].curved });
+  const toggleCurvedText = (index: number, textPosition: 'top' | 'bottom' | 'left' | 'right' = 'top') => {
+    const current = design.lines[index];
+    updateLine(index, {
+      curved: !current.curved,
+      textPosition: textPosition
+    });
   };
 
   // Update text position with history tracking
@@ -217,14 +223,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Constrain the movement within -100 to 100 range
     const constrainedX = Math.max(-100, Math.min(100, x));
     const constrainedY = Math.max(-100, Math.min(100, y));
-    
+
     const newLines = [...design.lines];
-    newLines[index] = { 
-      ...newLines[index], 
-      xPosition: constrainedX, 
+    newLines[index] = {
+      ...newLines[index],
+      xPosition: constrainedX,
       yPosition: constrainedY
     };
-    
+
     const updatedDesign = { ...design, lines: newLines };
     setHistory(prev => ({
       ...prev,
@@ -238,10 +244,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     newLines.forEach((line, i) => {
       line.isDragging = i === index;
     });
-    
+
     setHistory(prev => ({
       ...prev,
-      present: {...design, lines: newLines, logoDragging: false}
+      present: { ...design, lines: newLines, logoDragging: false }
     }));
   };
 
@@ -251,10 +257,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     newLines.forEach(line => {
       line.isDragging = false;
     });
-    
+
     setHistory(prev => ({
       ...prev,
-      present: {...design, lines: newLines, logoDragging: true}
+      present: { ...design, lines: newLines, logoDragging: true }
     }));
   };
 
@@ -264,8 +270,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     newLines.forEach(line => {
       line.isDragging = false;
     });
-    
-    const updatedDesign = {...design, lines: newLines, logoDragging: false};
+
+    const updatedDesign = { ...design, lines: newLines, logoDragging: false };
     updateHistory(updatedDesign);
   };
 
@@ -273,7 +279,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const handleDrag = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, previewRect: DOMRect) => {
     // Get mouse/touch position relative to preview area
     let clientX: number, clientY: number;
-    
+
     if ('touches' in e) {
       // Touch event
       clientX = e.touches[0].clientX;
@@ -283,17 +289,17 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       clientX = e.clientX;
       clientY = e.clientY;
     }
-    
+
     const centerX = previewRect.left + previewRect.width / 2;
     const centerY = previewRect.top + previewRect.height / 2;
-    
+
     // Calculate position as percentage from center (-100 to 100)
     const relativeX = ((clientX - centerX) / (previewRect.width / 2)) * 100;
     const relativeY = ((clientY - centerY) / (previewRect.height / 2)) * 100;
-    
+
     // Update the position of the dragging element
     const draggingLineIndex = design.lines.findIndex(line => line.isDragging);
-    
+
     if (draggingLineIndex !== -1) {
       // Update text position
       const newLines = [...design.lines];
@@ -302,10 +308,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         xPosition: relativeX,
         yPosition: relativeY
       };
-      
+
       setHistory(prev => ({
         ...prev,
-        present: {...design, lines: newLines}
+        present: { ...design, lines: newLines }
       }));
     } else if (design.logoDragging && design.includeLogo) {
       // Update logo position
@@ -325,13 +331,13 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Constrain the movement within -100 to 100 range
     const constrainedX = Math.max(-100, Math.min(100, x));
     const constrainedY = Math.max(-100, Math.min(100, y));
-    
+
     const updatedDesign = {
       ...design,
       logoX: constrainedX,
       logoY: constrainedY
     };
-    
+
     setHistory(prev => ({
       ...prev,
       present: updatedDesign
@@ -341,7 +347,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Save design to local storage
   const saveDesign = () => {
     if (!product) return;
-    
+
     try {
       const designData = {
         designId: `stamp-${product.id}`,
@@ -349,7 +355,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         design: design,
         savedAt: new Date().toISOString()
       };
-      
+
       localStorage.setItem('savedStampDesign', JSON.stringify(designData));
       return true;
     } catch (error) {
@@ -363,7 +369,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     try {
       const savedData = localStorage.getItem('savedStampDesign');
       if (!savedData) return false;
-      
+
       const { productId } = JSON.parse(savedData);
       return productId === product?.id;
     } catch (error) {
@@ -377,9 +383,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     try {
       const savedData = localStorage.getItem('savedStampDesign');
       if (!savedData) return false;
-      
+
       const { design: savedDesign, productId } = JSON.parse(savedData);
-      
+
       if (productId === product?.id && savedDesign) {
         // Update history with saved design
         setHistory({
@@ -387,10 +393,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           present: savedDesign,
           future: []
         });
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error loading saved design:', error);
@@ -412,26 +418,26 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Apply a template to the current design
   const applyTemplate = (template: Partial<StampDesign>) => {
     if (!template) return;
-    
+
     const updatedDesign = {
       ...design,
       ...template,
       // Maintain product-specific properties
       shape: design.shape
     };
-    
+
     updateHistory(updatedDesign);
   };
 
   // Add or update custom element (like QR code or barcode)
-  const addElement = (element: { type: string, dataUrl: string, width: number, height: number }) => {
+  const addElement = (element: { type: string; dataUrl: string; width: number; height: number }) => {
     // Parse dimensions from product size
     const sizeDimensions = product?.size ? product.size.split('x').map(dim => parseInt(dim.trim(), 10)) : [60, 40];
-    
+
     // Define centerX and centerY based on viewBox dimensions
     const centerX = sizeDimensions[0] ? sizeDimensions[0] / 2 : 30;
     const centerY = sizeDimensions[1] ? sizeDimensions[1] / 2 : 20;
-    
+
     const newElement = {
       ...element,
       id: `element-${Date.now()}`,
@@ -439,12 +445,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       y: 0,
       isDragging: false
     };
-    
-    const updatedDesign = { 
-      ...design, 
-      elements: [...(design.elements || []), newElement] 
+
+    const updatedDesign = {
+      ...design,
+      elements: [...(design.elements || []), newElement]
     };
-    
+
     updateHistory(updatedDesign);
   };
 
@@ -452,7 +458,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const zoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 3));
   };
-  
+
   const zoomOut = () => {
     setZoomLevel(prev => Math.max(prev - 0.25, 1));
   };
@@ -460,14 +466,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Validate design based on current step
   const validateDesign = (step: string): string[] => {
     const errors: string[] = [];
-    
+
     if (step === 'text') {
       // Check if at least one line has text
       const hasText = design.lines.some(line => line.text.trim().length > 0);
       if (!hasText) {
         errors.push('Add at least one line of text to your stamp');
       }
-      
+
       // Check for lines that are too long
       design.lines.forEach((line, index) => {
         if (line.text.length > 30) {
@@ -475,54 +481,88 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       });
     }
-    
+
     if (step === 'logo' && design.includeLogo && !design.logoImage) {
       errors.push('Please upload a logo image or disable the logo option');
     }
-    
+
     if (step === 'preview') {
       // Final validation before adding to cart
       const hasText = design.lines.some(line => line.text.trim().length > 0);
       if (!hasText) {
         errors.push('Your stamp needs at least one line of text');
       }
-      
+
       if (design.includeLogo && !design.logoImage) {
         errors.push('Logo option is enabled but no logo has been uploaded');
       }
     }
-    
+
     return errors;
   };
 
-  // Implement applyTextEffect function
-  const applyTextEffect = (lineIndex: number, effect: {
-    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
-    color?: string;
-    blur?: number;
-    thickness?: number;
-  }) => {
-    const updatedLines = [...design.lines];
-    if (updatedLines[lineIndex]) {
-      updatedLines[lineIndex] = {
-        ...updatedLines[lineIndex],
-        textEffect: {
-          type: effect.type === 'bold' || effect.type === 'italic' ? 'none' : effect.type,
-          color: effect.color || '#000000',
-          blur: effect.blur || 2,
-          thickness: effect.thickness || 1
-        },
-        bold: effect.type === 'bold' ? true : updatedLines[lineIndex].bold,
-        italic: effect.type === 'italic' ? true : updatedLines[lineIndex].italic
-      };
-      
-      const updatedDesign = {
-        ...design,
-        lines: updatedLines
-      };
-      
-      updateHistory(updatedDesign);
-      generatePreview();
+  // --- ENHANCED AUTO-ARRANGE FUNCTION ---
+  /**
+   * intelligent, shape/content aware auto layout
+   */
+  const enhancedAutoArrange = () => {
+    const lines = [...design.lines];
+    const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
+    if (nonEmptyLines.length === 0) return;
+
+    if (design.shape === 'circle') {
+      // Split into perimeter (curved) and center lines
+      const perimeterLines: StampTextLine[] = [];
+      const centerLines: StampTextLine[] = [];
+
+      nonEmptyLines.forEach((line, idx) => {
+        // If curved or short, place on perimeter
+        if (line.curved || line.text.length <= 15) {
+          perimeterLines.push({ ...line, curved: true, textPosition: idx % 2 === 0 ? 'top' : 'bottom' });
+        } else {
+          centerLines.push({ ...line, curved: false, textPosition: 'top' });
+        }
+      });
+
+      // Position perimeter lines evenly: first half top, second half bottom
+      perimeterLines.forEach((l, idx) => {
+        const isTop = l.textPosition === 'top';
+        // Alternate Y for visual evenness (adapt as needed)
+        l.yPosition = isTop ? -70 : 70;
+        l.xPosition = 0;
+        l.fontSize = Math.max(16, 28 - perimeterLines.length * 2);
+        l.alignment = 'center';
+        l.textPosition = isTop ? 'top' : 'bottom';
+      });
+      // Center lines in middle
+      centerLines.forEach((l, idx) => {
+        const centerCount = centerLines.length;
+        const mid = (centerCount - 1) / 2;
+        l.yPosition = (idx - mid) * 14;
+        l.xPosition = 0;
+        l.fontSize = Math.max(14, 22 - centerCount);
+        l.alignment = 'center';
+        l.textPosition = 'top';
+      });
+      // Merge
+      const arranged = [...perimeterLines, ...centerLines];
+      // Fill up to lines.length to prevent index error
+      const result = arranged.concat(lines.slice(arranged.length).map(l => ({ ...l, text: '' })));
+      updateMultipleLines(result.slice(0, lines.length));
+    } else {
+      // Rectangular/square: stack all vertically, centered
+      nonEmptyLines.forEach((l, idx) => {
+        l.xPosition = 0;
+        const total = nonEmptyLines.length;
+        l.yPosition = ((idx + 1) - (total + 1) / 2) * 20;
+        l.alignment = 'center';
+        l.curved = false;
+        l.textPosition = 'top';
+        l.fontSize = Math.max(14, 20 - total);
+      });
+      // Merge and fill as above
+      const arranged = [...nonEmptyLines, ...lines.slice(nonEmptyLines.length).map(l => ({ ...l, text: '' }))];
+      updateMultipleLines(arranged.slice(0, lines.length));
     }
   };
 
@@ -536,7 +576,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     const sizeDimensions = product.size.split('x').map(dim => parseInt(dim.trim(), 10));
     let width = 300;
     let height = 200;
-    
+
     // Set aspect ratio based on product dimensions
     if (sizeDimensions.length === 2) {
       const [productWidth, productHeight] = sizeDimensions;
@@ -560,7 +600,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Set viewBox to match exact mm dimensions
     const viewWidth = sizeDimensions[0] || 60;
     const viewHeight = sizeDimensions[1] || 40;
-    
+
     // Start building the SVG
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
@@ -569,14 +609,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         </defs>
         <rect width="100%" height="100%" fill="white"/>
     `;
-    
+
     // Add appropriate shape
     if (design.shape === 'circle') {
       // For circular stamps
       const centerX = viewWidth / 2;
       const centerY = viewHeight / 2;
       const radius = Math.min(viewWidth, viewHeight) / 2 - 1; // Slightly smaller for border
-      
+
       // Add concentric border circles with proper spacing
       if (design.borderStyle === 'single') {
         svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
@@ -592,14 +632,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <circle cx="${centerX}" cy="${centerY}" r="${radius - 3}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
       }
-      
+
       // Add logo if included - position it properly for circular stamps
       if (design.includeLogo) {
         const logoSize = radius / 3;
         // Use custom logo position if available
         const logoX = centerX + (design.logoX || 0) / 100 * (radius - logoSize);
         const logoY = centerY + (design.logoY || 0) / 100 * (radius - logoSize);
-        
+
         if (design.logoImage) {
           svgContent += `
             <image href="${design.logoImage}" x="${logoX - logoSize}" y="${logoY - logoSize}" 
@@ -608,115 +648,85 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           `;
         }
       }
-      
-      // Improved handling of text lines for circular stamps with proper text orientation
+
+      // CURVED TEXT SVG GENERATION/RENDERING LOGIC
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return; // Skip empty lines
-        
+
         // Calculate font size scaled to viewBox
         const scaledFontSize = (line.fontSize / 20) * (radius / 10);
-        
-        // Enhanced curved text implementation with proper orientation
+
         if (line.curved) {
-          // Generate unique ID for each text path
-          const pathId = `textPath${Math.random().toString(36).substr(2, 9)}`;
-          
-          // Calculate proper radius for text path based on line position in the stamp
-          // This creates concentric text rings with proper spacing
-          let textPathRadius = radius;
-          if (index === 0) { 
-            // Outer ring - close to the border
-            textPathRadius = radius - scaledFontSize / 2;
-          } else if (index === design.lines.length - 1 && design.lines.length > 2) {
-            // Inner ring (if there are more than 2 lines)
-            textPathRadius = radius * 0.65;
+          // Generate a unique ID for the text path
+          const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
+          // Calculate the radius for text path
+          const baseRadius = radius;
+          let textPathRadius = baseRadius - (index * scaledFontSize * 1.1);
+          if (textPathRadius < 10) textPathRadius = baseRadius; // Prevent negative
+
+          // For bottom text: reverse path and rotate text 180deg
+          const isBottom = line.textPosition === 'bottom';
+          // Path for the desired half-arc & direction
+          svgContent += `<defs>`;
+          if (isBottom) {
+            svgContent += `<path id="${pathId}" d="M ${centerX + textPathRadius} ${centerY} 
+              a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0 
+              a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0" />`;
           } else {
-            // Middle rings with proper spacing
-            textPathRadius = radius - (index * (radius / (design.lines.length + 1)));
+            // top/left/right use the standard direction
+            svgContent += `<path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
+              a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0 
+              a ${textPathRadius},${textPathRadius} 0 1,0 -${textPathRadius * 2},0" />`;
           }
-          
-          // Determine if text should be on top or bottom half based on y position
-          const isBottomHalf = line.yPosition > 0;
-          
-          // Create precise circular path for text, with proper direction for top/bottom
-          if (isBottomHalf) {
-            // For bottom text - reverse direction for proper upside-down rendering
-            svgContent += `
-              <defs>
-                <path id="${pathId}" d="M ${centerX + textPathRadius}, ${centerY} 
-                  a ${textPathRadius},${textPathRadius} 0 1,0 -${textPathRadius * 2},0 
-                  a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0" />
-              </defs>
-            `;
-          } else {
-            // For top text - normal direction
-            svgContent += `
-              <defs>
-                <path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
-                  a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0 
-                  a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />
-              </defs>
-            `;
-          }
-          
-          // Calculate proper text offset based on the circumference of the circle
-          // This ensures even text distribution around the circle
-          const textStartOffset = `${50 + (line.xPosition || 0) / 2}%`;
-          
-          // Add letter-spacing for curved text to prevent distortion
+          svgContent += `</defs>`;
+
+          // Letter spacing for clarity
           const letterSpacing = line.letterSpacing ? `${line.letterSpacing}px` : '0.5px';
-          
+
+          // text-anchor, transform for bottom arc (SVG transform on the group)
+          const textAnchor = 'middle';
+          // Shift/rotate for bottom arc (SVG transform on the group)
           svgContent += `
+          <g${isBottom ? ` transform="rotate(180 ${centerX} ${centerY})"` : ''}>
             <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
                   fill="${design.inkColor}"
-                  letter-spacing="${letterSpacing}" text-anchor="middle">
-              <textPath href="#${pathId}" startOffset="${textStartOffset}">
+                  letter-spacing="${letterSpacing}" text-anchor="${textAnchor}">
+              <textPath href="#${pathId}" startOffset="50%">
                 ${line.text}
               </textPath>
             </text>
+          </g>
           `;
         } else {
-          // Non-curved text for center content
-          // Apply position adjustments for proper center alignment
-          const xOffset = (line.xPosition || 0) / 100 * (radius / 2);
-          const yOffset = (line.yPosition || 0) / 100 * (radius / 2);
-          
-          // For center content, ensure proper vertical distribution
-          // Calculate vertical offset based on number of center lines
+          // non-curved text (center block etc.; as before)
+          const baseRadius = radius;
+          const xOffset = (line.xPosition || 0) / 100 * (baseRadius / 2);
+          const yOffset = (line.yPosition || 0) / 100 * (baseRadius / 2);
+          let verticalPosition = centerY;
           const centerLines = design.lines.filter(l => !l.curved).length;
           const lineIndex = design.lines.filter((l, i) => !l.curved && i < index).length;
-          
-          // Calculate vertical spacing
-          let verticalPosition = centerY;
           if (centerLines > 1) {
-            // Distribute lines evenly in the center area
-            const totalHeight = centerLines * scaledFontSize * 1.2; // Account for line height
+            const totalHeight = centerLines * scaledFontSize * 1.2;
             const startY = centerY - totalHeight / 2 + scaledFontSize / 2;
             verticalPosition = startY + lineIndex * scaledFontSize * 1.2;
           }
-          
           const textX = centerX + xOffset;
           const textY = verticalPosition + yOffset;
-          
-          // Set text-anchor based on alignment for proper text positioning
           let textAnchor;
           if (line.alignment === 'left') textAnchor = 'start';
           else if (line.alignment === 'right') textAnchor = 'end';
           else textAnchor = 'middle';
-          
-          // Add letter-spacing if specified
           const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
-          
           svgContent += `
-            <text x="${textX}" y="${textY}" 
-                  font-family="${line.fontFamily}" 
-                  font-size="${scaledFontSize}" 
-                  text-anchor="${textAnchor}" 
+            <text x="${textX}" y="${textY}"
+                  font-family="${line.fontFamily}"
+                  font-size="${scaledFontSize}"
+                  text-anchor="${textAnchor}"
                   fill="${design.inkColor}"
-                  ${line.bold ? 'font-weight="bold"' : ''} 
-                  ${line.italic ? 'font-style="italic"' : ''} 
+                  ${line.bold ? 'font-weight="bold"' : ''}
+                  ${line.italic ? 'font-style="italic"' : ''}
                   ${letterSpacing}>
               ${line.text}
             </text>
@@ -726,7 +736,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     } else {
       // For rectangular stamps
       const cornerRadius = viewWidth * 0.05; // 5% of width as corner radius
-      
+
       // Add border(s)
       if (design.borderStyle === 'single') {
         svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
@@ -742,27 +752,27 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <rect x="3.5" y="3.5" width="${viewWidth - 7}" height="${viewHeight - 7}" rx="${cornerRadius - 1}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
         `;
       }
-      
+
       // Add logo if included
       const logoWidth = viewWidth * 0.2;
       const logoHeight = viewHeight * 0.2;
-      
+
       // Center coordinates
       const centerX = viewWidth / 2;
       const centerY = viewHeight / 2;
-      
+
       // Use custom position if available, otherwise use preset positions
       let logoX, logoY;
-      
+
       if (design.logoX !== undefined && design.logoY !== undefined) {
         // Convert from -100,100 range to viewBox coordinates
-        logoX = centerX + (design.logoX / 100) * (viewWidth/2 - logoWidth/2);
-        logoY = centerY + (design.logoY / 100) * (viewHeight/2 - logoHeight/2);
+        logoX = centerX + (design.logoX / 100) * (viewWidth / 2 - logoWidth / 2);
+        logoY = centerY + (design.logoY / 100) * (viewHeight / 2 - logoHeight / 2);
       } else {
         // Fallback to preset positions
         logoX = centerX - logoWidth / 2;
         logoY = centerY - logoHeight / 2;
-        
+
         switch (design.logoPosition) {
           case 'top':
             logoY = viewHeight * 0.1;
@@ -780,7 +790,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             break;
         }
       }
-      
+
       if (design.includeLogo) {
         svgContent += `
           ${design.logoImage ? 
@@ -788,31 +798,31 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             `<rect x="${logoX}" y="${logoY}" width="${logoWidth}" height="${logoHeight}" fill="#ddd"/>`}
         `;
       }
-      
+
       // Add text without shadow or outline effects
       design.lines.forEach((line) => {
         if (!line.text.trim()) return; // Skip empty lines
-        
+
         // Calculate font size scaled to viewBox
         const scaledFontSize = (line.fontSize / 20) * (viewHeight / 10);
-        
+
         // Apply position adjustments
         const xOffset = (line.xPosition || 0) / 100 * (viewWidth / 3);
         const yOffset = (line.yPosition || 0) / 100 * (viewHeight / 3);
-        
+
         // Base position plus offset
         const textX = centerX + xOffset;
         const textY = centerY + yOffset;
-        
+
         // Add letter-spacing if specified
         const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
-        
+
         // Set text-anchor based on alignment
         let textAnchor;
         if (line.alignment === 'left') textAnchor = 'start';
         else if (line.alignment === 'right') textAnchor = 'end';
         else textAnchor = 'middle';
-        
+
         svgContent += `
           <text x="${textX}" y="${textY}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
                 text-anchor="${textAnchor}" fill="${design.inkColor}"
@@ -823,17 +833,17 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         `;
       });
     }
-    
+
     // Add custom elements (QR codes, barcodes, etc.)
     if (design.elements && design.elements.length > 0) {
       // Calculate center coordinates for element positioning
       const centerX = viewWidth / 2;
       const centerY = viewHeight / 2;
-      
+
       design.elements.forEach((element) => {
-        const elementX = centerX + (element.x / 100) * (viewWidth/2 - element.width/2);
-        const elementY = centerY + (element.y / 100) * (viewHeight/2 - element.height/2);
-        
+        const elementX = centerX + (element.x / 100) * (viewWidth / 2 - element.width / 2);
+        const elementY = centerY + (element.y / 100) * (viewHeight / 2 - element.height / 2);
+
         svgContent += `
           <image href="${element.dataUrl}" x="${elementX}" y="${elementY}" 
                 width="${element.width}" height="${element.height}" 
@@ -841,10 +851,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         `;
       });
     }
-    
+
     // Close the SVG
     svgContent += `</svg>`;
-    
+
     const previewUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
     // Store the SVG content as a string
     svgRef.current = svgContent;
@@ -855,38 +865,38 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Download preview as PNG
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
-    
+
     // Create a canvas element
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) return;
-    
+
     // Set canvas dimensions (scale up for better quality)
     canvas.width = 1000;
     canvas.height = 800;
-    
+
     // Create an image from the SVG
     const img = new Image();
     // Create a blob from the SVG string, not from the SVGSVGElement
     const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(svgBlob);
-    
+
     img.onload = () => {
       // Draw image to canvas (white background)
       context.fillStyle = 'white';
       context.fillRect(0, 0, canvas.width, canvas.height);
       context.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
+
       // Create download link
       const link = document.createElement('a');
       link.download = `${product.name}-stamp.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      
+
       // Clean up
       URL.revokeObjectURL(url);
     };
-    
+
     img.src = url;
   };
 
@@ -923,9 +933,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     zoomLevel,
     svgRef,
     addElement,
-    applyTextEffect,
     downloadAsPng,
-    updateMultipleLines
+    updateMultipleLines,
+    enhancedAutoArrange
   };
 };
 

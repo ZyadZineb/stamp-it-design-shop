@@ -13,7 +13,7 @@ export interface UseStampDesignerReturn {
   setLogoPosition: (position: 'top' | 'bottom' | 'left' | 'right' | 'center') => void;
   updateLogoPosition: (x: number, y: number) => void;
   setBorderStyle: (style: 'single' | 'double' | 'triple' | 'none') => void;
-  toggleCurvedText: (index: number) => void;
+  toggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
   updateTextPosition: (index: number, x: number, y: number) => void;
   startTextDrag: (index: number) => void;
   startLogoDrag: () => void;
@@ -26,9 +26,10 @@ export interface UseStampDesignerReturn {
   zoomLevel: number;
   applyTemplate: (template: Partial<StampDesign>) => void;
   updateMultipleLines: (updatedLines: StampTextLine[]) => void;
+  enhancedAutoArrange: () => void;
 }
 
-// Set up default stamp text line - no shadow effects
+// Extend defaultLine model with textPosition, remove shadow/outline
 const defaultLine: StampTextLine = {
   text: '',
   fontSize: 16,
@@ -39,14 +40,13 @@ const defaultLine: StampTextLine = {
   curved: false,
   letterSpacing: 0,
   xPosition: 0,
-  yPosition: 0
+  yPosition: 0,
+  textPosition: 'top'
 };
 
 export const useStampDesigner = (product: Product | null): UseStampDesignerReturn => {
-  // Initialize with enhanced hook
   const enhancedDesigner = useStampDesignerEnhanced(product);
   
-  // Extract what we need from the enhanced hook
   const { 
     design, 
     updateLine, 
@@ -69,10 +69,10 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomOut,
     zoomLevel,
     applyTemplate,
-    updateMultipleLines
+    updateMultipleLines,
+    enhancedAutoArrange
   } = enhancedDesigner;
 
-  // Return the same interface
   return {
     design,
     updateLine,
@@ -95,6 +95,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomOut,
     zoomLevel,
     applyTemplate,
-    updateMultipleLines
+    updateMultipleLines,
+    enhancedAutoArrange
   };
 };
