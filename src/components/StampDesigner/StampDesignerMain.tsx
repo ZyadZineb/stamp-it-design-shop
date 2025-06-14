@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -353,9 +354,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-          {/* Left panel: Design options */}
-          <div className="space-y-6 overflow-y-auto max-h-[70vh]">
+        <div className="flex flex-col">
+          {/* Main editing section */}
+          <div className="p-6">
             {/* Show design step based on current step */}
             {currentStep === 'templates' && design.shape === 'circle' && (
               <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
@@ -414,11 +415,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             )}
             
             {/* Step navigation buttons */}
-            <div className="flex justify-between pt-4 border-t">
+            <div className="flex justify-between pt-6 border-t mt-6">
               <Button
                 variant="outline"
                 onClick={goToPrevStep}
-                disabled={currentStep === 'logo'}
+                disabled={currentStep === 'templates'}
                 className={largeControls ? "text-lg py-3 px-5" : ""}
               >
                 Previous
@@ -435,62 +436,64 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
           </div>
           
-          {/* Right panel: Preview and add to cart */}
-          <div className="space-y-6 min-h-[70vh]">
-            <div className="sticky top-0">
-              <StampPreview
-                previewImage={previewImage}
-                productSize={product.size}
-                previewRef={previewRef}
-                isDragging={isDragging}
-                activeLineIndex={activeLineIndex}
-                includeLogo={design.includeLogo}
-                onMouseDown={(e) => {
-                  setIsDragging(true);
-                  handlePreviewClick(e);
-                }}
-                onMouseMove={(e) => {
-                  if (!isDragging || !previewRef.current) return;
-                  const rect = previewRef.current.getBoundingClientRect();
-                  handleDrag(e, rect);
-                }}
-                onMouseUp={() => {
-                  setIsDragging(false);
-                  stopDragging();
-                }}
-                onTouchStart={(e) => {
-                  setIsDragging(true);
-                  if (!previewRef.current || e.touches.length === 0) return;
-    
-                  const rect = previewRef.current.getBoundingClientRect();
-                  const touch = e.touches[0];
-                  
-                  const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
-                  const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
-                  
-                  if (activeLineIndex !== null) {
-                    updateTextPosition(activeLineIndex, relativeX, relativeY);
-                    startTextDrag(activeLineIndex);
-                  } else if (design.includeLogo) {
-                    updateLogoPosition(relativeX, relativeY);
-                    startLogoDrag();
-                  }
-                }}
-                onTouchMove={(e) => {
-                  if (!isDragging || !previewRef.current) return;
-                  const rect = previewRef.current.getBoundingClientRect();
-                  handleDrag(e, rect);
-                }}
-                downloadAsPng={downloadAsPng}
-                zoomLevel={zoomLevel}
-                onZoomIn={zoomIn}
-                onZoomOut={zoomOut}
-              />
-            </div>
+          {/* Large preview section below editing */}
+          <div className="border-t bg-gray-50 p-8">
+            <h3 className="text-lg font-semibold mb-6 text-center">Live Preview</h3>
             
-            <div className="space-y-4">
-              {currentStep !== 'preview' && <SampleDesigns />}
+            {/* Larger preview container */}
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-lg p-6 shadow-lg mb-6">
+                <StampPreview
+                  previewImage={previewImage}
+                  productSize={product.size}
+                  previewRef={previewRef}
+                  isDragging={isDragging}
+                  activeLineIndex={activeLineIndex}
+                  includeLogo={design.includeLogo}
+                  onMouseDown={(e) => {
+                    setIsDragging(true);
+                    handlePreviewClick(e);
+                  }}
+                  onMouseMove={(e) => {
+                    if (!isDragging || !previewRef.current) return;
+                    const rect = previewRef.current.getBoundingClientRect();
+                    handleDrag(e, rect);
+                  }}
+                  onMouseUp={() => {
+                    setIsDragging(false);
+                    stopDragging();
+                  }}
+                  onTouchStart={(e) => {
+                    setIsDragging(true);
+                    if (!previewRef.current || e.touches.length === 0) return;
+      
+                    const rect = previewRef.current.getBoundingClientRect();
+                    const touch = e.touches[0];
+                    
+                    const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
+                    const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
+                    
+                    if (activeLineIndex !== null) {
+                      updateTextPosition(activeLineIndex, relativeX, relativeY);
+                      startTextDrag(activeLineIndex);
+                    } else if (design.includeLogo) {
+                      updateLogoPosition(relativeX, relativeY);
+                      startLogoDrag();
+                    }
+                  }}
+                  onTouchMove={(e) => {
+                    if (!isDragging || !previewRef.current) return;
+                    const rect = previewRef.current.getBoundingClientRect();
+                    handleDrag(e, rect);
+                  }}
+                  downloadAsPng={downloadAsPng}
+                  zoomLevel={zoomLevel}
+                  onZoomIn={zoomIn}
+                  onZoomOut={zoomOut}
+                />
+              </div>
               
+              {/* Product info and add to cart */}
               <div className="bg-gray-50 p-4 rounded-md">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-medium">{product.name}</h3>
