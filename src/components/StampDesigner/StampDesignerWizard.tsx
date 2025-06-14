@@ -14,7 +14,6 @@ import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
 import DesignTemplates from './DesignTemplates';
-import AiSuggestions from './AiSuggestions';
 import AdvancedTools from './AdvancedTools';
 import ExportDesign from './ExportDesign';
 import TextEffects from './TextEffects';
@@ -494,10 +493,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 onSelectTemplate={applyTemplate} 
                 productShape={design.shape} 
               />
-              <AiSuggestions 
-                design={design} 
-                onApplySuggestion={handleApplySuggestion}
-              />
             </>
           )}
           
@@ -514,12 +509,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 removeLine={removeLine}
                 toggleCurvedText={toggleCurvedText}
                 updateTextPosition={updateTextPosition}
-                /* No more applyTextEffect */
                 largeControls={largeControls}
-              />
-              <AiSuggestions 
-                design={design} 
-                onApplySuggestion={handleApplySuggestion}
               />
             </>
           )}
@@ -533,10 +523,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 }}
                 largeControls={largeControls}
               />
-              <AiSuggestions 
-                design={design} 
-                onApplySuggestion={handleApplySuggestion}
-              />
             </>
           )}
           
@@ -546,10 +532,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 inkColors={product.inkColors} 
                 selectedColor={design.inkColor} 
                 onColorSelect={setInkColor}
-              />
-              <AiSuggestions 
-                design={design} 
-                onApplySuggestion={handleApplySuggestion}
               />
             </>
           )}
@@ -565,10 +547,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 onLogoUpload={handleLogoUpload}
                 updateLogoPosition={updateLogoPosition}
                 largeControls={largeControls}
-              />
-              <AiSuggestions 
-                design={design}
-                onApplySuggestion={handleApplySuggestion}
               />
             </>
           )}
