@@ -59,6 +59,15 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color'>('logo');
 
+  // Utility to provide the correct shape for components expecting "rectangle" | "circle" | "square"
+  const getCompatibleShape = (
+    shape: "rectangle" | "circle" | "square" | "ellipse"
+  ): "rectangle" | "circle" | "square" => {
+    // Treat 'ellipse' as 'rectangle' for these components
+    if (shape === "ellipse") return "rectangle";
+    return shape;
+  };
+
   const handleAddToCart = () => {
     if (!product) return;
     
@@ -288,7 +297,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               <AutoArrange 
                 design={design}
                 onEnhancedAutoArrange={enhancedAutoArrange}
-                shape={design.shape === "ellipse" ? "rectangle" : design.shape}
+                shape={getCompatibleShape(design.shape)}
               />
             </>
           )}
