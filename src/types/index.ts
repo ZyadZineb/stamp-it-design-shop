@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -53,14 +52,15 @@ export interface StampDesign {
   inkColor: string;
   includeLogo: boolean;
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  logoX: number;
+  logoY: number;
+  logoDragging: boolean;
   logoImage?: string;
-  logoX?: number;
-  logoY?: number;
-  logoDragging?: boolean;
   shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
   borderStyle: 'single' | 'double' | 'wavy' | 'none';
-  borderThickness?: number;
+  borderThickness: number;
   elements?: StampElement[];
+  globalAlignment?: 'left' | 'center' | 'right';
 }
 
 export interface StampElement {

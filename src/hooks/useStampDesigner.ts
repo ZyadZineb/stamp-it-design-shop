@@ -28,6 +28,7 @@ export interface UseStampDesignerReturn {
   applyTemplate: (template: Partial<StampDesign>) => void;
   updateMultipleLines: (updatedLines: StampTextLine[]) => void;
   enhancedAutoArrange: () => void;
+  setGlobalAlignment: (alignment: 'left' | 'center' | 'right') => void;
 }
 
 // Extend defaultLine model with textPosition, remove shadow/outline
@@ -72,7 +73,8 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomLevel,
     applyTemplate,
     updateMultipleLines,
-    enhancedAutoArrange
+    enhancedAutoArrange,
+    setGlobalAlignment
   } = enhancedDesigner;
 
   return {
@@ -99,6 +101,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     zoomLevel,
     applyTemplate,
     updateMultipleLines,
-    enhancedAutoArrange
+    enhancedAutoArrange,
+    setGlobalAlignment
   };
 };

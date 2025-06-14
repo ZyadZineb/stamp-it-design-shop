@@ -929,6 +929,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           if (line.alignment === 'left') textAnchor = 'start';
           else if (line.alignment === 'right') textAnchor = 'end';
 
+          // Convert percentage positions back to canvas coordinates
+          const textX = centerX + (line.xPosition / 100) * (canvasWidth / 2);
+          const textY = centerY + (line.yPosition / 100) * (canvasHeight / 2);
+
           svgContent += `
             <text x="${textX}" y="${textY + fontSize/3}" 
                   font-family="${line.fontFamily}" 

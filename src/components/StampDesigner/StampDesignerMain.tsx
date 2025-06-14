@@ -50,7 +50,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     zoomLevel,
     applyTemplate,
     updateMultipleLines,
-    enhancedAutoArrange
+    enhancedAutoArrange,
+    setGlobalAlignment
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
@@ -283,15 +284,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             <>
               <TextLinesEditor
                 lines={design.lines}
-                maxLines={product.lines}
-                shape={design.shape}
-                activeLineIndex={activeLineIndex}
-                setActiveLineIndex={setActiveLineIndex}
-                updateLine={updateLine}
-                addLine={addLine}
-                removeLine={removeLine}
-                toggleCurvedText={toggleCurvedText}
-                updateTextPosition={updateTextPosition}
+                product={product}
+                onUpdateLine={updateLine}
+                onAddLine={addLine}
+                onRemoveLine={removeLine}
+                onToggleCurvedText={toggleCurvedText}
+                globalAlignment={design.globalAlignment}
+                onGlobalAlignmentChange={setGlobalAlignment}
               />
               
               {/* Add Auto-Arrange button for improved layout */}
