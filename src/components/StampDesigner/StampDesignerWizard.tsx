@@ -603,9 +603,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               
               <PreviewOnPaper
                 previewImage={previewImage}
-                productSize={product.size}
-                isDragging={isDragging}
-                activeLineIndex={activeLineIndex}
                 includeLogo={design.includeLogo}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -644,7 +641,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             previewImage={previewImage}
             productSize={product.size}
             isDragging={isDragging}
-            activeLineIndex={activeLineIndex}
             includeLogo={design.includeLogo}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}

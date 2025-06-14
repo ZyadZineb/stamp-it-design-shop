@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -39,17 +38,13 @@ export type StampTextLine = {
   bold: boolean;
   italic: boolean;
   alignment: 'left' | 'center' | 'right';
-  // Added curved text support for circular stamps
   curved?: boolean;
-  // Added position adjustments
   xPosition?: number; // -100 to 100 percentage offset from center
   yPosition?: number; // -100 to 100 percentage offset from default position
-  // Added drag state
   isDragging?: boolean;
-  // Added text effects
   textEffect?: TextEffect;
-  // Added letter spacing
   letterSpacing?: number;
+  textPosition?: 'top' | 'bottom' | 'left' | 'right'; // <-- Added property to fix build errors
 };
 
 export interface StampDesign {

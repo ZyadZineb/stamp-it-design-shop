@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -282,13 +281,12 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 removeLine={removeLine}
                 toggleCurvedText={toggleCurvedText}
                 updateTextPosition={updateTextPosition}
-                largeControls={largeControls}
               />
               
               {/* Add Auto-Arrange button for improved layout */}
               <AutoArrange 
                 design={design}
-                onArrange={updateMultipleLines}
+                onEnhancedAutoArrange={updateMultipleLines}
                 shape={design.shape}
               />
             </>
@@ -307,7 +305,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               inkColors={product.inkColors} 
               selectedColor={design.inkColor} 
               onColorSelect={setInkColor}
-              largeControls={largeControls}
             />
           )}
           
