@@ -855,22 +855,25 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         }
       });
     } else {
-      // For rectangular and square stamps - centered properly
-      const borderOffset = 1; // Minimal border offset
-
-      // Add border(s) - centered in viewbox
+      // For rectangular and square stamps - FIXED CENTERING
+      
+      // Add border(s) - properly centered with minimal offset
       if (design.borderStyle === 'single') {
         const strokeWidth = design.borderThickness || 0.5;
-        svgContent += `<rect x="${borderOffset}" y="${borderOffset}" width="${viewWidth - borderOffset*2}" height="${viewHeight - borderOffset*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
+        const offset = strokeWidth / 2;
+        svgContent += `<rect x="${offset}" y="${offset}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
         const strokeWidth = design.borderThickness || 0.5;
+        const offset1 = strokeWidth / 2;
+        const offset2 = strokeWidth / 2 + 2;
         svgContent += `
-          <rect x="${borderOffset}" y="${borderOffset}" width="${viewWidth - borderOffset*2}" height="${viewHeight - borderOffset*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
-          <rect x="${borderOffset+2}" y="${borderOffset+2}" width="${viewWidth - (borderOffset+2)*2}" height="${viewHeight - (borderOffset+2)*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <rect x="${offset1}" y="${offset1}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <rect x="${offset2}" y="${offset2}" width="${viewWidth - strokeWidth - 4}" height="${viewHeight - strokeWidth - 4}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
       } else if (design.borderStyle === 'wavy') {
         const strokeWidth = design.borderThickness || 0.5;
-        svgContent += `<rect x="${borderOffset}" y="${borderOffset}" width="${viewWidth - borderOffset*2}" height="${viewHeight - borderOffset*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
+        const offset = strokeWidth / 2;
+        svgContent += `<rect x="${offset}" y="${offset}" width="${viewWidth - strokeWidth}" height="${viewHeight - strokeWidth}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
       // Add logo if included - centered
@@ -947,15 +950,15 @@ const useStampDesignerEnhanced = (product: Product | null) => {
             `;
           }
         } else {
-          // Straight text for rectangles - centered with proper vertical spacing
+          // Straight text for rectangles - properly centered
           const nonEmptyLines = design.lines.filter(l => !l.curved && l.text.trim());
           const lineIndex = nonEmptyLines.findIndex(l => l === line);
           
-          // Calculate vertical spacing for multiple lines - centered
-          let textY = centerY;
+          // Calculate vertical spacing for multiple lines - centered around true center
+          let textY = centerY + scaledFontSize / 3; // Adjust for baseline
           if (nonEmptyLines.length > 1) {
             const totalSpacing = (nonEmptyLines.length - 1) * scaledFontSize * 1.2;
-            const startY = centerY - totalSpacing / 2;
+            const startY = centerY - totalSpacing / 2 + scaledFontSize / 3;
             textY = startY + lineIndex * scaledFontSize * 1.2;
           }
           
