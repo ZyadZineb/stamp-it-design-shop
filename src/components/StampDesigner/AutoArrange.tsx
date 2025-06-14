@@ -12,6 +12,7 @@ interface AutoArrangeProps {
   shape: 'rectangle' | 'circle' | 'square';
 }
 
+// Use correct prop name onEnhancedAutoArrange
 const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onEnhancedAutoArrange, shape }) => {
   const { t } = useTranslation();
 
@@ -32,3 +33,4 @@ const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onEnhancedAutoArrange
 };
 
 export default AutoArrange;
+

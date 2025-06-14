@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
@@ -79,9 +78,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     zoomLevel,
     svgRef,
     addElement,
-    applyTextEffect,
     downloadAsPng,
-    updateMultipleLines
+    updateMultipleLines,
+    enhancedAutoArrange
   } = useStampDesignerEnhanced(product);
   
   const { addToCart } = useCart();
@@ -147,16 +146,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   }, [uploadedLogo]);
 
   // Handle text effects
-  const handleApplyTextEffect = (effect: {
-    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
-    color?: string;
-    blur?: number;
-    thickness?: number;
-  }) => {
-    if (activeLineIndex !== null) {
-      applyTextEffect(activeLineIndex, effect);
-    }
-  };
+  // Removed applyTextEffect function (no longer used)
 
   // Click handler for interactive preview text positioning
   const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
@@ -489,7 +479,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           {(currentStep === 'text' || currentStep === 'effects') && (
             <AutoArrange 
               design={design} 
-              onArrange={handleAutoArrange}
+              onEnhancedAutoArrange={enhancedAutoArrange}
               shape={design.shape}
             />
           )}
@@ -524,7 +514,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 removeLine={removeLine}
                 toggleCurvedText={toggleCurvedText}
                 updateTextPosition={updateTextPosition}
-                applyTextEffect={applyTextEffect}
+                /* No more applyTextEffect */
                 largeControls={largeControls}
               />
               <AiSuggestions 
@@ -537,12 +527,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           {currentStep === 'effects' && (
             <>
               <TextEffects 
-                onApplyEffect={handleApplyTextEffect}
+                onApplyEffect={(_effect) => {}} // temporarily empty
                 currentEffect={{
-                  type: 'none',
-                  color: '#000000',
-                  blur: 2,
-                  thickness: 1
+                  type: 'none'
                 }}
                 largeControls={largeControls}
               />
@@ -616,10 +603,23 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               
               <PreviewOnPaper
                 previewImage={previewImage}
-                productName={product.name}
-                onAnimate={handleAnimate}
+                productSize={product.size}
+                isDragging={isDragging}
+                activeLineIndex={activeLineIndex}
+                includeLogo={design.includeLogo}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                downloadAsPng={downloadAsPng}
+                zoomIn={zoomIn}
+                zoomOut={zoomOut}
+                zoomLevel={zoomLevel}
+                background={previewBackground}
                 highContrast={highContrast}
                 largeControls={largeControls}
+                isAnimating={showAnimation}
               />
               
               <ExportDesign

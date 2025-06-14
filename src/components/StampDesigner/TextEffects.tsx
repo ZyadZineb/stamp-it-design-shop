@@ -14,7 +14,7 @@ interface TextEffectsProps {
   largeControls?: boolean;
 }
 
-// This component now only supports bold and italic—no shadow/outline.
+// No shadow/outline UI/options here!
 const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect, largeControls = false }) => {
   const { t } = useTranslation();
   const [effect, setEffect] = useState<'bold' | 'italic' | 'none'>(currentEffect.type || 'none');
@@ -47,3 +47,4 @@ const TextEffects: React.FC<TextEffectsProps> = ({ onApplyEffect, currentEffect,
 };
 
 export default TextEffects;
+
