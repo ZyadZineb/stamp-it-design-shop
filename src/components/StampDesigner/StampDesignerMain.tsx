@@ -12,6 +12,7 @@ import BorderStyleSelector from './BorderStyleSelector';
 import SampleDesigns from './SampleDesigns';
 import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
 import AutoArrange from './AutoArrange';
+import PreviewOnPaper from './PreviewOnPaper';
 
 interface StampDesignerMainProps {
   product: Product | null;
@@ -59,7 +60,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color'>('logo');
+  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview'>('logo');
 
   // Utility to provide the correct shape for components expecting "rectangle" | "circle" | "square"
   const getCompatibleShape = (
@@ -195,11 +196,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     else if (currentStep === 'logo') setCurrentStep('text');
     else if (currentStep === 'text') setCurrentStep('border');
     else if (currentStep === 'border') setCurrentStep('color');
+    else if (currentStep === 'color') setCurrentStep('preview');
   };
 
   // Navigate to the previous step
   const goToPrevStep = () => {
-    if (currentStep === 'color') setCurrentStep('border');
+    if (currentStep === 'preview') setCurrentStep('color');
+    else if (currentStep === 'color') setCurrentStep('border');
     else if (currentStep === 'border') setCurrentStep('text');
     else if (currentStep === 'text') setCurrentStep('logo');
     else if (currentStep === 'logo') setCurrentStep('templates');
@@ -222,39 +225,46 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         {/* Design progress indicator emphasizing logo-first approach */}
         <div className="flex mt-4 border-t pt-4">
           <div 
-            className={`text-sm flex-1 text-center font-medium ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('templates')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'templates' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
             Templates
           </div>
           <div 
-            className={`text-sm flex-1 text-center font-medium ${currentStep === 'logo' ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'logo' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('logo')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'logo' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
             Logo
           </div>
           <div 
-            className={`text-sm flex-1 text-center font-medium ${currentStep === 'text' ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'text' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('text')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
             Text
           </div>
           <div 
-            className={`text-sm flex-1 text-center font-medium ${currentStep === 'border' ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'border' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('border')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'border' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>4</div>
             Border
           </div>
           <div 
-            className={`text-sm flex-1 text-center font-medium ${currentStep === 'color' ? 'text-blue-600' : 'text-gray-500'}`}
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'color' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('color')}
           >
             <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'color' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>5</div>
             Color
+          </div>
+          <div 
+            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'preview' ? 'text-blue-600' : 'text-gray-500'}`}
+            onClick={() => setCurrentStep('preview')}
+          >
+            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>6</div>
+            Aperçu
           </div>
         </div>
       </div>
@@ -320,50 +330,72 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             />
           )}
           
+          {currentStep === 'preview' && (
+            <div className="space-y-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3">Aperçu final de votre tampon</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Vérifiez que tous les éléments sont bien positionnés avant de commander.
+                </p>
+              </div>
+              
+              <PreviewOnPaper
+                previewImage={previewImage}
+                productName={product.name}
+                highContrast={highContrast}
+                largeControls={largeControls}
+              />
+              
+              <SampleDesigns />
+            </div>
+          )}
+          
           {/* Step navigation buttons */}
           <div className="flex justify-between pt-4 border-t">
             <Button
               variant="outline"
               onClick={goToPrevStep}
-              disabled={currentStep === 'logo'} // Start with logo as first step
+              disabled={currentStep === 'logo'}
               className={largeControls ? "text-lg py-3 px-5" : ""}
             >
-              Previous
+              Précédent
             </Button>
             
             <Button
               variant="default"
               onClick={goToNextStep}
-              disabled={currentStep === 'color'}
+              disabled={currentStep === 'preview'}
               className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
             >
-              Next
+              {currentStep === 'color' ? 'Aperçu' : 'Suivant'}
             </Button>
           </div>
         </div>
         
         {/* Right panel: Preview and add to cart */}
-        <div className="space-y-6">
-          <StampPreview
-            previewImage={previewImage}
-            productSize={product.size}
-            previewRef={previewRef}
-            isDragging={isDragging}
-            activeLineIndex={activeLineIndex}
-            includeLogo={design.includeLogo}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            downloadAsPng={downloadAsPng}
-            zoomLevel={zoomLevel}
-            onZoomIn={zoomIn}
-            onZoomOut={zoomOut}
-          />
+        <div className="space-y-6 min-h-[70vh]">
+          <div className="sticky top-0">
+            <StampPreview
+              previewImage={previewImage}
+              productSize={product.size}
+              previewRef={previewRef}
+              isDragging={isDragging}
+              activeLineIndex={activeLineIndex}
+              includeLogo={design.includeLogo}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              downloadAsPng={downloadAsPng}
+              zoomLevel={zoomLevel}
+              onZoomIn={zoomIn}
+              onZoomOut={zoomOut}
+            />
+          </div>
           
           <div className="space-y-4">
-            <SampleDesigns />
+            {currentStep !== 'preview' && <SampleDesigns />}
             
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between items-center mb-3">
@@ -375,7 +407,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
               >
                 <ShoppingCart size={largeControls ? 24 : 18} />
-                Add to Cart
+                Ajouter au panier
               </Button>
             </div>
           </div>
