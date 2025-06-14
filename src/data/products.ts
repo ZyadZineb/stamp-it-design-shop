@@ -96,7 +96,7 @@ export const products: Product[] = [
     brand: "Cachets Maroc",
     model: "2x5",
     price: 85,
-    size: "20x50mm",
+    size: "50x20mm",
     lines: 5,
     colors: ["wood"],
     inkColors: ["black", "blue", "red"],
