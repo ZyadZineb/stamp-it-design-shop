@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
-
 interface StampPreviewAccessibleProps {
   previewImage: string | null;
   productSize: string;
@@ -24,7 +23,6 @@ interface StampPreviewAccessibleProps {
   largeControls?: boolean;
   isAnimating?: boolean;
 }
-
 const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   previewImage,
   productSize,
@@ -45,8 +43,10 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   largeControls = false,
   isAnimating = false
 }) => {
-  const { t } = useTranslation();
-  
+  const {
+    t
+  } = useTranslation();
+
   // Determine the cursor style based on active elements
   const getCursorStyle = () => {
     if (isDragging) return 'grabbing';
@@ -90,27 +90,23 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
         height: parseInt(dimensions[1], 10)
       };
     }
-    return { width: 60, height: 40 }; // Default dimensions
+    return {
+      width: 60,
+      height: 40
+    }; // Default dimensions
   };
-
-  const { width, height } = getSizeDimensions();
-  
-  return (
-    <div>
+  const {
+    width,
+    height
+  } = getSizeDimensions();
+  return <div>
       <div className="flex justify-between items-center mb-2">
         <h3 className={`font-medium ${highContrast ? 'text-black' : 'text-gray-800'}`}>
           {t('preview.title', "Preview")}
         </h3>
         <div className="flex items-center gap-2">
           <HelpTooltip content={t('preview.zoomHelp', "Zoom in or out to see more detail")}>
-            <Button
-              variant="outline"
-              size={largeControls ? "default" : "icon"}
-              onClick={zoomOut}
-              disabled={!zoomOut || zoomLevel <= 1}
-              title={t('preview.zoomOut', "Zoom out")}
-              className={largeControls ? "h-10 w-10 p-0" : ""}
-            >
+            <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={zoomOut} disabled={!zoomOut || zoomLevel <= 1} title={t('preview.zoomOut', "Zoom out")} className={largeControls ? "h-10 w-10 p-0" : ""}>
               <ZoomOut size={largeControls ? 20 : 16} />
             </Button>
           </HelpTooltip>
@@ -120,85 +116,40 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
           </span>
           
           <HelpTooltip content={t('preview.zoomHelp', "Zoom in or out to see more detail")}>
-            <Button
-              variant="outline"
-              size={largeControls ? "default" : "icon"}
-              onClick={zoomIn}
-              disabled={!zoomIn || zoomLevel >= 3}
-              title={t('preview.zoomIn', "Zoom in")}
-              className={largeControls ? "h-10 w-10 p-0" : ""}
-            >
+            <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={zoomIn} disabled={!zoomIn || zoomLevel >= 3} title={t('preview.zoomIn', "Zoom in")} className={largeControls ? "h-10 w-10 p-0" : ""}>
               <ZoomIn size={largeControls ? 20 : 16} />
             </Button>
           </HelpTooltip>
           
-          {downloadAsPng && (
-            <HelpTooltip content={t('preview.downloadHelp', "Download your stamp design as a high-quality PNG image")}>
-              <Button
-                variant="outline"
-                size={largeControls ? "default" : "icon"}
-                onClick={downloadAsPng}
-                disabled={!previewImage}
-                title={t('preview.download', "Download")}
-                className={largeControls ? "h-10 w-10 p-0" : ""}
-              >
+          {downloadAsPng && <HelpTooltip content={t('preview.downloadHelp', "Download your stamp design as a high-quality PNG image")}>
+              <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={downloadAsPng} disabled={!previewImage} title={t('preview.download', "Download")} className={largeControls ? "h-10 w-10 p-0" : ""}>
                 <Download size={largeControls ? 20 : 16} />
               </Button>
-            </HelpTooltip>
-          )}
+            </HelpTooltip>}
         </div>
       </div>
       
-      <div
-        className={`relative overflow-hidden rounded-lg ${getBackgroundStyle()} shadow-inner border border-gray-200 p-4 flex justify-center items-center transition-all`}
-        style={{
-          minHeight: '300px',
-          cursor: getCursorStyle(),
-          aspectRatio: width && height ? `${width}/${height}` : '3/2'
-        }}
-        role="button"
-        aria-label={getInstructionText()}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp ? (e) => {
-          // Convert TouchEvent to expected format for the onMouseUp handler
-          onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
-        } : undefined}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onMouseUp ? (e) => {
-          // Convert TouchEvent to expected format for the onMouseUp handler
-          onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
-        } : undefined}
-        tabIndex={0}
-      >
-        {previewImage ? (
-          <div
-            className={`flex justify-center items-center transition-transform duration-300 ${
-              isAnimating ? 'scale-95 opacity-90' : 'scale-100 opacity-100'
-            }`}
-            style={{
-              transform: `scale(${zoomLevel})`,
-              transition: isAnimating ? 'all 0.3s ease-out' : 'transform 0.3s ease-out'
-            }}
-          >
-            <img
-              src={previewImage}
-              alt={t('preview.stampDesign', "Stamp design")}
-              className={`max-w-full max-h-full transition-all ${
-                background === 'dark' ? 'filter brightness-125 contrast-125' : ''
-              } ${isAnimating ? 'animate-bounce' : ''}`}
-            />
-          </div>
-        ) : (
-          <div className="text-gray-400 text-center">
+      <div style={{
+      minHeight: '300px',
+      cursor: getCursorStyle(),
+      aspectRatio: width && height ? `${width}/${height}` : '3/2'
+    }} role="button" aria-label={getInstructionText()} onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp ? e => {
+      // Convert TouchEvent to expected format for the onMouseUp handler
+      onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
+    } : undefined} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onMouseUp ? e => {
+      // Convert TouchEvent to expected format for the onMouseUp handler
+      onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
+    } : undefined} tabIndex={0} className="">
+        {previewImage ? <div className={`flex justify-center items-center transition-transform duration-300 ${isAnimating ? 'scale-95 opacity-90' : 'scale-100 opacity-100'}`} style={{
+        transform: `scale(${zoomLevel})`,
+        transition: isAnimating ? 'all 0.3s ease-out' : 'transform 0.3s ease-out'
+      }}>
+            <img src={previewImage} alt={t('preview.stampDesign', "Stamp design")} className={`max-w-full max-h-full transition-all ${background === 'dark' ? 'filter brightness-125 contrast-125' : ''} ${isAnimating ? 'animate-bounce' : ''}`} />
+          </div> : <div className="text-gray-400 text-center">
             {t('preview.noPreviewAvailable', "No preview available yet")}
-          </div>
-        )}
+          </div>}
         
-        {isAnimating && (
-          <div className="absolute inset-0 bg-black opacity-5"></div>
-        )}
+        {isAnimating && <div className="absolute inset-0 bg-black opacity-5"></div>}
       </div>
       
       <p className="text-xs text-gray-500 text-center mt-2">
@@ -210,13 +161,11 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
           {t('preview.size', "Size")}: {productSize}mm
         </span>
         <span>
-          {activeLineIndex !== null ? t('preview.editingLine', "Editing line {{line}}", { line: activeLineIndex + 1 }) : (
-            includeLogo ? t('preview.editingLogo', "Editing logo") : ''
-          )}
+          {activeLineIndex !== null ? t('preview.editingLine', "Editing line {{line}}", {
+          line: activeLineIndex + 1
+        }) : includeLogo ? t('preview.editingLogo', "Editing logo") : ''}
         </span>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default StampPreviewAccessible;
