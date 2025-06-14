@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -57,7 +58,8 @@ export interface StampDesign {
   logoY?: number;
   logoDragging?: boolean;
   shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
-  borderStyle: 'single' | 'double' | 'triple' | 'none';
+  borderStyle: 'single' | 'double' | 'wavy' | 'none';
+  borderThickness?: number;
   elements?: StampElement[];
 }
 

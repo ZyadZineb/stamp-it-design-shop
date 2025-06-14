@@ -35,6 +35,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     toggleLogo, 
     setLogoPosition,
     setBorderStyle,
+    setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
     updateLogoPosition,
@@ -305,7 +306,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           {currentStep === 'border' && (
             <BorderStyleSelector 
               borderStyle={design.borderStyle} 
+              borderThickness={design.borderThickness}
               onBorderStyleChange={setBorderStyle}
+              onBorderThicknessChange={setBorderThickness}
               largeControls={largeControls}
             />
           )}

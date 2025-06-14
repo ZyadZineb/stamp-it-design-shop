@@ -12,7 +12,8 @@ export interface UseStampDesignerReturn {
   toggleLogo: () => void;
   setLogoPosition: (position: 'top' | 'bottom' | 'left' | 'right' | 'center') => void;
   updateLogoPosition: (x: number, y: number) => void;
-  setBorderStyle: (style: 'single' | 'double' | 'triple' | 'none') => void;
+  setBorderStyle: (style: 'single' | 'double' | 'wavy' | 'none') => void;
+  setBorderThickness: (thickness: number) => void;
   toggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
   updateTextPosition: (index: number, x: number, y: number) => void;
   startTextDrag: (index: number) => void;
@@ -56,6 +57,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     toggleLogo, 
     setLogoPosition, 
     setBorderStyle,
+    setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
     updateLogoPosition,
@@ -83,6 +85,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     setLogoPosition,
     updateLogoPosition,
     setBorderStyle,
+    setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
     startTextDrag,
