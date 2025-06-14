@@ -600,24 +600,13 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   {t('cart.addToCart', "Add to Cart")}
                 </Button>
               </div>
-              
               <PreviewOnPaper
                 previewImage={previewImage}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                downloadAsPng={downloadAsPng}
-                zoomIn={zoomIn}
-                zoomOut={zoomOut}
-                zoomLevel={zoomLevel}
-                background={previewBackground}
+                productName={product.name}
+                onAnimate={handleAnimate}
                 highContrast={highContrast}
                 largeControls={largeControls}
-                isAnimating={showAnimation}
               />
-              
               <ExportDesign
                 svgRef={svgRef.current}
                 previewImage={previewImage}
@@ -625,7 +614,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 downloadAsPng={downloadAsPng}
                 largeControls={largeControls}
               />
-              
               <PreviewBackgrounds
                 onSelectBackground={handleSetBackground}
                 selectedBackground={previewBackground}
@@ -638,6 +626,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         <div className="space-y-6">
           <StampPreviewAccessible
             previewImage={previewImage}
+            productSize={product.size}
             isDragging={isDragging}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -653,7 +642,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             largeControls={largeControls}
             isAnimating={showAnimation}
           />
-          
           <WizardControls 
             currentStep={currentStep} 
             steps={steps as any}
