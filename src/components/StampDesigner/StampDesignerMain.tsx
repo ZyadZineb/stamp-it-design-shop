@@ -436,74 +436,78 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
           </div>
           
-          {/* Large preview section below editing */}
+          {/* Large preview section below editing - now shows for all steps */}
           <div className="border-t bg-gray-50 p-8">
-            <h3 className="text-lg font-semibold mb-6 text-center">Live Preview</h3>
+            <h3 className="text-lg font-semibold mb-6 text-center">Aperçu en temps réel</h3>
             
-            {/* Larger preview container */}
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-lg p-6 shadow-lg mb-6">
-                <StampPreview
-                  previewImage={previewImage}
-                  productSize={product.size}
-                  previewRef={previewRef}
-                  isDragging={isDragging}
-                  activeLineIndex={activeLineIndex}
-                  includeLogo={design.includeLogo}
-                  onMouseDown={(e) => {
-                    setIsDragging(true);
-                    handlePreviewClick(e);
-                  }}
-                  onMouseMove={(e) => {
-                    if (!isDragging || !previewRef.current) return;
-                    const rect = previewRef.current.getBoundingClientRect();
-                    handleDrag(e, rect);
-                  }}
-                  onMouseUp={() => {
-                    setIsDragging(false);
-                    stopDragging();
-                  }}
-                  onTouchStart={(e) => {
-                    setIsDragging(true);
-                    if (!previewRef.current || e.touches.length === 0) return;
-      
-                    const rect = previewRef.current.getBoundingClientRect();
-                    const touch = e.touches[0];
-                    
-                    const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
-                    const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
-                    
-                    if (activeLineIndex !== null) {
-                      updateTextPosition(activeLineIndex, relativeX, relativeY);
-                      startTextDrag(activeLineIndex);
-                    } else if (design.includeLogo) {
-                      updateLogoPosition(relativeX, relativeY);
-                      startLogoDrag();
-                    }
-                  }}
-                  onTouchMove={(e) => {
-                    if (!isDragging || !previewRef.current) return;
-                    const rect = previewRef.current.getBoundingClientRect();
-                    handleDrag(e, rect);
-                  }}
-                  downloadAsPng={downloadAsPng}
-                  zoomLevel={zoomLevel}
-                  onZoomIn={zoomIn}
-                  onZoomOut={zoomOut}
-                />
+            {/* Larger preview container - increased size */}
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-white rounded-lg p-8 shadow-lg mb-6">
+                <div className="flex justify-center">
+                  <div className="w-full max-w-4xl">
+                    <StampPreview
+                      previewImage={previewImage}
+                      productSize={product.size}
+                      previewRef={previewRef}
+                      isDragging={isDragging}
+                      activeLineIndex={activeLineIndex}
+                      includeLogo={design.includeLogo}
+                      onMouseDown={(e) => {
+                        setIsDragging(true);
+                        handlePreviewClick(e);
+                      }}
+                      onMouseMove={(e) => {
+                        if (!isDragging || !previewRef.current) return;
+                        const rect = previewRef.current.getBoundingClientRect();
+                        handleDrag(e, rect);
+                      }}
+                      onMouseUp={() => {
+                        setIsDragging(false);
+                        stopDragging();
+                      }}
+                      onTouchStart={(e) => {
+                        setIsDragging(true);
+                        if (!previewRef.current || e.touches.length === 0) return;
+          
+                        const rect = previewRef.current.getBoundingClientRect();
+                        const touch = e.touches[0];
+                        
+                        const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
+                        const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
+                        
+                        if (activeLineIndex !== null) {
+                          updateTextPosition(activeLineIndex, relativeX, relativeY);
+                          startTextDrag(activeLineIndex);
+                        } else if (design.includeLogo) {
+                          updateLogoPosition(relativeX, relativeY);
+                          startLogoDrag();
+                        }
+                      }}
+                      onTouchMove={(e) => {
+                        if (!isDragging || !previewRef.current) return;
+                        const rect = previewRef.current.getBoundingClientRect();
+                        handleDrag(e, rect);
+                      }}
+                      downloadAsPng={downloadAsPng}
+                      zoomLevel={zoomLevel}
+                      onZoomIn={zoomIn}
+                      onZoomOut={zoomOut}
+                    />
+                  </div>
+                </div>
               </div>
               
               {/* Product info and add to cart */}
-              <div className="bg-gray-50 p-4 rounded-md">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium">{product.name}</h3>
-                  <span className="font-bold text-brand-red">{product.price} DHS TTC</span>
+              <div className="bg-gray-50 p-6 rounded-md">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-medium text-lg">{product.name}</h3>
+                  <span className="font-bold text-xl text-brand-red">{product.price} DHS TTC</span>
                 </div>
                 <Button
                   onClick={handleAddToCart}
-                  className={`w-full py-3 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-4" : ""}`}
+                  className={`w-full py-4 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-5" : "text-base"}`}
                 >
-                  <ShoppingCart size={largeControls ? 24 : 18} />
+                  <ShoppingCart size={largeControls ? 24 : 20} />
                   Add to Cart
                 </Button>
               </div>
