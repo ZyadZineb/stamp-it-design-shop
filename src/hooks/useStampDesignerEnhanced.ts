@@ -25,6 +25,13 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     textPosition: 'top'
   };
 
+  // Determine shape for product, treat "trodat-44055" as 'ellipse'
+  function detectShape(p: Product | null) {
+    if (!p) return 'rectangle';
+    if (p.id === 'trodat-44055') return 'ellipse';
+    return p.shape;
+  }
+
   const initializeLines = () => {
     if (!product) return [{ ...defaultLine }];
 
@@ -44,7 +51,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     logoX: 0,
     logoY: 0,
     logoDragging: false,
-    shape: product?.shape || 'rectangle',
+    shape: detectShape(product), // Use detectShape (handles oval)
     borderStyle: 'single',
     elements: [] // Add elements array for QR codes, barcodes, etc.
   };
@@ -75,7 +82,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         ...design,
         lines: initializeLines(),
         inkColor: product?.inkColors[0] || design.inkColor,
-        shape: product?.shape || 'rectangle'
+        shape: detectShape(product) // For trodat-44055, force 'ellipse'
       };
 
       // Update history with new design but don't track this as a user action
@@ -581,37 +588,91 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     if (sizeDimensions.length === 2) {
       const [productWidth, productHeight] = sizeDimensions;
       // Calculate SVG dimensions to maintain aspect ratio but fit within a reasonable size
-      if (design.shape === 'circle') {
-        // For circular stamps, use the smaller dimension
-        const size = Math.min(productWidth, productHeight);
-        width = height = size * 5; // Scale for better visibility
+      if (design.shape === 'circle' || design.shape === 'ellipse') {
+        // For ellipses and circles, use larger as width/height, keep aspect ratio
+        width = 300;
+        height = Math.round(width * (productHeight / productWidth));
       } else {
-        // For rectangular stamps, maintain aspect ratio
         const aspectRatio = productWidth / productHeight;
-        // Base width on 300px, height calculated to maintain aspect ratio
         width = 300;
         height = width / aspectRatio;
       }
     } else if (design.shape === 'circle') {
-      // Default for circle if no dimensions are available
       width = height = 300;
+    } else if (design.shape === 'ellipse') {
+      width = 300;
+      height = 200;
     }
 
-    // Set viewBox to match exact mm dimensions
     const viewWidth = sizeDimensions[0] || 60;
     const viewHeight = sizeDimensions[1] || 40;
 
-    // Start building the SVG
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <!-- No shadow filters -->
         </defs>
         <rect width="100%" height="100%" fill="white"/>
     `;
 
-    // Add appropriate shape
-    if (design.shape === 'circle') {
+    // --- ELLIPSE SHAPE SUPPORT ---
+    if (design.shape === 'ellipse') {
+      // Ellipse: center at width/2, height/2; rx = viewWidth/2, ry = viewHeight/2
+      const centerX = viewWidth / 2;
+      const centerY = viewHeight / 2;
+      const rx = (viewWidth / 2) - 1; // -1 for border
+      const ry = (viewHeight / 2) - 1;
+
+      // Borders
+      if (design.borderStyle === 'single') {
+        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
+      } else if (design.borderStyle === 'double') {
+        svgContent += `
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-1.5}" ry="${ry-1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+        `;
+      } else if (design.borderStyle === 'triple') {
+        svgContent += `
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-1.5}" ry="${ry-1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-3}" ry="${ry-3}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+        `;
+      }
+
+      // Add logo if included
+      if (design.includeLogo && design.logoImage) {
+        // Place in oval center or by custom offset
+        // For ellipse, use rx/ry to define logo box
+        const logoW = rx * 0.9; // Logo should be smaller than ellipse
+        const logoH = ry * 0.5;
+        const logoX = centerX - logoW/2 + (design.logoX || 0)/100 * rx;
+        const logoY = centerY - logoH/2 + (design.logoY || 0)/100 * ry;
+        svgContent += `<image href="${design.logoImage}" x="${logoX}" y="${logoY}" width="${logoW}" height="${logoH}" preserveAspectRatio="xMidYMid meet" />`;
+      }
+
+      // Render text: treat like circle, but squash y (oval effect)
+      design.lines.forEach((line, index) => {
+        if (!line.text.trim()) return;
+        // Scale font size by ry for ovular effect
+        const scaledFontSize = (line.fontSize / 16) * (ry / 5);
+        // Position logic: center all at cx/cy, offset with xPosition/yPosition (scaled by rx/ry)
+        const x = centerX + (line.xPosition || 0) / 100 * rx * 0.9;
+        const y = centerY + (line.yPosition || 0) / 100 * ry * 0.9;
+        let textAnchor;
+        if (line.alignment === 'left') textAnchor = 'start';
+        else if (line.alignment === 'right') textAnchor = 'end';
+        else textAnchor = 'middle';
+        const letterSpacing = line.letterSpacing ? `letter-spacing="${line.letterSpacing}px"` : '';
+        svgContent += `
+          <text x="${x}" y="${y}" font-family="${line.fontFamily}" font-size="${scaledFontSize}" 
+            text-anchor="${textAnchor}" fill="${design.inkColor}"
+            ${line.bold ? 'font-weight="bold"' : ''} ${line.italic ? 'font-style="italic"' : ''}
+            ${letterSpacing}>
+            ${line.text}
+          </text>
+        `;
+      });
+
+    } else if (design.shape === 'circle') {
       // For circular stamps
       const centerX = viewWidth / 2;
       const centerY = viewHeight / 2;

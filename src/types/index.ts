@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -12,7 +11,7 @@ export interface Product {
   images: string[];
   description: string;
   featured?: boolean;
-  shape?: 'rectangle' | 'circle' | 'square';
+  shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
 }
 
 export interface CartItem {
@@ -53,13 +52,13 @@ export interface StampDesign {
   inkColor: string;
   includeLogo: boolean;
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  logoX: number;
-  logoY: number;
-  logoDragging: boolean;
   logoImage?: string;
-  shape: 'rectangle' | 'square' | 'circle';
+  logoX?: number;
+  logoY?: number;
+  logoDragging?: boolean;
+  shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
   borderStyle: 'single' | 'double' | 'triple' | 'none';
-  elements: StampElement[];
+  elements?: StampElement[];
 }
 
 export interface StampElement {
