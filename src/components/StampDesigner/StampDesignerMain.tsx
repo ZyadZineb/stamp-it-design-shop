@@ -48,7 +48,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     zoomOut,
     zoomLevel,
     applyTemplate,
-    updateMultipleLines
+    updateMultipleLines,
+    enhancedAutoArrange
   } = useStampDesigner(product);
   
   const { addToCart } = useCart();
@@ -286,7 +287,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               {/* Add Auto-Arrange button for improved layout */}
               <AutoArrange 
                 design={design}
-                onEnhancedAutoArrange={updateMultipleLines}
+                onEnhancedAutoArrange={enhancedAutoArrange}
                 shape={design.shape}
               />
             </>

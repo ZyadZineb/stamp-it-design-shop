@@ -603,7 +603,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               
               <PreviewOnPaper
                 previewImage={previewImage}
-                includeLogo={design.includeLogo}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -639,9 +638,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
         <div className="space-y-6">
           <StampPreviewAccessible
             previewImage={previewImage}
-            productSize={product.size}
             isDragging={isDragging}
-            includeLogo={design.includeLogo}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
