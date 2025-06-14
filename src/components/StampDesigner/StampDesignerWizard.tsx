@@ -52,6 +52,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     toggleLogo, 
     setLogoPosition,
     setBorderStyle,
+    setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
     updateLogoPosition,
@@ -487,7 +488,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             <>
               <BorderStyleSelector 
                 borderStyle={design.borderStyle} 
-                onBorderStyleChange={setBorderStyle} 
+                borderThickness={design.borderThickness}
+                onBorderStyleChange={setBorderStyle}
+                onBorderThicknessChange={setBorderThickness}
               />
             </>
           )}

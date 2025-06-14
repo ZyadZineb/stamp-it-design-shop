@@ -53,6 +53,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     logoDragging: false,
     shape: detectShape(product), // Use detectShape (handles oval)
     borderStyle: 'single',
+    borderThickness: 1,
     elements: [] // Add elements array for QR codes, barcodes, etc.
   };
 
@@ -211,8 +212,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   };
 
   // Set border style with history tracking
-  const setBorderStyle = (style: 'single' | 'double' | 'triple' | 'none') => {
+  const setBorderStyle = (style: 'single' | 'double' | 'wavy' | 'none') => {
     const updatedDesign = { ...design, borderStyle: style };
+    updateHistory(updatedDesign);
+  };
+
+  // Set border thickness with history tracking
+  const setBorderThickness = (thickness: number) => {
+    const updatedDesign = { ...design, borderThickness: thickness };
     updateHistory(updatedDesign);
   };
 
@@ -624,18 +631,18 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
       // Borders
       if (design.borderStyle === 'single') {
-        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
+        const strokeWidth = design.borderThickness || 0.5;
         svgContent += `
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-1.5}" ry="${ry-1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-1.5}" ry="${ry-1.5}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'triple') {
-        svgContent += `
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-1.5}" ry="${ry-1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-3}" ry="${ry-3}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-        `;
+      } else if (design.borderStyle === 'wavy') {
+        // For wavy borders on ellipse, use a dashed stroke-dasharray pattern
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
       // Add logo if included
@@ -680,18 +687,18 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
       // Add concentric border circles with proper spacing
       if (design.borderStyle === 'single') {
-        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
+        const strokeWidth = design.borderThickness || 0.5;
         svgContent += `
-          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'triple') {
-        svgContent += `
-          <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <circle cx="${centerX}" cy="${centerY}" r="${radius - 1.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <circle cx="${centerX}" cy="${centerY}" r="${radius - 3}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-        `;
+      } else if (design.borderStyle === 'wavy') {
+        // For wavy borders, use a dashed stroke-dasharray pattern
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
       // Add logo if included - position it properly for circular stamps
@@ -800,18 +807,18 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
       // Add border(s)
       if (design.borderStyle === 'single') {
-        svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>`;
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
+        const strokeWidth = design.borderThickness || 0.5;
         svgContent += `
-          <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
+          <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
+          <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
-      } else if (design.borderStyle === 'triple') {
-        svgContent += `
-          <rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <rect x="2" y="2" width="${viewWidth - 4}" height="${viewHeight - 4}" rx="${cornerRadius - 0.5}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-          <rect x="3.5" y="3.5" width="${viewWidth - 7}" height="${viewHeight - 7}" rx="${cornerRadius - 1}" stroke="${design.inkColor}" stroke-width="0.5" fill="none"/>
-        `;
+      } else if (design.borderStyle === 'wavy') {
+        // For wavy borders, use a dashed stroke-dasharray pattern
+        const strokeWidth = design.borderThickness || 0.5;
+        svgContent += `<rect x="0.5" y="0.5" width="${viewWidth - 1}" height="${viewHeight - 1}" rx="${cornerRadius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none" stroke-dasharray="2,1"/>`;
       }
 
       // Add logo if included
@@ -970,6 +977,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     toggleLogo,
     setLogoPosition,
     setBorderStyle,
+    setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
     updateLogoPosition,

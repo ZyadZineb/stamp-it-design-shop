@@ -171,7 +171,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Formal corporate seal with professional layout',
       category: 'business',
       template: {
-        borderStyle: 'triple' as const,
+        borderStyle: 'double' as const,
         lines: [
           {
             text: 'CORPORATE SEAL * AUTHENTIC DOCUMENT *',
@@ -242,7 +242,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Professional notary seal with state text and commission details',
       category: 'legal',
       template: {
-        borderStyle: 'triple' as const,
+        borderStyle: 'double' as const,
         lines: [
           {
             text: '* NOTARY PUBLIC * STATE OF JURISDICTION *',
@@ -725,7 +725,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Professional stamp for government document processing',
       category: 'government',
       template: {
-        borderStyle: 'triple' as const,
+        borderStyle: 'double' as const,
         lines: [
           {
             text: '* OFFICIAL USE ONLY * GOVERNMENT DOCUMENT *',
