@@ -591,7 +591,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     let width = 300;
     let height = 200;
 
-    // Set aspect ratio based on product dimensions
+    // FIXED: Correct dimension mapping - width should be first dimension, height should be second
     if (sizeDimensions.length === 2) {
       const [productWidth, productHeight] = sizeDimensions;
       // Calculate SVG dimensions to maintain aspect ratio but fit within a reasonable size
@@ -611,8 +611,9 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       height = 200;
     }
 
-    const viewWidth = sizeDimensions[0] || 60;
-    const viewHeight = sizeDimensions[1] || 40;
+    // FIXED: Use correct width and height mapping
+    const viewWidth = sizeDimensions[0] || 60;  // First dimension is width
+    const viewHeight = sizeDimensions[1] || 40; // Second dimension is height
 
     let svgContent = `
       <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
