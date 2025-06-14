@@ -13,7 +13,6 @@ import StampPreviewAccessible from './StampPreviewAccessible';
 import ColorSelector from './ColorSelector';
 import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
-import AdvancedTools from './AdvancedTools';
 import ExportDesign from './ExportDesign';
 import PreviewBackgrounds from './PreviewBackgrounds';
 import PreviewOnPaper from './PreviewOnPaper';
@@ -22,7 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
 // Define the wizard step type
-type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'preview';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -96,7 +95,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     { id: 'text' as WizardStepType, labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
     { id: 'color' as WizardStepType, labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
     { id: 'logo' as WizardStepType, labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
-    { id: 'advanced' as WizardStepType, labelKey: 'wizard.steps.advanced.label', label: 'Advanced', descriptionKey: 'wizard.steps.advanced.description', description: 'Add QR codes and barcodes' },
     { id: 'preview' as WizardStepType, labelKey: 'wizard.steps.preview.label', label: 'Preview', descriptionKey: 'wizard.steps.preview.description', description: 'Review and finalize your design' }
   ];
   
@@ -474,7 +472,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             <AutoArrange 
               design={design} 
               onEnhancedAutoArrange={enhancedAutoArrange}
-              // Fix: TypeScript error if shape is "ellipse"
               shape={design.shape === "ellipse" ? "rectangle" : design.shape}
             />
           )}
@@ -495,7 +492,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               <EnhancedTextEditor
                 lines={design.lines}
                 maxLines={product.lines}
-                // Fix: TextLinesEditor may accept only certain shape types (if passed down)
                 shape={design.shape === "ellipse" ? "rectangle" : design.shape}
                 activeLineIndex={activeLineIndex}
                 setActiveLineIndex={setActiveLineIndex}
@@ -532,17 +528,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 largeControls={largeControls}
               />
             </>
-          )}
-          
-          {currentStep === 'advanced' && (
-            <AdvancedTools
-              svgRef={svgRef.current}
-              previewImage={previewImage}
-              productName={product.name}
-              downloadAsPng={downloadAsPng}
-              onAddElement={handleAddElement}
-              largeControls={largeControls}
-            />
           )}
           
           {currentStep === 'preview' && (

@@ -8,16 +8,12 @@ import { useTranslation } from 'react-i18next';
 interface StampDesignerProps {
   product: Product | null;
   onAddToCart?: () => void;
-  highContrast?: boolean;
-  largeControls?: boolean;
 }
 
 // This is a wrapper component that maintains the same API but uses the new wizard implementation
 const StampDesigner: React.FC<StampDesignerProps> = ({ 
   product, 
-  onAddToCart,
-  highContrast = false,
-  largeControls = false
+  onAddToCart
 }) => {
   const { t } = useTranslation();
 
@@ -35,8 +31,6 @@ const StampDesigner: React.FC<StampDesignerProps> = ({
     <StampDesignerWizard 
       product={product} 
       onAddToCart={onAddToCart} 
-      highContrast={highContrast}
-      largeControls={largeControls}
     />
   );
 };
