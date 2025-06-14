@@ -479,7 +479,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             <AutoArrange 
               design={design} 
               onEnhancedAutoArrange={enhancedAutoArrange}
-              shape={design.shape}
+              // Fix: TypeScript error if shape is "ellipse"
+              shape={design.shape === "ellipse" ? "rectangle" : design.shape}
             />
           )}
           
@@ -491,7 +492,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               />
               <DesignTemplates 
                 onSelectTemplate={applyTemplate} 
-                productShape={design.shape} 
+                // Fix: ProfessionalCircularTemplates and similar only accept supported shapes
+                productShape={design.shape === "ellipse" ? "rectangle" : design.shape}
               />
             </>
           )}
@@ -501,7 +503,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               <EnhancedTextEditor
                 lines={design.lines}
                 maxLines={product.lines}
-                shape={design.shape}
+                // Fix: TextLinesEditor may accept only certain shape types (if passed down)
+                shape={design.shape === "ellipse" ? "rectangle" : design.shape}
                 activeLineIndex={activeLineIndex}
                 setActiveLineIndex={setActiveLineIndex}
                 updateLine={updateLine}

@@ -288,7 +288,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               <AutoArrange 
                 design={design}
                 onEnhancedAutoArrange={enhancedAutoArrange}
-                shape={design.shape}
+                shape={design.shape === "ellipse" ? "rectangle" : design.shape}
               />
             </>
           )}
