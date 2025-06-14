@@ -588,10 +588,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
     // Parse dimensions from product.size (format: "48x18mm" -> width x height)
     const sizeDimensions = product.size.replace('mm', '').split('x').map(dim => parseInt(dim.trim(), 10));
-    let width = 300;
-    let height = 200;
+    let displayWidth = 300;
+    let displayHeight = 200;
 
-    // Calculate SVG dimensions maintaining aspect ratio
+    // Calculate SVG display dimensions maintaining aspect ratio
     if (sizeDimensions.length === 2) {
       const [productWidth, productHeight] = sizeDimensions;
       const aspectRatio = productWidth / productHeight;
@@ -599,14 +599,14 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       // Set consistent base size and scale proportionally
       if (design.shape === 'circle') {
         const diameter = Math.max(productWidth, productHeight);
-        width = height = 300;
+        displayWidth = displayHeight = 300;
       } else if (design.shape === 'ellipse') {
-        width = 300;
-        height = Math.round(300 / aspectRatio);
+        displayWidth = 300;
+        displayHeight = Math.round(300 / aspectRatio);
       } else {
         // Rectangle/square
-        width = 300;
-        height = Math.round(300 / aspectRatio);
+        displayWidth = 300;
+        displayHeight = Math.round(300 / aspectRatio);
       }
     }
 
@@ -619,7 +619,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     const centerY = viewHeight / 2;
 
     let svgContent = `
-      <svg width="${width}" height="${height}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
+      <svg width="${displayWidth}" height="${displayHeight}" viewBox="0 0 ${viewWidth} ${viewHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
         </defs>
         <rect width="100%" height="100%" fill="white"/>
@@ -627,8 +627,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
     // --- ELLIPSE SHAPE SUPPORT ---
     if (design.shape === 'ellipse') {
-      const rx = (viewWidth / 2) - 1; // -1 for border
-      const ry = (viewHeight / 2) - 1;
+      const rx = centerX - 1; // -1 for border
+      const ry = centerY - 1;
 
       // Borders
       if (design.borderStyle === 'single') {
@@ -657,7 +657,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       // Render text for ellipse
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
-        const scaledFontSize = (line.fontSize / 16) * Math.min(rx, ry) / 8;
+        const scaledFontSize = (line.fontSize / 16) * Math.min(rx, ry) / 6;
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
@@ -730,7 +730,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
     } else if (design.shape === 'circle') {
       // For circular stamps - always centered
-      const radius = Math.min(viewWidth, viewHeight) / 2 - 1;
+      const radius = Math.min(centerX, centerY) - 1;
 
       // Add borders
       if (design.borderStyle === 'single') {
@@ -750,8 +750,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       // Add logo if included - centered positioning
       if (design.includeLogo) {
         const logoSize = radius / 3;
-        const logoX = centerX + (design.logoX || 0) / 100 * (radius - logoSize) - logoSize;
-        const logoY = centerY + (design.logoY || 0) / 100 * (radius - logoSize) - logoSize;
+        const logoX = centerX - logoSize + (design.logoX || 0) / 100 * (radius - logoSize);
+        const logoY = centerY - logoSize + (design.logoY || 0) / 100 * (radius - logoSize);
 
         if (design.logoImage) {
           svgContent += `
@@ -766,7 +766,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
 
-        const scaledFontSize = (line.fontSize / 20) * (radius / 10);
+        const scaledFontSize = (line.fontSize / 20) * (radius / 8);
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
@@ -897,7 +897,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       design.lines.forEach((line, index) => {
         if (!line.text.trim()) return;
 
-        const scaledFontSize = (line.fontSize / 20) * Math.min(viewWidth, viewHeight) / 12;
+        const scaledFontSize = (line.fontSize / 20) * Math.min(viewWidth, viewHeight) / 10;
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
