@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -217,53 +218,53 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="border-b border-gray-200 p-4 bg-gray-50">
-        <h2 className="text-xl font-semibold">Professional Stamp Designer</h2>
-        <p className="text-sm text-gray-600">Designing: {product.name} ({product.size})</p>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden min-h-screen">
+      <div className="border-b border-gray-200 p-6 bg-gray-50">
+        <h2 className="text-2xl font-semibold">Professional Stamp Designer</h2>
+        <p className="text-base text-gray-600">Designing: {product.name} ({product.size})</p>
         
         {/* Design progress indicator emphasizing logo-first approach */}
-        <div className="flex mt-4 border-t pt-4">
+        <div className="flex mt-6 border-t pt-6">
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('templates')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'templates' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'templates' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
             Templates
           </div>
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'logo' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('logo')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'logo' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'logo' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
             Logo
           </div>
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'text' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('text')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
             Text
           </div>
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'border' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('border')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'border' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>4</div>
-            Border
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'border' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>4</div>
+            Forme
           </div>
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'color' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('color')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'color' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>5</div>
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'color' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>5</div>
             Color
           </div>
           <div 
             className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'preview' ? 'text-blue-600' : 'text-gray-500'}`}
             onClick={() => setCurrentStep('preview')}
           >
-            <div className={`rounded-full w-6 h-6 mx-auto mb-1 flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>6</div>
+            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>6</div>
             Preview
           </div>
         </div>
@@ -271,11 +272,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       
       {/* Layout changes for preview step to show clean design */}
       {currentStep === 'preview' ? (
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-8">Final Preview</h2>
+        <div className="p-10">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-10">Final Preview</h2>
             
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 mb-8">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-10 mb-10">
               <StampPreviewAccessible
                 previewImage={previewImage}
                 productSize={product.size}
@@ -329,33 +330,33 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
             
             {/* Product info and add to cart */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <div className="flex justify-between items-start mb-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+              <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">Size: {product.size}</p>
-                  <p className="text-sm text-gray-600">Ink Color: {design.inkColor}</p>
+                  <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
+                  <p className="text-base text-gray-600 mt-2">Size: {product.size}</p>
+                  <p className="text-base text-gray-600">Ink Color: {design.inkColor}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-gray-900">{product.price} DHS</span>
-                  <p className="text-sm text-gray-600">TTC</p>
+                  <span className="text-3xl font-bold text-gray-900">{product.price} DHS</span>
+                  <p className="text-base text-gray-600">TTC</p>
                 </div>
               </div>
               
               <Button
                 onClick={handleAddToCart}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium rounded-lg transition-colors flex items-center justify-center gap-3"
+                className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white text-xl font-medium rounded-lg transition-colors flex items-center justify-center gap-4"
               >
-                <ShoppingCart size={24} />
+                <ShoppingCart size={28} />
                 Add to Cart
               </Button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col">
+        <div className="flex flex-col min-h-screen">
           {/* Main editing section */}
-          <div className="p-6">
+          <div className="p-8">
             {/* Show design step based on current step */}
             {currentStep === 'templates' && design.shape === 'circle' && (
               <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
@@ -414,12 +415,12 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             )}
             
             {/* Step navigation buttons */}
-            <div className="flex justify-between pt-6 border-t mt-6">
+            <div className="flex justify-between pt-8 border-t mt-8">
               <Button
                 variant="outline"
                 onClick={goToPrevStep}
                 disabled={currentStep === 'templates'}
-                className={largeControls ? "text-lg py-3 px-5" : ""}
+                className={`${largeControls ? "text-lg py-4 px-6" : "py-3 px-5"}`}
               >
                 Previous
               </Button>
@@ -428,22 +429,22 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 variant="default"
                 onClick={goToNextStep}
                 disabled={currentStep === 'preview'}
-                className={`${largeControls ? "text-lg py-3 px-5" : ""} ${highContrast ? "bg-blue-800" : ""}`}
+                className={`${largeControls ? "text-lg py-4 px-6" : "py-3 px-5"} ${highContrast ? "bg-blue-800" : ""}`}
               >
                 {currentStep === 'color' ? 'Preview' : 'Next'}
               </Button>
             </div>
           </div>
           
-          {/* Large preview section below editing - now shows for all steps */}
-          <div className="border-t bg-gray-50 p-8">
-            <h3 className="text-lg font-semibold mb-6 text-center">Aperçu en temps réel</h3>
+          {/* Large preview section below editing - now shows for all steps with bigger size */}
+          <div className="border-t bg-gray-50 p-10 flex-grow">
+            <h3 className="text-2xl font-semibold mb-8 text-center">Aperçu en temps réel</h3>
             
-            {/* Larger preview container - increased size */}
-            <div className="max-w-6xl mx-auto">
-              <div className="bg-white rounded-lg p-8 shadow-lg mb-6">
+            {/* Much larger preview container */}
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-lg p-12 shadow-lg mb-8">
                 <div className="flex justify-center">
-                  <div className="w-full max-w-4xl">
+                  <div className="w-full max-w-5xl">
                     <StampPreview
                       previewImage={previewImage}
                       productSize={product.size}
@@ -497,16 +498,16 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               </div>
               
               {/* Product info and add to cart */}
-              <div className="bg-gray-50 p-6 rounded-md">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-medium text-lg">{product.name}</h3>
-                  <span className="font-bold text-xl text-brand-red">{product.price} DHS TTC</span>
+              <div className="bg-gray-50 p-8 rounded-md">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-medium text-xl">{product.name}</h3>
+                  <span className="font-bold text-2xl text-brand-red">{product.price} DHS TTC</span>
                 </div>
                 <Button
                   onClick={handleAddToCart}
-                  className={`w-full py-4 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 ${largeControls ? "text-lg py-5" : "text-base"}`}
+                  className={`w-full py-5 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-3 ${largeControls ? "text-xl py-6" : "text-lg"}`}
                 >
-                  <ShoppingCart size={largeControls ? 24 : 20} />
+                  <ShoppingCart size={largeControls ? 28 : 24} />
                   Add to Cart
                 </Button>
               </div>
