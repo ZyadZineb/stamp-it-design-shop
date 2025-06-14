@@ -15,7 +15,6 @@ import LogoUploader from './LogoUploader';
 import BorderStyleSelector from './BorderStyleSelector';
 import AdvancedTools from './AdvancedTools';
 import ExportDesign from './ExportDesign';
-import TextEffects from './TextEffects';
 import PreviewBackgrounds from './PreviewBackgrounds';
 import PreviewOnPaper from './PreviewOnPaper';
 import AutoArrange from './AutoArrange';
@@ -23,7 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
 // Define the wizard step type
-type WizardStepType = 'shape' | 'text' | 'effects' | 'color' | 'logo' | 'advanced' | 'preview';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -95,7 +94,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
   const steps = [
     { id: 'shape' as WizardStepType, labelKey: 'wizard.steps.shape.label', label: 'Shape & Border', descriptionKey: 'wizard.steps.shape.description', description: 'Choose your stamp shape and border style' },
     { id: 'text' as WizardStepType, labelKey: 'wizard.steps.text.label', label: 'Text', descriptionKey: 'wizard.steps.text.description', description: 'Add and position your text' },
-    { id: 'effects' as WizardStepType, labelKey: 'wizard.steps.effects.label', label: 'Effects', descriptionKey: 'wizard.steps.effects.description', description: 'Add text effects and styling' },
     { id: 'color' as WizardStepType, labelKey: 'wizard.steps.color.label', label: 'Color', descriptionKey: 'wizard.steps.color.description', description: 'Select ink color' },
     { id: 'logo' as WizardStepType, labelKey: 'wizard.steps.logo.label', label: 'Logo', descriptionKey: 'wizard.steps.logo.description', description: 'Add a logo if needed' },
     { id: 'advanced' as WizardStepType, labelKey: 'wizard.steps.advanced.label', label: 'Advanced', descriptionKey: 'wizard.steps.advanced.description', description: 'Add QR codes and barcodes' },
@@ -143,9 +141,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       design.logoImage = uploadedLogo;
     }
   }, [uploadedLogo]);
-
-  // Handle text effects
-  // Removed applyTextEffect function (no longer used)
 
   // Click handler for interactive preview text positioning
   const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
@@ -474,8 +469,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-6 ${isMobile ? 'flex flex-col-reverse' : ''}`}>
         {/* Left panel: Design options based on current step */}
         <div className={`space-y-6 overflow-y-auto max-h-[70vh] ${largeControls ? 'text-lg' : ''}`}>
-          {/* Auto-arrange button - Show on text and effects steps */}
-          {(currentStep === 'text' || currentStep === 'effects') && (
+          {/* Auto-arrange button - Show on text step */}
+          {currentStep === 'text' && (
             <AutoArrange 
               design={design} 
               onEnhancedAutoArrange={enhancedAutoArrange}
@@ -509,18 +504,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 removeLine={removeLine}
                 toggleCurvedText={toggleCurvedText}
                 updateTextPosition={updateTextPosition}
-                largeControls={largeControls}
-              />
-            </>
-          )}
-          
-          {currentStep === 'effects' && (
-            <>
-              <TextEffects 
-                onApplyEffect={(_effect) => {}} // temporarily empty
-                currentEffect={{
-                  type: 'none'
-                }}
                 largeControls={largeControls}
               />
             </>

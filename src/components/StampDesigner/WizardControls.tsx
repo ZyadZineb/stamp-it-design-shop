@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
-type WizardStepType = 'shape' | 'text' | 'effects' | 'color' | 'logo' | 'advanced' | 'preview';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'advanced' | 'preview';
 
 interface WizardStep {
   id: WizardStepType;

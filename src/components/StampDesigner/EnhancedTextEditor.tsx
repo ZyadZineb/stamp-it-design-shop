@@ -51,12 +51,6 @@ interface EnhancedTextEditorProps {
   removeLine: (index: number) => void;
   toggleCurvedText: (index: number) => void;
   updateTextPosition: (index: number, x: number, y: number) => void;
-  applyTextEffect?: (index: number, effect: {
-    type: 'shadow' | 'outline' | 'bold' | 'italic' | 'none';
-    color?: string;
-    blur?: number;
-    thickness?: number;
-  }) => void;
   largeControls?: boolean;
 }
 
@@ -71,7 +65,6 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
   removeLine,
   toggleCurvedText,
   updateTextPosition,
-  applyTextEffect,
   largeControls = false
 }) => {
   const { t } = useTranslation();
@@ -92,34 +85,15 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
   const handleToggleBold = (index: number) => {
     const currentValue = lines[index].bold;
     updateLine(index, { bold: !currentValue });
-    
-    // Apply bold text effect if toggling on
-    if (applyTextEffect && !currentValue) {
-      applyTextEffect(index, { type: 'bold' });
-    } else if (applyTextEffect && currentValue) {
-      applyTextEffect(index, { type: 'none' });
-    }
   };
 
   const handleToggleItalic = (index: number) => {
     const currentValue = lines[index].italic;
     updateLine(index, { italic: !currentValue });
-    
-    // Apply italic text effect if toggling on
-    if (applyTextEffect && !currentValue) {
-      applyTextEffect(index, { type: 'italic' });
-    } else if (applyTextEffect && currentValue) {
-      applyTextEffect(index, { type: 'none' });
-    }
   };
 
   const handleAlignmentChange = (index: number, alignment: 'left' | 'center' | 'right') => {
     updateLine(index, { alignment });
-  };
-
-  const handleLetterSpacingChange = (index: number, value: number) => {
-    // Update line with letter spacing (assuming we add this property to StampTextLine)
-    updateLine(index, { letterSpacing: value });
   };
 
   const toggleExpanded = (index: number) => {
@@ -201,6 +175,45 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                   className={largeControls ? "text-lg p-3" : ""}
                 />
                 
+                {/* Bold, Italic, and Curved Text Controls - More Prominent */}
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="text-xs text-gray-500 mb-2">
+                    {t('textEditor.textStyle', 'Text Style')}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={line.bold ? "default" : "outline"}
+                      size={largeControls ? "default" : "sm"}
+                      onClick={() => handleToggleBold(index)}
+                      className="flex items-center gap-2"
+                    >
+                      <Bold size={largeControls ? 20 : 16} />
+                      {t('textEditor.bold', 'Gras')}
+                    </Button>
+                    <Button
+                      variant={line.italic ? "default" : "outline"}
+                      size={largeControls ? "default" : "sm"}
+                      onClick={() => handleToggleItalic(index)}
+                      className="flex items-center gap-2"
+                    >
+                      <Italic size={largeControls ? 20 : 16} />
+                      {t('textEditor.italic', 'Italique')}
+                    </Button>
+                    {shape === 'circle' && (
+                      <Button
+                        variant={line.curved ? "default" : "outline"}
+                        size={largeControls ? "default" : "sm"}
+                        onClick={() => toggleCurvedText(index)}
+                        className="flex items-center gap-2"
+                        title={t('textEditor.curvedText', 'Curved Text')}
+                      >
+                        <Type size={largeControls ? 20 : 16} />
+                        {t('textEditor.curved', 'Courbé')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <div className="text-xs text-gray-500 mb-1">
@@ -249,66 +262,32 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      {t('textEditor.style', 'Style')}
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant={line.bold ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => handleToggleBold(index)}
-                      >
-                        <Bold size={largeControls ? 20 : 16} />
-                      </Button>
-                      <Button
-                        variant={line.italic ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => handleToggleItalic(index)}
-                      >
-                        <Italic size={largeControls ? 20 : 16} />
-                      </Button>
-                      {shape === 'circle' && (
-                        <Button
-                          variant={line.curved ? "default" : "outline"}
-                          size="icon"
-                          onClick={() => toggleCurvedText(index)}
-                          title={t('textEditor.curvedText', 'Curved Text')}
-                        >
-                          <Type size={largeControls ? 20 : 16} />
-                        </Button>
-                      )}
-                    </div>
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    {t('textEditor.alignment', 'Alignment')}
                   </div>
-                  
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      {t('textEditor.alignment', 'Alignment')}
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant={line.alignment === 'left' ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => handleAlignmentChange(index, 'left')}
-                      >
-                        <AlignLeft size={largeControls ? 20 : 16} />
-                      </Button>
-                      <Button
-                        variant={line.alignment === 'center' ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => handleAlignmentChange(index, 'center')}
-                      >
-                        <AlignCenter size={largeControls ? 20 : 16} />
-                      </Button>
-                      <Button
-                        variant={line.alignment === 'right' ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => handleAlignmentChange(index, 'right')}
-                      >
-                        <AlignRight size={largeControls ? 20 : 16} />
-                      </Button>
-                    </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant={line.alignment === 'left' ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => handleAlignmentChange(index, 'left')}
+                    >
+                      <AlignLeft size={largeControls ? 20 : 16} />
+                    </Button>
+                    <Button
+                      variant={line.alignment === 'center' ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => handleAlignmentChange(index, 'center')}
+                    >
+                      <AlignCenter size={largeControls ? 20 : 16} />
+                    </Button>
+                    <Button
+                      variant={line.alignment === 'right' ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => handleAlignmentChange(index, 'right')}
+                    >
+                      <AlignRight size={largeControls ? 20 : 16} />
+                    </Button>
                   </div>
                 </div>
                 
