@@ -291,10 +291,15 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                   </div>
                 </div>
                 
-                {/* Position Controls */}
+                {/* Position Controls - Now available for both straight and curved text */}
                 <div>
                   <div className="text-xs text-gray-500 mb-1 flex justify-between">
-                    <span>{t('textEditor.horizontalPosition', 'Horizontal Position')}</span>
+                    <span>
+                      {line.curved 
+                        ? t('textEditor.curvedHorizontalPosition', 'Arc Position') 
+                        : t('textEditor.horizontalPosition', 'Horizontal Position')
+                      }
+                    </span>
                     <span className="font-mono">{line.xPosition || 0}</span>
                   </div>
                   <Slider
@@ -308,7 +313,12 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                 
                 <div>
                   <div className="text-xs text-gray-500 mb-1 flex justify-between">
-                    <span>{t('textEditor.verticalPosition', 'Vertical Position')}</span>
+                    <span>
+                      {line.curved 
+                        ? t('textEditor.curvedVerticalPosition', 'Radius Adjustment') 
+                        : t('textEditor.verticalPosition', 'Vertical Position')
+                      }
+                    </span>
                     <span className="font-mono">{line.yPosition || 0}</span>
                   </div>
                   <Slider
