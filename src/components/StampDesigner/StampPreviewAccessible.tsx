@@ -139,11 +139,11 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
     } : undefined} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onMouseUp ? e => {
       // Convert TouchEvent to expected format for the onMouseUp handler
       onMouseUp(e as unknown as React.MouseEvent<HTMLDivElement>);
-    } : undefined} tabIndex={0} className="">
-        {previewImage ? <div className={`flex justify-center items-center transition-transform duration-300 ${isAnimating ? 'scale-95 opacity-90' : 'scale-100 opacity-100'}`} style={{
+    } : undefined} tabIndex={0} className="mx-10 bg-zinc-50 rounded-full">
+        {previewImage ? <div style={{
         transform: `scale(${zoomLevel})`,
         transition: isAnimating ? 'all 0.3s ease-out' : 'transform 0.3s ease-out'
-      }}>
+      }} className="mx-0 rounded-br-full ">
             <img src={previewImage} alt={t('preview.stampDesign', "Stamp design")} className={`max-w-full max-h-full transition-all ${background === 'dark' ? 'filter brightness-125 contrast-125' : ''} ${isAnimating ? 'animate-bounce' : ''}`} />
           </div> : <div className="text-gray-400 text-center">
             {t('preview.noPreviewAvailable', "No preview available yet")}
