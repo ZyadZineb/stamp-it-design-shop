@@ -727,24 +727,25 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         if (line.curved) {
           // Generate a unique ID for the text path
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          // Calculate the radius for text path
-          const baseRadius = radius;
-          let textPathRadius = baseRadius - (index * scaledFontSize * 1.1);
-          if (textPathRadius < 10) textPathRadius = baseRadius; // Prevent negative
+          
+          // Calculate the radius for text path with yPosition adjustment
+          const baseRadius = radius * 0.8; // Start with 80% of the circle radius
+          const radiusAdjustment = (line.yPosition || 0) / 100 * (radius * 0.3); // yPosition affects radius
+          const textPathRadius = Math.max(10, baseRadius + radiusAdjustment);
 
           // For bottom text: reverse path and rotate text 180deg
           const isBottom = line.textPosition === 'bottom';
+          
           // Path for the desired half-arc & direction
           svgContent += `<defs>`;
           if (isBottom) {
+            // Bottom arc - clockwise from right to left
             svgContent += `<path id="${pathId}" d="M ${centerX + textPathRadius} ${centerY} 
-              a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0 
-              a ${textPathRadius},${textPathRadius} 0 1,1 ${textPathRadius * 2},0" />`;
+              a ${textPathRadius},${textPathRadius} 0 1,1 -${textPathRadius * 2},0" />`;
           } else {
-            // top/left/right use the standard direction
-            svgContent += `<path id="${pathId}" d="M ${centerX - textPathRadius}, ${centerY} 
-              a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0 
-              a ${textPathRadius},${textPathRadius} 0 1,0 -${textPathRadius * 2},0" />`;
+            // Top arc - counter-clockwise from left to right
+            svgContent += `<path id="${pathId}" d="M ${centerX - textPathRadius} ${centerY} 
+              a ${textPathRadius},${textPathRadius} 0 1,0 ${textPathRadius * 2},0" />`;
           }
           svgContent += `</defs>`;
 
@@ -756,11 +757,27 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           const arcPositionAdjustment = (line.xPosition || 0) / 100 * 30; // Scale the adjustment
           const startOffset = baseStartOffset + arcPositionAdjustment;
 
-          // text-anchor, transform for bottom arc (SVG transform on the group)
+          // For bottom text, we need to flip it to be readable
           const textAnchor = 'middle';
           
-          svgContent += `
-          <g${isBottom ? ` transform="rotate(180 ${centerX} ${centerY})"` : ''}>
+          if (isBottom) {
+            // For bottom text, apply transform to make it readable
+            svgContent += `
+            <g transform="rotate(180 ${centerX} ${centerY})">
+              <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
+                    ${line.bold ? 'font-weight="bold"' : ''} 
+                    ${line.italic ? 'font-style="italic"' : ''} 
+                    fill="${design.inkColor}"
+                    letter-spacing="${letterSpacing}" text-anchor="${textAnchor}">
+                <textPath href="#${pathId}" startOffset="${100 - startOffset}%">
+                  ${line.text}
+                </textPath>
+              </text>
+            </g>
+            `;
+          } else {
+            // Top text - normal orientation
+            svgContent += `
             <text font-family="${line.fontFamily}" font-size="${scaledFontSize}"
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
@@ -770,8 +787,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
                 ${line.text}
               </textPath>
             </text>
-          </g>
-          `;
+            `;
+          }
         } else {
           // non-curved text (center block etc.; as before)
           const baseRadius = radius;

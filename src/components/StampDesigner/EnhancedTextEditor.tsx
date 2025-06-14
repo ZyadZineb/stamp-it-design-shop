@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
@@ -100,6 +99,12 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
     setExpandedLine(expandedLine === index ? null : index);
   };
 
+  const handleFlipCurvedText = (index: number) => {
+    const currentPosition = lines[index].textPosition;
+    const newPosition = currentPosition === 'top' ? 'bottom' : 'top';
+    updateLine(index, { textPosition: newPosition });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -180,7 +185,7 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                   <div className="text-xs text-gray-500 mb-2">
                     {t('textEditor.textStyle', 'Text Style')}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant={line.bold ? "default" : "outline"}
                       size={largeControls ? "default" : "sm"}
@@ -209,6 +214,18 @@ const EnhancedTextEditor: React.FC<EnhancedTextEditorProps> = ({
                       >
                         <Type size={largeControls ? 20 : 16} />
                         {t('textEditor.curved', 'Courbé')}
+                      </Button>
+                    )}
+                    {shape === 'circle' && line.curved && (
+                      <Button
+                        variant="outline"
+                        size={largeControls ? "default" : "sm"}
+                        onClick={() => handleFlipCurvedText(index)}
+                        className="flex items-center gap-2"
+                        title={t('textEditor.flipText', 'Flip Text Position')}
+                      >
+                        <MoveVertical size={largeControls ? 20 : 16} />
+                        {line.textPosition === 'top' ? t('textEditor.moveToBottom', 'Top → Bottom') : t('textEditor.moveToTop', 'Bottom → Top')}
                       </Button>
                     )}
                   </div>
