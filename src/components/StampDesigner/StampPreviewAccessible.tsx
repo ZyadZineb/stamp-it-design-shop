@@ -144,7 +144,7 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
         transform: `scale(${zoomLevel})`,
         transition: isAnimating ? 'all 0.3s ease-out' : 'transform 0.3s ease-out'
       }} className="mx-0 rounded-br-full ">
-            <img src={previewImage} alt={t('preview.stampDesign', "Stamp design")} className="-bottom-0 object-scale-down " />
+            <img src={previewImage} alt={t('preview.stampDesign', "Stamp design")} className="-bottom-0 object-fill" />
           </div> : <div className="text-gray-400 text-center">
             {t('preview.noPreviewAvailable', "No preview available yet")}
           </div>}
