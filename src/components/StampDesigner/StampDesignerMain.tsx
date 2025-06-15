@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -364,7 +363,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
                   <div className="space-y-1">
                     <p className="text-gray-700"><span className="font-medium">Taille:</span> {product.size}</p>
-                    <p className="text-gray-700"><span className="font-medium">Couleur d'encre:</span> <span className="inline-block w-4 h-4 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> {design.inkColor}</p>
+                    <p className="text-gray-700">
+                      <span className="font-medium">Couleur d'encre:</span> 
+                      <span className="inline-block w-4 h-4 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> 
+                      {design.inkColor}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -467,42 +470,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       isDragging={isDragging}
                       activeLineIndex={activeLineIndex}
                       includeLogo={design.includeLogo}
-                      onMouseDown={(e) => {
-                        setIsDragging(true);
-                        handlePreviewClick(e);
-                      }}
-                      onMouseMove={(e) => {
-                        if (!isDragging || !previewRef.current) return;
-                        const rect = previewRef.current.getBoundingClientRect();
-                        handleDrag(e, rect);
-                      }}
-                      onMouseUp={() => {
-                        setIsDragging(false);
-                        stopDragging();
-                      }}
-                      onTouchStart={(e) => {
-                        setIsDragging(true);
-                        if (!previewRef.current || e.touches.length === 0) return;
-          
-                        const rect = previewRef.current.getBoundingClientRect();
-                        const touch = e.touches[0];
-                        
-                        const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
-                        const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
-                        
-                        if (activeLineIndex !== null) {
-                          updateTextPosition(activeLineIndex, relativeX, relativeY);
-                          startTextDrag(activeLineIndex);
-                        } else if (design.includeLogo) {
-                          updateLogoPosition(relativeX, relativeY);
-                          startLogoDrag();
-                        }
-                      }}
-                      onTouchMove={(e) => {
-                        if (!isDragging || !previewRef.current) return;
-                        const rect = previewRef.current.getBoundingClientRect();
-                        handleDrag(e, rect);
-                      }}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
                       downloadAsPng={downloadAsPng}
                       zoomLevel={zoomLevel}
                       onZoomIn={zoomIn}
@@ -526,11 +498,15 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 </Button>
                 
                 <div className="text-center">
-                  <div className="text-sm text-gray-500 mb-1">Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6</div>
+                  <div className="text-sm text-gray-500 mb-1">
+                    Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6
+                  </div>
                   <div className="w-48 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` }}
+                      style={{ 
+                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` 
+                      }}
                     ></div>
                   </div>
                 </div>
