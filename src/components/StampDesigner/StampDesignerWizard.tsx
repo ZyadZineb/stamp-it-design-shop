@@ -587,38 +587,33 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           {/* New 'order' step replaces preview */}
           {currentStep === 'order' && (
             <div className="space-y-4">
-              <div className={`${highContrast ? 'bg-gray-100' : 'bg-gradient-to-r from-green-50 to-green-100'} p-4 rounded-md border border-green-200`}>
+              <div className="bg-green-50 p-4 rounded-md border border-green-200">
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium text-brand-blue">
+                  <h3 className="font-semibold text-brand-blue text-lg">
                     {product.name}
                   </h3>
-                  <span className={`font-bold text-lg ${highContrast ? 'text-black' : 'text-brand-red'}`}>
+                  <span className="font-bold text-2xl text-red-600">
                     {product.price} {t('common.currency', 'DHS')} TTC
                   </span>
                 </div>
-                <ul className="mb-2 text-gray-700 text-sm">
-                  {design.lines.filter(l => l.text).length > 0 && (
-                    <li>
-                      <span className="font-semibold">
-                        {t('design.summary.textLines', 'Text')}
-                      </span>
-                      {': '}
-                      {design.lines.map((l, idx) => l.text).filter(Boolean).join(', ')}
-                    </li>
-                  )}
+                <ul className="mb-2 text-gray-700 text-base">
                   <li>
                     <span className="font-semibold">
                       {t('design.summary.inkColor', 'Ink color')}
                     </span>
                     {': '}
-                    {t(`inkColors.${design.inkColor}`, design.inkColor)}
+                    <span>
+                      {t(`inkColors.${design.inkColor}`, design.inkColor)}
+                    </span>
                   </li>
                   <li>
                     <span className="font-semibold">
                       {t('design.summary.shape', 'Shape')}
                     </span>
                     {': '}
-                    {t(`shapes.${design.shape}`, design.shape)}
+                    <span>
+                      {t(`shapes.${design.shape}`, design.shape)}
+                    </span>
                   </li>
                   <li>
                     <span className="font-semibold">
@@ -629,28 +624,16 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                       ? `${t(`borderStyle.${design.borderStyle}`, design.borderStyle)} (${design.borderThickness})`
                       : t('design.summary.noBorder', "No border")}
                   </li>
-                  {design.includeLogo && (
-                    <li>
-                      <span className="font-semibold">
-                        {t('design.summary.logo', 'Logo')}
-                      </span>
-                      {': '}
-                      {t('design.summary.included', 'Included')}
-                    </li>
-                  )}
                 </ul>
                 <Button
                   onClick={handleAddToCart}
-                  className={`w-full py-3 ${highContrast ? 'bg-red-800' : 'bg-brand-red'} text-white rounded-md hover:bg-red-700 transition-colors ${
-                    largeControls ? 'text-lg py-4' : ''
-                  } min-h-[48px] font-semibold`}
+                  className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors text-lg font-semibold min-h-[48px]"
                   data-testid="add-to-cart-btn"
                 >
-                  {t('cart.addToCart', "Add to Cart")}
+                  {t('cart.addToCart', "Ajouter au panier")}
                 </Button>
               </div>
-              {/* Optionally provide below a "go to cart" link or message */}
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 text-center">
                 {t('design.summary.editAnyStep', "You can edit your design in any previous step before adding to cart.")}
               </p>
             </div>
