@@ -6,12 +6,16 @@ interface ColorSelectorProps {
   inkColors: string[];
   selectedColor: string;
   onColorSelect: (color: string) => void;
+  highContrast?: boolean;
+  largeControls?: boolean;
 }
 
 const ColorSelector: React.FC<ColorSelectorProps> = ({
   inkColors,
   selectedColor,
-  onColorSelect
+  onColorSelect,
+  highContrast = false,
+  largeControls = false
 }) => {
   return (
     <div className="space-y-3">
@@ -35,3 +39,4 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
 };
 
 export default ColorSelector;
+

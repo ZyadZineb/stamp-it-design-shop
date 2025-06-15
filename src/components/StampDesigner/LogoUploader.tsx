@@ -11,9 +11,10 @@ interface LogoUploaderProps {
   toggleLogo: () => void;
   logoX?: number;
   logoY?: number;
-  uploadedLogo: string | null;
-  onLogoUpload: () => void;
-  updateLogoPosition: (x: number, y: number) => void;
+  uploadedLogo?: string | null;
+  onLogoUpload?: () => void;
+  updateLogoPosition?: (x: number, y: number) => void;
+  highContrast?: boolean;
   largeControls?: boolean;
 }
 
@@ -23,8 +24,9 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
   logoX = 0,
   logoY = 0,
   uploadedLogo,
-  onLogoUpload,
-  updateLogoPosition,
+  onLogoUpload = () => {},
+  updateLogoPosition = () => {},
+  highContrast = false,
   largeControls = false
 }) => {
   return (
@@ -163,3 +165,4 @@ const LogoUploader: React.FC<LogoUploaderProps> = ({
 };
 
 export default LogoUploader;
+
