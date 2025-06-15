@@ -9,7 +9,6 @@
     "cart": "Cart"
   },
   "products": {
-    "title": "Our Stamp Collection",
     "description": "Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.",
     "filters": "Filters",
     "compareProducts": "Compare products",
@@ -17,7 +16,17 @@
     "productsFound": "{{count}} products found",
     "noProductsFound": "No products found matching your filters.",
     "clearFilters": "Clear filters",
-    "searchPlaceholder": "Search products..."
+    "searchPlaceholder": "Search products...",
+    "details": {
+      "shape": "Shape",
+      "size": "Size",
+      "lines": "Lines",
+      "about": "About this product",
+      "inkColors": "Ink Colors",
+      "model": "Model"
+    },
+    "title": "Our Stamp Collection",
+    "empty": "No product found matching your query."
   },
   "wizard": {
     "back": "Back",
@@ -116,7 +125,8 @@
   },
   "common": {
     "brand": "Cachets Maroc",
-    "currency": "DHS"
+    "currency": "DHS",
+    "home": "Home"
   },
   "cart": {
     "addToCart": "Add to Cart",
@@ -339,7 +349,7 @@
       "shape": "Shape",
       "border": "Border",
       "noBorder": "No border",
-      "logo": "Logo",
+      "logo": "Included",
       "included": "Included",
       "editAnyStep": "You can edit your design in any previous step before adding to cart."
     }
@@ -423,5 +433,17 @@
     "square": "Square",
     "ellipse": "Ellipse",
     "oval": "Oval"
+  },
+  "brands": {
+    "Trodat": "Trodat",
+    "Shiny": "Shiny",
+    "MobiStamps": "MobiStamps",
+    "Sirdas": "Sirdas",
+    "Brother": "Brother"
+  },
+  "sizes": {
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large"
   }
 }

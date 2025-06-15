@@ -9,6 +9,14 @@
     "cart": "Panier"
   },
   "products": {
+    "details": {
+      "shape": "Forme",
+      "size": "Taille",
+      "lines": "Lignes",
+      "about": "À propos de ce produit",
+      "inkColors": "Couleurs d'encre",
+      "model": "Modèle"
+    },
     "title": "Notre Collection de Tampons",
     "description": "Parcourez notre vaste collection de tampons de haute qualité des meilleures marques comme Trodat, Shiny, MobiStamps et plus.",
     "filters": "Filtres",
@@ -17,7 +25,8 @@
     "productsFound": "{{count}} produits trouvés",
     "noProductsFound": "Aucun produit ne correspond à vos filtres.",
     "clearFilters": "Effacer les filtres",
-    "searchPlaceholder": "Rechercher des produits..."
+    "searchPlaceholder": "Rechercher des produits...",
+    "empty": "Aucun produit correspondant à votre recherche."
   },
   "wizard": {
     "back": "Retour",
@@ -326,6 +335,25 @@
     "red": "Rouge",
     "green": "Vert",
     "violet": "Violet"
+  },
+  "brands": {
+    "Trodat": "Trodat",
+    "Shiny": "Shiny",
+    "MobiStamps": "MobiStamps",
+    "Sirdas": "Sirdas",
+    "Brother": "Brother"
+  },
+  "colors": {
+    "black": "Noir",
+    "blue": "Bleu",
+    "red": "Rouge",
+    "green": "Vert",
+    "violet": "Violet"
+  },
+  "sizes": {
+    "small": "Petit",
+    "medium": "Moyen",
+    "large": "Grand"
   },
   "shapes": {
     "rectangle": "Rectangle",
