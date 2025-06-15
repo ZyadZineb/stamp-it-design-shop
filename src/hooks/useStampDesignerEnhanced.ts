@@ -95,12 +95,21 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     );
   };
 
-  // Update design when product changes
+  // --- [2] Only center content when product changes ---
   useEffect(() => {
     if (product) {
+      const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(product.size);
+      const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
+      const centeredLines = centerTextGroup(
+        initializeLines(),
+        canvasWidth,
+        canvasHeight,
+        baseFontSize,
+        design.globalAlignment || 'center'
+      );
       const updatedDesign = {
         ...design,
-        lines: initializeLines(),
+        lines: centeredLines,
         inkColor: product?.inkColors[0] || design.inkColor,
         shape: detectShape(product)
       };
@@ -111,21 +120,15 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         future: []
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  // Auto-generate preview whenever design changes with auto-centering
+  // --- [3] Keep preview generation in effect, but only update preview image (not lines positions) ---
   useEffect(() => {
     if (product) {
-      const centeredLines = autoCenterContent();
-      if (JSON.stringify(centeredLines) !== JSON.stringify(design.lines)) {
-        const centeredDesign = { ...design, lines: centeredLines };
-        setHistory(prev => ({
-          ...prev,
-          present: centeredDesign
-        }));
-      }
       generatePreview();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [design, product]);
 
   // Helper function to update history when design changes
@@ -572,7 +575,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return errors;
   };
 
-  // Enhanced auto-arrange function with perfect centering
+  // --- [4] Enhanced auto-arrange: still uses centering when user clicks auto-arrange ---
   const enhancedAutoArrange = () => {
     const lines = [...design.lines];
     const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
@@ -642,6 +645,19 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       const arranged = [...nonEmptyLines, ...lines.slice(nonEmptyLines.length).map(l => ({ ...l, text: '' }))];
       updateMultipleLines(arranged.slice(0, lines.length));
     }
+
+    // after arranging, auto-center using the latest canvas size/font
+    const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(product?.size || '38x14mm');
+    const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
+    const centeredLines = centerTextGroup(
+      lines,
+      canvasWidth,
+      canvasHeight,
+      baseFontSize,
+      design.globalAlignment || 'center'
+    );
+
+    updateMultipleLines(centeredLines);
   };
 
   // Generate preview image with perfect centering
