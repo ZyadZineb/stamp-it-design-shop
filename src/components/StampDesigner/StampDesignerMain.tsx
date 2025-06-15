@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -65,11 +64,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [currentStep, setCurrentStep] = useState<StepType>('templates');
 
-  // Utility to provide the correct shape for components expecting "rectangle" | "circle" | "square"
   const getCompatibleShape = (
     shape: "rectangle" | "circle" | "square" | "ellipse"
   ): "rectangle" | "circle" | "square" => {
-    // Treat 'ellipse' as 'rectangle' for these components
     if (shape === "ellipse") return "rectangle";
     return shape;
   };
@@ -77,31 +74,23 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const handleAddToCart = () => {
     if (!product) return;
     
-    // Add the product to cart with the custom text and preview
     const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
     addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
     
-    // Call the optional callback
     if (onAddToCart) onAddToCart();
   };
 
-  // Handle logo upload (simulated)
   const handleLogoUpload = () => {
-    // For demo, we're using a sample logo
-    // In a real app, this would connect to a file upload component
     const logoUrl = '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png';
     setUploadedLogo(logoUrl);
   };
 
-  // Watch for logo changes to update the design
   React.useEffect(() => {
     if (uploadedLogo) {
-      // Update the stamp design with the uploaded logo
       design.logoImage = uploadedLogo;
     }
   }, [uploadedLogo]);
 
-  // Click handler for interactive preview text positioning
   const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!previewRef.current) return;
     
@@ -109,23 +98,19 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     const clickX = event.clientX - rect.left;
     const clickY = event.clientY - rect.top;
     
-    // Calculate relative position (-100 to 100 range)
     const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
     const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
     
-    // If a line is active, update its position
     if (activeLineIndex !== null) {
       updateTextPosition(activeLineIndex, relativeX, relativeY);
       startTextDrag(activeLineIndex);
     }
-    // If no line is active but logo is included, update logo position
     else if (design.includeLogo) {
       updateLogoPosition(relativeX, relativeY);
       startLogoDrag();
     }
   };
 
-  // Mouse move handler for dragging
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging || !previewRef.current) return;
     event.preventDefault();
@@ -134,7 +119,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     handleDrag(event, rect);
   };
 
-  // Touch move handler for mobile drag support
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging || !previewRef.current) return;
     
@@ -142,13 +126,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     handleDrag(event, rect);
   };
 
-  // Start dragging
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
     handlePreviewClick(event);
   };
 
-  // Start dragging (touch)
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     setIsDragging(true);
     
@@ -169,13 +151,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     }
   };
 
-  // Stop dragging
   const handleMouseUp = () => {
     setIsDragging(false);
     stopDragging();
   };
 
-  // Cleanup event listeners
   React.useEffect(() => {
     const handleGlobalMouseUp = () => {
       if (isDragging) {
@@ -193,7 +173,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     };
   }, [isDragging, stopDragging]);
 
-  // Navigate to the next step
   const goToNextStep = () => {
     if (currentStep === 'templates') setCurrentStep('logo');
     else if (currentStep === 'logo') setCurrentStep('text');
@@ -202,7 +181,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     else if (currentStep === 'color') setCurrentStep('preview');
   };
 
-  // Navigate to the previous step
   const goToPrevStep = () => {
     if (currentStep === 'preview') setCurrentStep('color');
     else if (currentStep === 'color') setCurrentStep('border');
@@ -211,7 +189,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     else if (currentStep === 'logo') setCurrentStep('templates');
   };
 
-  // Get step information for better UI
   const getStepInfo = (step: StepType) => {
     const steps = {
       templates: { title: 'Modèles', description: 'Choisissez un modèle professionnel', icon: '📋' },
