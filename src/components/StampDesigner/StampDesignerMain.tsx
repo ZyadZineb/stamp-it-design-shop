@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -21,6 +20,8 @@ interface StampDesignerMainProps {
   highContrast?: boolean;
   largeControls?: boolean;
 }
+
+type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
 
 const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ 
   product, 
@@ -61,7 +62,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview'>('logo');
+  const [currentStep, setCurrentStep] = useState<StepType>('templates');
 
   // Utility to provide the correct shape for components expecting "rectangle" | "circle" | "square"
   const getCompatibleShape = (
@@ -210,7 +211,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   };
 
   // Get step information for better UI
-  const getStepInfo = (step: string) => {
+  const getStepInfo = (step: StepType) => {
     const steps = {
       templates: { title: 'Modèles', description: 'Choisissez un modèle professionnel', icon: '📋' },
       logo: { title: 'Logo', description: 'Ajoutez votre logo d\'entreprise', icon: '🖼️' },
@@ -219,7 +220,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       color: { title: 'Couleur', description: 'Sélectionnez la couleur d\'encre', icon: '🎨' },
       preview: { title: 'Aperçu', description: 'Vérifiez le rendu final', icon: '👁️' }
     };
-    return steps[step as keyof typeof steps];
+    return steps[step];
   };
 
   if (!product) {
@@ -258,10 +259,10 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         {/* Enhanced Progress Steps with better design */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            {['templates', 'logo', 'text', 'border', 'color', 'preview'].map((step, index) => {
+            {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).map((step, index) => {
               const stepInfo = getStepInfo(step);
               const isActive = currentStep === step;
-              const isCompleted = ['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) > index;
+              const isCompleted = (['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) > index;
               
               return (
                 <div 
@@ -269,7 +270,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   className={`flex-1 text-center cursor-pointer transition-all duration-200 ${
                     isActive ? 'transform scale-105' : ''
                   }`}
-                  onClick={() => setCurrentStep(step as any)}
+                  onClick={() => setCurrentStep(step)}
                 >
                   <div className={`w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-200 ${
                     isCompleted 
@@ -465,11 +466,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 </Button>
                 
                 <div className="text-center">
-                  <div className="text-sm text-gray-500 mb-1">Étape {['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) + 1} sur 6</div>
+                  <div className="text-sm text-gray-500 mb-1">Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6</div>
                   <div className="w-48 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) + 1) / 6) * 100)}%` }}
+                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` }}
                     ></div>
                   </div>
                 </div>
