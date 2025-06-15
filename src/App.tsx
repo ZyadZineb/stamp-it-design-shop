@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Toaster } from "sonner";
@@ -15,6 +14,7 @@ const LoadingFallback = () => (
 // Lazy loaded components
 const Index = lazy(() => import('./pages/Index'));
 const Products = lazy(() => import('./pages/Products'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const Contact = lazy(() => import('./pages/Contact'));
 const DesignStamp = lazy(() => import('./pages/DesignStamp'));
 const Cart = lazy(() => import('./pages/Cart'));
@@ -30,6 +30,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/design" element={<DesignStamp />} />
             <Route path="/cart" element={<Cart />} />
