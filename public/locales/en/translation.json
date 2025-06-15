@@ -26,7 +26,23 @@
       "model": "Model"
     },
     "title": "Our Stamp Collection",
-    "empty": "No product found matching your query."
+    "empty": "No product found matching your query.",
+    "productNames": {
+      "1234": "Trodat Printy 4912",
+      "5678": "Shiny R-542 Blue",
+      "1401": "Trodat 44045 Oval",
+      "1502": "Green Square 4923",
+      "2023": "Shiny S-827",
+      "2890": "MobiStamps Professional"
+    },
+    "productDescriptions": {
+      "1234": "Professional rectangular stamp, perfect for office use.",
+      "5678": "Round blue stamp with ergonomic grip, designed for daily use.",
+      "1401": "Premium oval stamp for creative offices.",
+      "1502": "Self-inking green square stamp for high volume tasks.",
+      "2023": "Shiny brand rectangular stamp, built for durability.",
+      "2890": "Classic MobiStamp model, suitable for professional paperwork."
+    }
   },
   "wizard": {
     "back": "Back",

@@ -26,7 +26,23 @@
     "noProductsFound": "Aucun produit ne correspond à vos filtres.",
     "clearFilters": "Effacer les filtres",
     "searchPlaceholder": "Rechercher des produits...",
-    "empty": "Aucun produit correspondant à votre recherche."
+    "empty": "Aucun produit correspondant à votre recherche.",
+    "productNames": {
+      "1234": "Trodat Printy 4912",
+      "5678": "Shiny R-542 Bleu",
+      "1401": "Trodat 44045 Ovale",
+      "1502": "Carré Vert 4923",
+      "2023": "Shiny S-827",
+      "2890": "MobiStamps Professionnel"
+    },
+    "productDescriptions": {
+      "1234": "Tampon rectangulaire professionnel, parfait pour le bureau.",
+      "5678": "Tampon rond bleu avec une prise en main ergonomique, conçu pour un usage quotidien.",
+      "1401": "Tampon ovale premium pour les bureaux créatifs.",
+      "1502": "Tampon carré auto-encreur vert pour les tâches à gros volume.",
+      "2023": "Tampon rectangulaire de marque Shiny, conçu pour durer.",
+      "2890": "Modèle classique MobiStamp, adapté aux procédures professionnelles."
+    }
   },
   "wizard": {
     "back": "Retour",
@@ -364,5 +380,39 @@
     "loading": "Chargement...",
     "outOfStock": "Rupture de stock",
     "inStock": "En stock"
+  },
+  "brands": {
+    "Trodat": "Trodat",
+    "Shiny": "Shiny",
+    "MobiStamps": "MobiStamps",
+    "Sirdas": "Sirdas",
+    "Brother": "Brother"
+  },
+  "shapes": {
+    "rectangle": "Rectangle",
+    "round": "Rond",
+    "circle": "Cercle",
+    "square": "Carré",
+    "ellipse": "Ellipse",
+    "oval": "Ovale"
+  },
+  "sizes": {
+    "small": "Petit",
+    "medium": "Moyen",
+    "large": "Grand"
+  },
+  "inkColors": {
+    "black": "Noir",
+    "blue": "Bleu",
+    "red": "Rouge",
+    "green": "Vert",
+    "violet": "Violet"
+  },
+  "colors": {
+    "black": "Noir",
+    "blue": "Bleu",
+    "red": "Rouge",
+    "green": "Vert",
+    "violet": "Violet"
   }
 }
