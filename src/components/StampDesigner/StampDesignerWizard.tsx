@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand, HelpCircle } from 'lucide-react';
 import useStampDesignerEnhanced from '@/hooks/useStampDesignerEnhanced';
@@ -22,7 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
 // Define the wizard step type
-type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'preview';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'cart';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -129,12 +128,12 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       tooltip: 'Upload and position your company logo'
     },
     { 
-      id: 'preview' as WizardStepType, 
-      labelKey: 'wizard.steps.preview.label', 
-      label: 'Preview', 
-      descriptionKey: 'wizard.steps.preview.description', 
-      description: 'Review and finalize your design',
-      tooltip: 'Final review before ordering'
+      id: 'cart' as WizardStepType, 
+      labelKey: 'wizard.steps.cart.label', 
+      label: 'Add to Cart', 
+      descriptionKey: 'wizard.steps.cart.description', 
+      description: 'Review and add your custom stamp to the cart',
+      tooltip: 'Final step: confirm details and add your stamp to cart'
     }
   ];
   
@@ -587,40 +586,47 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             </>
           )}
           
-          {currentStep === 'preview' && (
+          {/* New 'cart' step replaces preview */}
+          {currentStep === 'cart' && (
             <div className="space-y-4">
               <div className={`${highContrast ? 'bg-gray-100' : 'bg-gradient-to-r from-green-50 to-green-100'} p-4 rounded-md border border-green-200`}>
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-medium text-brand-blue">{product.name}</h3>
                   <span className={`font-bold text-lg ${highContrast ? 'text-black' : 'text-brand-red'}`}>{product.price} DHS TTC</span>
                 </div>
+                <ul className="mb-2 text-gray-700 text-sm">
+                  {design.lines.filter(l => l.text).length > 0 && (
+                    <li>
+                      <span className="font-semibold">{t('design.summary.textLines', 'Text')}:</span> {design.lines.map(l => l.text).filter(Boolean).join(", ")}
+                    </li>
+                  )}
+                  <li>
+                    <span className="font-semibold">{t('design.summary.inkColor', 'Ink color')}:</span> {design.inkColor}
+                  </li>
+                  <li>
+                    <span className="font-semibold">{t('design.summary.shape', 'Shape')}:</span> {design.shape}
+                  </li>
+                  <li>
+                    <span className="font-semibold">{t('design.summary.border', 'Border')}:</span> {design.borderStyle !== "none" ? `${design.borderStyle} (${design.borderThickness})` : t('design.summary.noBorder', "No border")}
+                  </li>
+                  {design.includeLogo && (
+                    <li>
+                      <span className="font-semibold">{t('design.summary.logo', 'Logo')}:</span> {t('design.summary.included', 'Included')}
+                    </li>
+                  )}
+                </ul>
                 <Button
                   onClick={handleAddToCart}
                   className={`w-full py-3 ${highContrast ? 'bg-red-800' : 'bg-brand-red'} text-white rounded-md hover:bg-red-700 transition-colors ${
                     largeControls ? 'text-lg py-4' : ''
                   } min-h-[48px] font-semibold`}
+                  data-testid="add-to-cart-btn"
                 >
                   {t('cart.addToCart', "Add to Cart")}
                 </Button>
               </div>
-              <PreviewOnPaper
-                previewImage={previewImage}
-                productName={product.name}
-                onAnimate={handleAnimate}
-                highContrast={highContrast}
-                largeControls={largeControls}
-              />
-              <ExportDesign
-                svgRef={svgRef.current}
-                previewImage={previewImage}
-                productName={product.name}
-                downloadAsPng={downloadAsPng}
-                largeControls={largeControls}
-              />
-              <PreviewBackgrounds
-                onSelectBackground={handleSetBackground}
-                selectedBackground={previewBackground}
-              />
+              {/* Optionally provide below a "go to cart" link or message */}
+              <p className="text-xs text-gray-500">{t('design.summary.editAnyStep', "You can edit your design in any previous step before adding to cart.")}</p>
             </div>
           )}
         </div>
