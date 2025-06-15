@@ -22,8 +22,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <h3 className="font-bold text-lg text-brand-blue mb-2">
           <TranslatedText
             i18nKey={`productNames.${product.id}`}
+            ns="products"
             children={product.name}
-            // Use explicit products namespace!
             values={undefined}
             className={undefined}
           />
@@ -31,6 +31,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-gray-700 mb-4">
           <TranslatedText
             i18nKey={`productDescriptions.${product.id}`}
+            ns="products"
             children={product.description}
             values={undefined}
             className={undefined}
@@ -39,7 +40,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className="flex items-center justify-between">
           <span className="text-gray-600">{product.price} DHS</span>
           <Link to={`/products/${product.id}`} className="btn-primary">
-            <TranslatedText i18nKey="products.detailsLabel">
+            <TranslatedText i18nKey="products.detailsLabel" ns="products">
               Plus de détails
             </TranslatedText>
           </Link>
