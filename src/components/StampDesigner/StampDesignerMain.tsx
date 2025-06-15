@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -358,7 +357,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     )}
                     
                     {currentStep === 'text' && (
-                      <div className="space-y-4">
+                      <>
                         <TextLinesEditor
                           lines={design.lines}
                           product={product}
@@ -375,7 +374,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                           onEnhancedAutoArrange={enhancedAutoArrange}
                           shape={getCompatibleShape(design.shape)}
                         />
-                      </div>
+                      </>
                     )}
                     
                     {currentStep === 'border' && (
