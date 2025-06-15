@@ -14,9 +14,7 @@ import PreviewOnPaper from './PreviewOnPaper';
 import SummaryBar from './SummaryBar';
 import StepNavigationControls from './StepNavigationControls';
 import TextEditor from './TextEditor';
-import LogoUploader from './LogoUploader';
 import BorderSelector from './BorderSelector';
-import ColorSelector from './ColorSelector';
 import TemplateSelector from './TemplateSelector';
 import { useRef, useState } from 'react';
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
@@ -211,7 +209,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('logo.description', "Upload and position your logo or skip this step.")}</p>
                     <LogoUploader 
                       includeLogo={design.includeLogo}
-                      logoPosition={design.logoPosition}
                       onToggleLogo={toggleLogo}
                       onSetLogoPosition={setLogoPosition}
                       highContrast={highContrast}
@@ -269,7 +266,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('color.description', "Select the ink color for your stamp.")}</p>
                     <ColorSelector 
                       selectedColor={design.inkColor}
-                      availableColors={product?.inkColors || ['black', 'blue', 'red', 'green']}
                       onSelectColor={setInkColor}
                       highContrast={highContrast}
                       largeControls={largeControls}
@@ -296,8 +292,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                         previewImage={previewImage}
                         productName={product?.name || ''}
                         downloadAsPng={downloadAsPng}
-                        highContrast={highContrast}
-                        largeControls={largeControls}
                       />
                     </Suspense>
                   </CardContent>
@@ -387,7 +381,22 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
       <div className="mt-6">
         <SummaryBar
-          product={product || { id: '', name: '', price: 0, size: '', lines: 0, inkColors: [], shape: 'rectangle' }}
+          product={
+            product || {
+              id: '',
+              name: '',
+              price: 0,
+              size: '',
+              lines: 0,
+              inkColors: [],
+              shape: 'rectangle',
+              brand: '',
+              model: '',
+              colors: [],
+              images: [],
+              description: ''
+            }
+          }
           inkColor={design.inkColor}
           price={product?.price || 0}
           onAddToCart={handleAddToCart}
