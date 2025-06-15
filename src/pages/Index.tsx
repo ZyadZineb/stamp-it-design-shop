@@ -21,60 +21,61 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="bg-gray-50 min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <Hero />
         <FeaturedProducts />
 
         {/* Features Section */}
-        <section className="py-16 bg-white" aria-labelledby="features-heading">
+        <section className="py-20 bg-white border-t border-gray-100" aria-labelledby="features-heading">
           <div className="container-custom">
-            <div className="text-center mb-12">
-              <h2 id="features-heading" className="text-3xl font-bold text-gray-800 mb-4">
+            <div className="text-center mb-16">
+              <h2
+                id="features-heading"
+                className="text-4xl font-bold tracking-tight text-gray-900 mb-4"
+                style={{ letterSpacing: "-1px" }}
+              >
                 {t('features.whyChoose')}
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-500 max-w-2xl mx-auto text-lg font-light">
                 {t('features.whyChooseDesc')}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="mx-auto w-12 h-12 bg-brand-red/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
-                  <Award className="text-brand-red" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{t('features.premiumQuality')}</h3>
-                <p className="text-gray-600">{t('features.premiumQualityDesc')}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
+                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-red/10">
+                  <Award className="text-brand-red" size={36} />
+                </span>
+                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.premiumQuality')}</h3>
+                <p className="text-gray-500 text-base">{t('features.premiumQualityDesc')}</p>
               </div>
-
-              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="mx-auto w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
-                  <ThumbsUp className="text-brand-blue" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{t('features.customizable')}</h3>
-                <p className="text-gray-600">{t('features.customizableDesc')}</p>
+              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
+                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-blue/10">
+                  <ThumbsUp className="text-brand-blue" size={36} />
+                </span>
+                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.customizable')}</h3>
+                <p className="text-gray-500 text-base">{t('features.customizableDesc')}</p>
               </div>
-
-              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="mx-auto w-12 h-12 bg-brand-red/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
-                  <Truck className="text-brand-red" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{t('features.fastDelivery')}</h3>
-                <p className="text-gray-600">{t('features.fastDeliveryDesc')}</p>
+              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
+                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-red/10">
+                  <Truck className="text-brand-red" size={36} />
+                </span>
+                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.fastDelivery')}</h3>
+                <p className="text-gray-500 text-base">{t('features.fastDeliveryDesc')}</p>
               </div>
-
-              <div className="text-center p-6 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="mx-auto w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
-                  <Check className="text-brand-blue" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{t('features.wideSelection')}</h3>
-                <p className="text-gray-600">{t('features.wideSelectionDesc')}</p>
+              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
+                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-blue/10">
+                  <Check className="text-brand-blue" size={36} />
+                </span>
+                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.wideSelection')}</h3>
+                <p className="text-gray-500 text-base">{t('features.wideSelectionDesc')}</p>
               </div>
             </div>
 
-            <div className="mt-12 text-center">
-              <Link to="/products" className="btn-secondary">
+            <div className="mt-16 text-center">
+              <Link to="/products" className="btn-secondary text-base px-6 py-3 rounded-lg shadow-sm hover:shadow-md font-semibold">
                 {t('navbar.exploreCollection')}
               </Link>
             </div>
@@ -137,3 +138,4 @@ const Index = () => {
 };
 
 export default Index;
+
