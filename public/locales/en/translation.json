@@ -206,5 +206,34 @@
   "seo": {
     "indexTitle": "Custom Self-Inking Stamps for Business",
     "indexDesc": "Design and order custom self-inking stamps for your business or personal use. Choose from a wide range of models with free delivery in Casablanca, Morocco."
+  },
+  "design": {
+    "title": "Custom stamp designer",
+    "saveDesign": "Save design",
+    "saveDesignForLater": "Save design for later",
+    "saved": "Design saved",
+    "savedDescription": "Your design has been saved and will be available when you return",
+    "loaded": "Design loaded",
+    "loadedDescription": "Your saved design has been loaded",
+    "saveDesignForLaterTooltip": "Save your current design to continue later",
+    "loadSavedDesignTooltip": "Load your previously saved design",
+    "clearSavedDesignTooltip": "Clear saved design from storage",
+    "loadDesign": "Load design",
+    "clearSaved": "Clear saved",
+    "productInfo": "Designing a {{name}} stamp ({{size}}). You can add up to {{lines}} lines of text and choose from {{inkColors}} ink colors."
+  },
+  "borderStyle": {
+    "title": "Border style",
+    "none": "No border",
+    "single": "Single",
+    "double": "Double",
+    "wavy": "Wavy",
+    "thickness": "Border thickness"
+  },
+  "actions": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "undoTooltip": "Undo last action",
+    "redoTooltip": "Redo last undone action"
   }
 }

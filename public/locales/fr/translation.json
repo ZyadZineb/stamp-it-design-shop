@@ -239,5 +239,34 @@
   "seo": {
     "indexTitle": "Tampons personnalisés professionnels au Maroc",
     "indexDesc": "Créez et commandez des tampons auto-encreurs personnalisés pour votre entreprise ou usage privé. Plusieurs modèles et livraison gratuite à Casablanca, Maroc."
+  },
+  "design": {
+    "title": "Concepteur de tampon personnalisé",
+    "saveDesign": "Enregistrer le design",
+    "saveDesignForLater": "Enregistrer le design pour plus tard",
+    "saved": "Design enregistré",
+    "savedDescription": "Votre design a bien été sauvegardé et sera disponible à votre retour",
+    "loaded": "Design chargé",
+    "loadedDescription": "Votre design enregistré a été chargé",
+    "saveDesignForLaterTooltip": "Enregistrez votre design pour continuer plus tard",
+    "loadSavedDesignTooltip": "Charger votre design précédemment enregistré",
+    "clearSavedDesignTooltip": "Supprimer le design enregistré du stockage",
+    "loadDesign": "Charger le design",
+    "clearSaved": "Supprimer l'enregistrement",
+    "productInfo": "Conception d’un tampon {{name}} ({{size}}). Vous pouvez ajouter jusqu’à {{lines}} lignes de texte et choisir parmi {{inkColors}} couleurs d’encre."
+  },
+  "borderStyle": {
+    "title": "Style de bordure",
+    "none": "Aucune bordure",
+    "single": "Simple",
+    "double": "Double",
+    "wavy": "Ondulée",
+    "thickness": "Épaisseur de la bordure"
+  },
+  "actions": {
+    "undo": "Annuler",
+    "redo": "Rétablir",
+    "undoTooltip": "Annuler la dernière action",
+    "redoTooltip": "Rétablir la dernière action annulée"
   }
 }

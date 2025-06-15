@@ -27,7 +27,7 @@ const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
     <Card className="overflow-hidden">
       <CardContent className="p-4">
         <h3 className={`font-medium text-gray-800 mb-3 ${largeControls ? "text-lg" : ""}`}>
-          {t('borderStyle.title', 'Border Style')}
+          {t('borderStyle.title', 'Border style')}
         </h3>
         
         <RadioGroup

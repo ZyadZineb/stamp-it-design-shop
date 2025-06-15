@@ -98,42 +98,42 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     { 
       id: 'shape' as WizardStepType, 
       labelKey: 'wizard.steps.shape.label', 
-      label: 'Shape & Border', 
+      label: t('wizard.steps.shape.label', 'Shape & Border'), 
       descriptionKey: 'wizard.steps.shape.description', 
-      description: 'Choose your stamp shape and border style',
-      tooltip: 'Set up the basic appearance of your stamp'
+      description: t('wizard.steps.shape.description', 'Choose your stamp shape and border style'),
+      tooltip: t('wizard.tooltips.shape', 'Set up the basic appearance of your stamp')
     },
     { 
       id: 'text' as WizardStepType, 
       labelKey: 'wizard.steps.text.label', 
-      label: 'Text', 
+      label: t('wizard.steps.text.label', 'Text'), 
       descriptionKey: 'wizard.steps.text.description', 
-      description: 'Add and position your text',
-      tooltip: 'Click to edit font size, drag text to reposition'
+      description: t('wizard.steps.text.description', 'Add and position your text'),
+      tooltip: t('wizard.tooltips.text', 'Click to edit font size, drag text to reposition')
     },
     { 
       id: 'color' as WizardStepType, 
       labelKey: 'wizard.steps.color.label', 
-      label: 'Color', 
+      label: t('wizard.steps.color.label', 'Color'), 
       descriptionKey: 'wizard.steps.color.description', 
-      description: 'Select ink color',
-      tooltip: 'Choose from available ink colors'
+      description: t('wizard.steps.color.description', 'Select ink color'),
+      tooltip: t('wizard.tooltips.color', 'Choose from available ink colors')
     },
     { 
       id: 'logo' as WizardStepType, 
       labelKey: 'wizard.steps.logo.label', 
-      label: 'Logo', 
+      label: t('wizard.steps.logo.label', 'Logo'), 
       descriptionKey: 'wizard.steps.logo.description', 
-      description: 'Add a logo if needed',
-      tooltip: 'Upload and position your company logo'
+      description: t('wizard.steps.logo.description', 'Add a logo if needed'),
+      tooltip: t('wizard.tooltips.logo', 'Upload and position your company logo')
     },
     { 
       id: 'order' as WizardStepType, 
       labelKey: 'wizard.steps.order.label', 
-      label: 'Order', 
+      label: t('wizard.steps.order.label', 'Order'), 
       descriptionKey: 'wizard.steps.order.description', 
-      description: 'Review and add your custom stamp to the cart',
-      tooltip: 'Final step: confirm details and order your stamp'
+      description: t('wizard.steps.order.description', 'Review and add your custom stamp to the cart'),
+      tooltip: t('wizard.tooltips.order', 'Final step: confirm details and order your stamp')
     }
   ];
   
@@ -389,9 +389,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       <div className={`border-b ${highContrast ? 'border-gray-800 bg-gray-100' : 'border-gray-200 bg-gradient-to-r from-brand-blue to-blue-600'} p-4 sm:p-6`}>
         <div className="flex justify-between items-center">
           <h2 className={`text-lg sm:text-xl font-semibold ${highContrast ? 'text-black' : 'text-white'}`}>
-            {t('design.title', "Custom Stamp Designer")}
+            {t('design.title', "Custom stamp designer")}
           </h2>
-          
           <HelpTooltip content={t('design.productInfo', `Designing a ${product.name} stamp (${product.size}). You can add up to ${product.lines} lines of text and choose from ${product.inkColors.length} ink colors.`)}>
             <span className={`text-xs sm:text-sm ${highContrast ? 'text-black' : 'text-white/90'} flex items-center gap-1`}>
               <HelpCircle size={16} />
@@ -399,7 +398,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             </span>
           </HelpTooltip>
         </div>
-        
         {/* Progress indicator */}
         <div className="mt-4">
           <Progress 
@@ -488,7 +486,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   title={t('design.loadSavedDesign', "Load Saved Design")}
                   className="min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue"
                 >
-                  {t('design.loadDesign', "Load Design")}
+                  {t('design.loadDesign', "Load design")}
                 </Button>
               </HelpTooltip>
               <HelpTooltip content={t('design.clearSavedDesignTooltip', "Clear saved design from storage")}>
@@ -499,7 +497,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   title={t('design.clearSavedDesign', "Clear Saved Design")}
                   className="min-h-[44px] hover:bg-red-500 hover:text-white border-red-500 text-red-500"
                 >
-                  {t('design.clearSaved', "Clear Saved")}
+                  {t('design.clearSaved', "Clear saved")}
                 </Button>
               </HelpTooltip>
             </>
@@ -509,11 +507,11 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 variant={highContrast ? "default" : "outline"} 
                 size={largeControls ? "default" : "sm"} 
                 onClick={handleSaveDesign}
-                title={t('design.saveDesignForLater', "Save Design for Later")}
+                title={t('design.saveDesignForLater', "Save design for later")}
                 className="min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue"
               >
                 <Save size={largeControls ? 20 : 16} className="mr-1" />
-                {t('design.saveDesign', "Save Design")}
+                {t('design.saveDesign', "Save design")}
               </Button>
             </HelpTooltip>
           )}
