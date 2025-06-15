@@ -145,31 +145,7 @@ const DesignStamp = () => {
               </div>
             </div>
             
-            <div className="w-full md:w-1/4">
-              {/* Only show help guide if no product is selected */}
-              {!selectedProduct && <div className="bg-white rounded-lg shadow p-4">
-                  <h3 className="font-medium text-lg mb-3 text-brand-blue">
-                    {t('designStamp.helpGuide', 'Design Guide')}
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="p-3 rounded-md bg-blue-50">
-                      <p className="text-sm">
-                        {t('designStamp.aiHelp', 'AI Design Assistant will help you create the perfect stamp layout based on your content and selected product.')}
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-md bg-yellow-50">
-                      <p className="text-sm">
-                        {t('designStamp.templateHelp', 'Choose from our professionally designed templates or create your own unique design.')}
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-md bg-green-50">
-                      <p className="text-sm">
-                        {t('designStamp.textEffectsHelp', 'Add special text effects like shadows or outlines to make your stamp stand out.')}
-                      </p>
-                    </div>
-                  </div>
-                </div>}
-            </div>
+            
           </div>
           
           {!selectedProduct && <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
