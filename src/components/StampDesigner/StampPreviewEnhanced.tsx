@@ -15,7 +15,7 @@ interface StampPreviewProps {
   onMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
   onTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchMove: (React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
   downloadAsPng: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
