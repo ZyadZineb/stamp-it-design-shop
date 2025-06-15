@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -411,7 +410,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
+                        onTouchMove={onTouchMove}
                         downloadAsPng={downloadAsPng}
                         zoomLevel={zoomLevel}
                         onZoomIn={zoomIn}
@@ -442,7 +441,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <div 
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       style={{ 
-                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` 
+                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100}%` 
                       }}
                     ></div>
                   </div>
@@ -485,6 +484,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       )}
     </div>
   );
+
 };
 
 export default StampDesignerMain;
