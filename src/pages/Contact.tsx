@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -22,6 +23,11 @@ const Contact = () => {
     setMessage('');
   };
 
+  // Updated contact info
+  const phoneDisplay = "+212 6 99 11 80 28";
+  const emailDisplay = "zyad.sobhi@gmail.com";
+  const addressDisplay = "Mohammedia, Maroc";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -42,7 +48,9 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">{t('phoneLabel', { ns: 'contact' })}</p>
-                      <p className="font-medium">{t('footer.phone')}</p>
+                      <p className="font-medium">
+                        <a href="tel:+212699118028" className="hover:underline">{phoneDisplay}</a>
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -51,7 +59,9 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">{t('emailLabel', { ns: 'contact' })}</p>
-                      <p className="font-medium">{t('footer.email')}</p>
+                      <p className="font-medium">
+                        <a href="mailto:zyad.sobhi@gmail.com" className="hover:underline">{emailDisplay}</a>
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -60,7 +70,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">{t('addressLabel', { ns: 'contact' })}</p>
-                      <p className="font-medium">{t('footer.location')}</p>
+                      <p className="font-medium">{addressDisplay}</p>
                     </div>
                   </div>
                 </div>

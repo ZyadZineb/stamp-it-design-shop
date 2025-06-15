@@ -23,5 +23,8 @@
   "messageLabel": "Message *",
   "messagePlaceholder": "Votre message...",
   "sendButton": "Envoyer le message",
-  "success": "Message envoyé avec succès ! Nous vous répondrons bientôt."
+  "success": "Message envoyé avec succès ! Nous vous répondrons bientôt.",
+  "mainPhone": "+212 6 99 11 80 28",
+  "mainEmail": "zyad.sobhi@gmail.com",
+  "mainAddress": "Mohammedia, Maroc"
 }
