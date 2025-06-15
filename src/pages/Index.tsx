@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -26,61 +25,6 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         <FeaturedProducts />
-
-        {/* Features Section */}
-        <section className="py-20 bg-white border-t border-gray-100" aria-labelledby="features-heading">
-          <div className="container-custom">
-            <div className="text-center mb-16">
-              <h2
-                id="features-heading"
-                className="text-4xl font-bold tracking-tight text-gray-900 mb-4"
-                style={{ letterSpacing: "-1px" }}
-              >
-                {t('features.whyChoose')}
-              </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg font-light">
-                {t('features.whyChooseDesc')}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
-                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-red/10">
-                  <Award className="text-brand-red" size={36} />
-                </span>
-                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.premiumQuality')}</h3>
-                <p className="text-gray-500 text-base">{t('features.premiumQualityDesc')}</p>
-              </div>
-              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
-                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-blue/10">
-                  <ThumbsUp className="text-brand-blue" size={36} />
-                </span>
-                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.customizable')}</h3>
-                <p className="text-gray-500 text-base">{t('features.customizableDesc')}</p>
-              </div>
-              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
-                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-red/10">
-                  <Truck className="text-brand-red" size={36} />
-                </span>
-                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.fastDelivery')}</h3>
-                <p className="text-gray-500 text-base">{t('features.fastDeliveryDesc')}</p>
-              </div>
-              <div className="flex flex-col items-center text-center px-6 py-8 rounded-2xl bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in">
-                <span className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-brand-blue/10">
-                  <Check className="text-brand-blue" size={36} />
-                </span>
-                <h3 className="font-semibold text-xl mb-2 text-gray-900">{t('features.wideSelection')}</h3>
-                <p className="text-gray-500 text-base">{t('features.wideSelectionDesc')}</p>
-              </div>
-            </div>
-
-            <div className="mt-16 text-center">
-              <Link to="/products" className="btn-secondary text-base px-6 py-3 rounded-lg shadow-sm hover:shadow-md font-semibold">
-                {t('navbar.exploreCollection')}
-              </Link>
-            </div>
-          </div>
-        </section>
 
         {/* CTA Section */}
         <section className="bg-brand-blue py-16 text-white" aria-labelledby="cta-heading">
@@ -138,4 +82,3 @@ const Index = () => {
 };
 
 export default Index;
-
