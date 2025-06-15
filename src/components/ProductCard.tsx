@@ -1,95 +1,39 @@
-
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Product } from '@/types';
-import { useNavigate } from 'react-router-dom';
-import { Checkbox } from '@/components/ui/checkbox';
-import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import { Product } from '../types';
+import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
-  isSelectionMode?: boolean;
-  isSelected?: boolean;
-  onSelectForComparison?: () => void;
-  maxSelectableProducts?: number;
 }
 
-const ProductCard = ({ 
-  product, 
-  isSelectionMode = false, 
-  isSelected = false, 
-  onSelectForComparison,
-  maxSelectableProducts = 3 
-}: ProductCardProps) => {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    if (isSelectionMode && onSelectForComparison) {
-      onSelectForComparison();
-    } else {
-      navigate(`/design?productId=${product.id}`);
-    }
-  };
-
-  const handleCompareClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onSelectForComparison) {
-      onSelectForComparison();
-    }
-  };
+const ProductCard = ({ product }: ProductCardProps) => {
+  const { t } = useTranslation();
 
   return (
-    <Card 
-      className={`overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer ${
-        isSelected ? 'ring-2 ring-blue-500' : ''
-      }`}
-      onClick={handleCardClick}
-    >
-      <div className="relative pt-[100%]">
-        {product.images && product.images.length > 0 && (
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="absolute inset-0 w-full h-full object-contain p-4"
-          />
-        )}
-        
-        {isSelectionMode && (
-          <div 
-            className="absolute top-2 right-2 bg-white rounded-full shadow-sm"
-            onClick={handleCompareClick}
-          >
-            <Checkbox 
-              checked={isSelected} 
-              className="h-5 w-5"
-              onCheckedChange={() => {}}
-            />
-          </div>
-        )}
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <Link to={`/products/${product.id}`}>
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className="w-full h-48 object-cover"
+        />
+      </Link>
+      <div className="p-4">
+        <h3 className="font-bold text-lg text-brand-blue mb-2">
+          {t(`productNames.${product.id}`, product.name)}
+        </h3>
+        <p className="text-gray-700 mb-4">
+          {t(`productDescriptions.${product.id}`, product.description)}
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-600">{product.price} DHS</span>
+          <Link to={`/products/${product.id}`} className="btn-primary">
+            {t('products.details', "More details")}
+          </Link>
+        </div>
       </div>
-      
-      <CardContent className="p-4">
-        <div className="mb-2">
-          <p className="text-sm text-gray-500">{product.brand}</p>
-          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
-          <p className="text-gray-700 text-xl font-medium">{product.price} MAD</p>
-        </div>
-        
-        <div className="mt-2 flex flex-wrap gap-1">
-          <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
-            {product.size}
-          </span>
-          <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
-            {product.lines} lines
-          </span>
-          {product.shape && (
-            <span className="text-xs bg-gray-100 rounded-full px-2 py-1">
-              {product.shape}
-            </span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 
