@@ -6,11 +6,13 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { useCart } from "../contexts/CartContext";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   if (!id) {
     return (
@@ -41,6 +43,16 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // Handler for Add to Cart
+  const handleAddToCart = () => {
+    addToCart(product); // uses default quantity 1 and product's default ink color
+  };
+
+  // Handler for navigating to Stamp Designer
+  const goToStampDesigner = () => {
+    navigate(`/design?productId=${product.id}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,7 +98,18 @@ const ProductDetail = () => {
                   <strong>{t("products.details.shape", "Shape")}:</strong> {t("shapes." + product.shape, product.shape)}
                 </li>
               </ul>
-              <Button>{t("cart.addToCart", "Add to cart")}</Button>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <Button onClick={handleAddToCart} className="w-full sm:w-auto">
+                  {t("cart.addToCart", "Add to cart")}
+                </Button>
+                <Button 
+                  onClick={goToStampDesigner} 
+                  variant="outline" 
+                  className="w-full sm:w-auto"
+                >
+                  {t("design.productDetail", "Design and Personalize")}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -97,3 +120,4 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
