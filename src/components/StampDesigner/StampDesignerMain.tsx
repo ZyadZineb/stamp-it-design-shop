@@ -289,6 +289,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <Separator className="my-6" />
                     <Suspense fallback={<div>Loading export tools…</div>}>
                       <ExportDesign 
+                        svgRef={null}
                         previewImage={previewImage}
                         productName={product?.name || ''}
                         downloadAsPng={downloadAsPng}

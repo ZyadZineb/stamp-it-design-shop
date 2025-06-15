@@ -1,13 +1,12 @@
 
 import React from "react";
-import { ProductShape } from "@/types";
 
 interface BorderSelectorProps {
   borderStyle: string;
   borderThickness: number;
   onSetBorderStyle: (style: string) => void;
   onSetBorderThickness: (thickness: number) => void;
-  shape: ProductShape;
+  shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
   highContrast?: boolean;
   largeControls?: boolean;
 }

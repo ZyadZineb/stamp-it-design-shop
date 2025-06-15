@@ -1,10 +1,9 @@
 
 import React from "react";
-import { ProductShape } from "@/types";
 
 interface TemplateSelectorProps {
   onSelectTemplate: (template: any) => void;
-  productShape: ProductShape;
+  productShape: 'rectangle' | 'circle' | 'square' | 'ellipse';
   highContrast?: boolean;
   largeControls?: boolean;
 }

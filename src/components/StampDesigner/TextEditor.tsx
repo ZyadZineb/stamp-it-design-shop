@@ -1,6 +1,6 @@
 
 import React from "react";
-import { StampTextLine, ProductShape } from "@/types";
+import { StampTextLine } from "@/types";
 
 interface TextEditorProps {
   lines: StampTextLine[];
@@ -10,7 +10,7 @@ interface TextEditorProps {
   onToggleCurvedText?: (idx: number) => void;
   onStartTextDrag?: (idx: number) => void;
   maxLines?: number;
-  shape?: ProductShape;
+  shape?: 'rectangle' | 'circle' | 'square' | 'ellipse';
   onAutoArrange?: () => void;
   onSetGlobalAlignment?: (align: "left" | "center" | "right") => void;
   highContrast?: boolean;
