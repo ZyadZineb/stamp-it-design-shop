@@ -1,9 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { mmToPx } from "@/utils/dimensions";
 import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/tooltip-custom";
 import { useTranslation } from "react-i18next";
+
+/** NEW: Debug settings type */
+export interface DebugOverlaySettings {
+  grid?: boolean;
+  rulers?: boolean;
+  boundingBoxes?: boolean;
+  baseline?: boolean;
+}
 
 export interface PreviewCanvasProps {
   previewImage: string | null;
@@ -27,10 +35,30 @@ export interface PreviewCanvasProps {
   onCanvasTouchStart?: (e: React.TouchEvent<HTMLDivElement>) => void;
   onCanvasTouchMove?: (e: React.TouchEvent<HTMLDivElement>) => void;
   onCanvasTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  /** NEW: Debug mode and overlays config */
+  debug?: boolean | DebugOverlaySettings;
+  /** For rendering bounding boxes/baseline: optional design data can be added for future extension */
+  textBlocks?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    baseline: number;
+    key: string;
+  }[];
+  lines?: string[]; // For future baseline visual, if needed
 }
+
+const defaultDebug: DebugOverlaySettings = {
+  grid: true,
+  rulers: true,
+  boundingBoxes: true,
+  baseline: true,
+};
 
 /**
  * Canonical, mm-accurate, interactive preview canvas for the stamp designer.
+ * INCLUDES: Debug overlays for dev/designer mm-precise validation.
  */
 const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   previewImage,
@@ -53,11 +81,164 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   onCanvasMouseUp,
   onCanvasTouchStart,
   onCanvasTouchMove,
-  onCanvasTouchEnd
+  onCanvasTouchEnd,
+  // Debug props
+  debug,
+  textBlocks = [],
+  lines = [],
 }) => {
   const { t } = useTranslation();
   const widthPx = mmToPx(widthMm);
   const heightPx = mmToPx(heightMm);
+
+  // Debug mode: decide which overlays enabled
+  let debugConfig: DebugOverlaySettings | null = null;
+  if (debug) {
+    if (typeof debug === "boolean") debugConfig = defaultDebug;
+    else debugConfig = { ...defaultDebug, ...debug };
+  }
+
+  // Helpers for overlay rendering
+  /** mm grid rendered as SVG lines every 10px (=1mm) */
+  const renderGrid = () => (
+    <svg width={widthPx} height={heightPx} className="absolute z-30 inset-0 pointer-events-none">
+      {/* Vertical lines */}
+      {Array.from({ length: Math.ceil(widthPx / 10) }, (_, i) => (
+        <line
+          key={`v${i}`}
+          x1={i * 10}
+          x2={i * 10}
+          y1={0}
+          y2={heightPx}
+          stroke="#b3e1ff"
+          strokeWidth={i % 5 === 0 ? 1.5 : 0.5}
+          opacity={i % 5 === 0 ? 0.32 : 0.17}
+        />
+      ))}
+      {/* Horizontal lines */}
+      {Array.from({ length: Math.ceil(heightPx / 10) }, (_, i) => (
+        <line
+          key={`h${i}`}
+          y1={i * 10}
+          y2={i * 10}
+          x1={0}
+          x2={widthPx}
+          stroke="#b3e1ff"
+          strokeWidth={i % 5 === 0 ? 1.5 : 0.5}
+          opacity={i % 5 === 0 ? 0.32 : 0.17}
+        />
+      ))}
+    </svg>
+  );
+
+  /** mm rulers: SVG at top and left, with labels every 5mm */
+  const renderRulers = () => (
+    <svg
+      width={widthPx}
+      height={heightPx}
+      className="absolute z-40 inset-0 pointer-events-none"
+      style={{}}
+    >
+      {/* Top ruler */}
+      {Array.from({ length: Math.ceil(widthMm) + 1 }, (_, i) => (
+        <g key={`rx${i}`}>
+          <line
+            x1={i * 10}
+            y1={0}
+            x2={i * 10}
+            y2={10}
+            stroke="#3182ce"
+            strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
+          />
+          {i % 5 === 0 && (
+            <text
+              x={i * 10 + 2}
+              y={18}
+              fontSize={7}
+              fill="#1973aa"
+              fontFamily="monospace"
+            >
+              {i}
+            </text>
+          )}
+        </g>
+      ))}
+      {/* Left ruler */}
+      {Array.from({ length: Math.ceil(heightMm) + 1 }, (_, i) => (
+        <g key={`ry${i}`}>
+          <line
+            x1={0}
+            y1={i * 10}
+            x2={10}
+            y2={i * 10}
+            stroke="#3182ce"
+            strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
+          />
+          {i % 5 === 0 && (
+            <text
+              x={13}
+              y={i * 10 + 8}
+              fontSize={7}
+              fill="#1973aa"
+              fontFamily="monospace"
+            >
+              {i}
+            </text>
+          )}
+        </g>
+      ))}
+    </svg>
+  );
+
+  /** Outline each text block: dashed box, label with key */
+  const renderBoundingBoxes = () => (
+    <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
+      {textBlocks.map(({ x, y, width, height, key }, i) => (
+        <g key={key ?? i}>
+          <rect
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            stroke="#ec4899"
+            strokeWidth={2}
+            fill="none"
+            strokeDasharray="5 4"
+            opacity={0.75}
+          />
+          <text
+            x={x + 3}
+            y={y + 11}
+            fontSize={11}
+            fill="#f63fa2"
+            fontWeight="bold"
+            fontFamily="monospace"
+          >
+            {key}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+
+  /** Baseline guides for text blocks (horizontal line per block baseline) */
+  const renderBaselines = () => (
+    <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
+      {textBlocks.map(({ x, baseline, width, key }, i) => (
+        <line
+          key={key + "-base"}
+          x1={x}
+          y1={baseline}
+          x2={x + width}
+          y2={baseline}
+          stroke="#3b82f6"
+          strokeWidth={1.4}
+          strokeDasharray="4 4"
+          opacity={0.8}
+        />
+      ))}
+    </svg>
+  );
 
   // Logging for debug: preview size and center
   React.useEffect(() => {
@@ -125,6 +306,12 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onTouchEnd={onCanvasTouchEnd}
         tabIndex={0}
       >
+        {/* Debug overlays */}
+        {debugConfig?.grid && renderGrid()}
+        {debugConfig?.rulers && renderRulers()}
+        {debugConfig?.boundingBoxes && renderBoundingBoxes()}
+        {debugConfig?.baseline && renderBaselines()}
+
         {/* Clean SVG overlay (no grid/rulers/center point) */}
         <svg width={widthPx} height={heightPx} className="absolute z-20 inset-0 pointer-events-none">
           {/* No overlays */}
