@@ -239,7 +239,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden min-h-screen">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden w-full min-h-screen">
       {/* Enhanced Header with better visual hierarchy */}
       <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
         <div className="flex items-center justify-between mb-4">
@@ -297,14 +297,14 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       
       {/* Layout changes for preview step to show clean design */}
       {currentStep === 'preview' ? (
-        <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
-          <div className="max-w-6xl mx-auto">
+        <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen w-full">
+          <div className="w-full max-w-none">
             <div className="text-center mb-8">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Aperçu Final</h2>
               <p className="text-lg text-gray-600">Votre tampon est prêt ! Vérifiez tous les détails avant de commander.</p>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-xl p-10 mb-8">
+            <div className="bg-white rounded-2xl shadow-xl p-10 mb-8 w-full">
               <StampPreviewAccessible
                 previewImage={previewImage}
                 productSize={product.size}
@@ -358,7 +358,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
             
             {/* Enhanced Product Summary Card */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg w-full">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
@@ -384,120 +384,82 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col min-h-screen">
-          {/* Enhanced Main editing section */}
-          <div className="p-8 bg-gray-50">
-            <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col min-h-screen w-full">
+          {/* Enhanced Main editing section - Full width layout */}
+          <div className="p-8 bg-gray-50 w-full">
+            <div className="w-full">
               {/* Step Content with improved styling */}
-              <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+              <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 w-full">
                 <div className="mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{getStepInfo(currentStep).title}</h3>
                   <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
                 </div>
 
-                {/* Show design step based on current step */}
-                {currentStep === 'templates' && design.shape === 'circle' && (
-                  <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
-                )}
-
-                {currentStep === 'logo' && (
-                  <LogoUploader
-                    includeLogo={design.includeLogo}
-                    toggleLogo={toggleLogo}
-                    logoX={design.logoX}
-                    logoY={design.logoY}
-                    uploadedLogo={uploadedLogo}
-                    onLogoUpload={handleLogoUpload}
-                    updateLogoPosition={updateLogoPosition}
-                    largeControls={largeControls}
-                  />
-                )}
-                
-                {currentStep === 'text' && (
+                {/* Two column layout for better use of space */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left column: Controls */}
                   <div className="space-y-6">
-                    <TextLinesEditor
-                      lines={design.lines}
-                      product={product}
-                      onUpdateLine={updateLine}
-                      onAddLine={addLine}
-                      onRemoveLine={removeLine}
-                      onToggleCurvedText={toggleCurvedText}
-                      globalAlignment={design.globalAlignment}
-                      onGlobalAlignmentChange={setGlobalAlignment}
-                    />
+                    {/* Show design step based on current step */}
+                    {currentStep === 'templates' && design.shape === 'circle' && (
+                      <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
+                    )}
+
+                    {currentStep === 'logo' && (
+                      <LogoUploader
+                        includeLogo={design.includeLogo}
+                        toggleLogo={toggleLogo}
+                        logoX={design.logoX}
+                        logoY={design.logoY}
+                        uploadedLogo={uploadedLogo}
+                        onLogoUpload={handleLogoUpload}
+                        updateLogoPosition={updateLogoPosition}
+                        largeControls={largeControls}
+                      />
+                    )}
                     
-                    <AutoArrange 
-                      design={design}
-                      onEnhancedAutoArrange={enhancedAutoArrange}
-                      shape={getCompatibleShape(design.shape)}
-                    />
+                    {currentStep === 'text' && (
+                      <div className="space-y-6">
+                        <TextLinesEditor
+                          lines={design.lines}
+                          product={product}
+                          onUpdateLine={updateLine}
+                          onAddLine={addLine}
+                          onRemoveLine={removeLine}
+                          onToggleCurvedText={toggleCurvedText}
+                          globalAlignment={design.globalAlignment}
+                          onGlobalAlignmentChange={setGlobalAlignment}
+                        />
+                        
+                        <AutoArrange 
+                          design={design}
+                          onEnhancedAutoArrange={enhancedAutoArrange}
+                          shape={getCompatibleShape(design.shape)}
+                        />
+                      </div>
+                    )}
+                    
+                    {currentStep === 'border' && (
+                      <BorderStyleSelector 
+                        borderStyle={design.borderStyle} 
+                        borderThickness={design.borderThickness}
+                        onBorderStyleChange={setBorderStyle}
+                        onBorderThicknessChange={setBorderThickness}
+                        largeControls={largeControls}
+                      />
+                    )}
+                    
+                    {currentStep === 'color' && (
+                      <ColorSelector 
+                        inkColors={product.inkColors} 
+                        selectedColor={design.inkColor} 
+                        onColorSelect={setInkColor}
+                      />
+                    )}
                   </div>
-                )}
-                
-                {currentStep === 'border' && (
-                  <BorderStyleSelector 
-                    borderStyle={design.borderStyle} 
-                    borderThickness={design.borderThickness}
-                    onBorderStyleChange={setBorderStyle}
-                    onBorderThicknessChange={setBorderThickness}
-                    largeControls={largeControls}
-                  />
-                )}
-                
-                {currentStep === 'color' && (
-                  <ColorSelector 
-                    inkColors={product.inkColors} 
-                    selectedColor={design.inkColor} 
-                    onColorSelect={setInkColor}
-                  />
-                )}
-              </div>
-              
-              {/* Enhanced Step navigation buttons */}
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="outline"
-                  onClick={goToPrevStep}
-                  disabled={currentStep === 'templates'}
-                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl border-2 transition-all duration-200 ${
-                    currentStep === 'templates' ? 'opacity-50' : 'hover:bg-gray-50 hover:border-gray-300'
-                  }`}
-                >
-                  ← Précédent
-                </Button>
-                
-                <div className="text-center">
-                  <div className="text-sm text-gray-500 mb-1">Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6</div>
-                  <div className="w-48 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <Button
-                  variant="default"
-                  onClick={goToNextStep}
-                  disabled={currentStep === 'preview'}
-                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 ${
-                    currentStep === 'preview' ? 'opacity-50' : 'hover:scale-[1.02] shadow-lg'
-                  }`}
-                >
-                  {currentStep === 'color' ? 'Aperçu' : 'Suivant'} →
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Enhanced Large preview section */}
-          <div className="border-t bg-gradient-to-br from-white to-gray-50 p-10 flex-grow">
-            <div className="max-w-6xl mx-auto">
-              <h3 className="text-3xl font-bold text-center mb-8 text-gray-900">Aperçu en Temps Réel</h3>
-              
-              <div className="bg-white rounded-2xl shadow-xl p-12 mb-8">
-                <div className="flex justify-center">
-                  <div className="w-full">
+
+                  {/* Right column: Large Preview */}
+                  <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl border">
+                    <h4 className="text-lg font-semibold mb-4 text-gray-900">Aperçu en Temps Réel</h4>
                     <StampPreview
                       previewImage={previewImage}
                       productSize={product.size}
@@ -550,8 +512,43 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 </div>
               </div>
               
-              {/* Enhanced Product info and add to cart */}
-              <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-100 rounded-2xl p-8 shadow-lg">
+              {/* Enhanced Step navigation buttons */}
+              <div className="flex justify-between items-center w-full">
+                <Button
+                  variant="outline"
+                  onClick={goToPrevStep}
+                  disabled={currentStep === 'templates'}
+                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl border-2 transition-all duration-200 ${
+                    currentStep === 'templates' ? 'opacity-50' : 'hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  ← Précédent
+                </Button>
+                
+                <div className="text-center">
+                  <div className="text-sm text-gray-500 mb-1">Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6</div>
+                  <div className="w-48 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <Button
+                  variant="default"
+                  onClick={goToNextStep}
+                  disabled={currentStep === 'preview'}
+                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 ${
+                    currentStep === 'preview' ? 'opacity-50' : 'hover:scale-[1.02] shadow-lg'
+                  }`}
+                >
+                  {currentStep === 'color' ? 'Aperçu' : 'Suivant'} →
+                </Button>
+              </div>
+              
+              {/* Enhanced Product info and add to cart - Full width */}
+              <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-100 rounded-2xl p-8 shadow-lg mt-8 w-full">
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h3 className="font-bold text-2xl text-gray-900 mb-1">{product.name}</h3>
