@@ -45,10 +45,6 @@ const StampPreview: React.FC<StampPreviewProps> = ({
 }) => {
   const { t } = useTranslation();
   
-  // Add a grid pattern for precise alignment
-  const gridSize = 5; // 5mm grid
-
-  // Parse mm size
   let widthMm = 38, heightMm = 14;
   if (productSize) {
     const parts = productSize.replace("mm", "").split("x");
@@ -65,7 +61,6 @@ const StampPreview: React.FC<StampPreviewProps> = ({
           <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"}`}>
             {t('preview.title', 'Stamp Preview')}
           </h3>
-          
           <div className="flex items-center gap-2">
             {onZoomIn && onZoomOut && (
               <>
@@ -90,7 +85,6 @@ const StampPreview: React.FC<StampPreviewProps> = ({
                 </Button>
               </>
             )}
-            
             <Button
               variant="outline"
               size="sm"
@@ -102,50 +96,27 @@ const StampPreview: React.FC<StampPreviewProps> = ({
             </Button>
           </div>
         </div>
-        
         <PreviewCanvas
+          previewImage={previewImage}
           widthMm={widthMm}
           heightMm={heightMm}
-          showRuler={true}
-          showBaselineBox={true}
-          className="mx-auto"
-        >
-          {previewImage ? (
-            <div 
-              ref={previewRef}
-              className="flex items-center justify-center w-full h-full select-none"
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onTouchStart={onTouchStart}
-              onTouchMove={onTouchMove}
-              onTouchEnd={onMouseUp}
-              style={{
-                transform: `scale(${zoomLevel})`,
-                transition: isDragging ? "none" : "transform 0.2s ease-in-out",
-                width: "100%",
-                height: "100%"
-              }}
-            >
-              <img 
-                src={previewImage} 
-                alt={t('preview.stampPreview', 'Stamp preview')}
-                className="object-contain max-w-full max-h-full"
-                style={{
-                  width: "100%",
-                  height: "100%"
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full w-full bg-gray-50">
-              <p className="text-gray-400">
-                {t('preview.noPreview', 'No preview available')}
-              </p>
-            </div>
-          )}
-        </PreviewCanvas>
-        
+          productSize={productSize}
+          highContrast={highContrast}
+          zoomLevel={zoomLevel}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          downloadAsPng={downloadAsPng}
+          activeLineIndex={activeLineIndex}
+          includeLogo={includeLogo}
+          isDragging={isDragging}
+          onCanvasMouseDown={onMouseDown}
+          onCanvasMouseMove={onMouseMove}
+          onCanvasMouseUp={onMouseUp}
+          onCanvasTouchStart={onTouchStart}
+          onCanvasTouchMove={onTouchMove}
+          onCanvasTouchEnd={onMouseUp}
+          // you may add any additional required props here
+        />
         {productSize && (
           <div className="mt-2 text-center">
             <span className="text-xs text-gray-500">

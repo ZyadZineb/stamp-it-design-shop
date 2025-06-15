@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { mmToPx } from "@/utils/dimensions";
 import { Download, ZoomIn, ZoomOut } from "lucide-react";
@@ -27,6 +26,7 @@ export interface PreviewCanvasProps {
   onCanvasMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onCanvasTouchStart?: (e: React.TouchEvent<HTMLDivElement>) => void;
   onCanvasTouchMove?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  onCanvasTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void;
 }
 
 /**
@@ -52,7 +52,8 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   onCanvasMouseMove,
   onCanvasMouseUp,
   onCanvasTouchStart,
-  onCanvasTouchMove
+  onCanvasTouchMove,
+  onCanvasTouchEnd
 }) => {
   const { t } = useTranslation();
   const widthPx = mmToPx(widthMm);
@@ -146,7 +147,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onMouseUp={onCanvasMouseUp}
         onTouchStart={onCanvasTouchStart}
         onTouchMove={onCanvasTouchMove}
-        onTouchEnd={onCanvasMouseUp}
+        onTouchEnd={onCanvasTouchEnd}
         tabIndex={0}
       >
         {Ruler}
