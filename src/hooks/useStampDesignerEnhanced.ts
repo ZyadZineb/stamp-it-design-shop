@@ -140,23 +140,19 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     }));
   };
 
-  // Update text line with history tracking and auto-centering
+  // Update text line with history tracking (do NOT re-center on every style change)
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
+    // Only update targeted properties—DO NOT recenter
     newLines[index] = { ...newLines[index], ...updates };
 
-    // Auto-center after update
-    const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(product?.size || '38x14mm');
-    const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
-    const centeredLines = centerTextGroup(
-      newLines,
-      canvasWidth,
-      canvasHeight,
-      baseFontSize,
-      design.globalAlignment || 'center'
-    );
+    // If the update changes the text content itself (not font/style/size), optionally
+    // re-center that line—otherwise keep current position as set by user
+    // We'll assume: Text changes may affect layout, but style changes (font, size) should not affect x/y
+    // You can tune this logic if you want to "smart center" only on very specific triggers.
+    // For now, we'll simply update the property, keep positions as set.
 
-    const updatedDesign = { ...design, lines: centeredLines };
+    const updatedDesign = { ...design, lines: newLines };
     updateHistory(updatedDesign);
   };
 
