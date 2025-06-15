@@ -1,5 +1,3 @@
-
-// Unifies Preview rendering: Only uses PreviewCanvas for the main preview logic.
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import PreviewCanvas from './PreviewCanvas';
@@ -75,7 +73,7 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
       onCanvasMouseUp={onMouseUp}
       onCanvasTouchStart={onTouchStart}
       onCanvasTouchMove={onTouchMove}
-      onCanvasTouchEnd={onTouchEnd} {/* <-- CORRECT TYPE */}
+      onCanvasTouchEnd={onTouchEnd}
     />
   );
 };
