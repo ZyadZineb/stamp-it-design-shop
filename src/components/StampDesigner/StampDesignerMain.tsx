@@ -211,8 +211,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('logo.description', "Upload and position your logo or skip this step.")}</p>
                     <LogoUploader 
                       includeLogo={design.includeLogo}
-                      onToggleLogo={toggleLogo}
-                      onSetLogoPosition={setLogoPosition}
+                      toggleLogo={toggleLogo}
                       highContrast={highContrast}
                       largeControls={largeControls}
                     />
@@ -267,8 +266,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <h2 className="text-2xl font-bold mb-4">{t('color.title', "Choose Ink Color")}</h2>
                     <p className="text-gray-600 mb-6">{t('color.description', "Select the ink color for your stamp.")}</p>
                     <ColorSelector 
+                      inkColors={product?.inkColors || []}
                       selectedColor={design.inkColor}
-                      onSelectColor={setInkColor}
+                      onColorSelect={setInkColor}
                       highContrast={highContrast}
                       largeControls={largeControls}
                     />
