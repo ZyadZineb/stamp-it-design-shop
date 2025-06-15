@@ -1,4 +1,3 @@
-
 {
   "navigation": {
     "home": "Home",
@@ -48,9 +47,9 @@
         "label": "Tools",
         "description": "Add QR codes and barcodes"
       },
-      "preview": {
-        "label": "Preview",
-        "description": "Review your design"
+      "order": {
+        "label": "Order",
+        "description": "Review and place your stamp order"
       }
     }
   },

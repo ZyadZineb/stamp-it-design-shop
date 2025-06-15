@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
-type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'cart';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'order';
 
 interface WizardStep {
   id: WizardStepType;
@@ -65,7 +65,7 @@ const WizardControls: React.FC<WizardControlsProps> = ({
           className={isLastStep ? "bg-brand-blue hover:bg-brand-blue-dark" : ""}
         >
           {isLastStep 
-            ? t('cart.addToCart', 'Add to Cart') 
+            ? t('wizard.steps.order.label', 'Order') 
             : t('wizard.next', 'Next')}
           {!isLastStep && <ChevronRight size={iconSize} className="ml-1" />}
         </Button>

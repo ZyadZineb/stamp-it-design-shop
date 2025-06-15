@@ -47,9 +47,9 @@
         "label": "Outils",
         "description": "Ajoutez des codes QR et des codes-barres"
       },
-      "preview": {
-        "label": "Aperçu",
-        "description": "Examinez votre design"
+      "order": {
+        "label": "Commandez",
+        "description": "Vérifiez et passez la commande de votre tampon"
       }
     }
   },

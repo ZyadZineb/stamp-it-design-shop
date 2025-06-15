@@ -21,7 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 
 // Define the wizard step type
-type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'cart';
+type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'order';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -128,12 +128,12 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
       tooltip: 'Upload and position your company logo'
     },
     { 
-      id: 'cart' as WizardStepType, 
-      labelKey: 'wizard.steps.cart.label', 
-      label: 'Add to Cart', 
-      descriptionKey: 'wizard.steps.cart.description', 
+      id: 'order' as WizardStepType, 
+      labelKey: 'wizard.steps.order.label', 
+      label: 'Order', 
+      descriptionKey: 'wizard.steps.order.description', 
       description: 'Review and add your custom stamp to the cart',
-      tooltip: 'Final step: confirm details and add your stamp to cart'
+      tooltip: 'Final step: confirm details and order your stamp'
     }
   ];
   
@@ -586,8 +586,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             </>
           )}
           
-          {/* New 'cart' step replaces preview */}
-          {currentStep === 'cart' && (
+          {/* New 'order' step replaces preview */}
+          {currentStep === 'order' && (
             <div className="space-y-4">
               <div className={`${highContrast ? 'bg-gray-100' : 'bg-gradient-to-r from-green-50 to-green-100'} p-4 rounded-md border border-green-200`}>
                 <div className="flex justify-between items-center mb-3">
