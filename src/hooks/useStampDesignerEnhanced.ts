@@ -739,6 +739,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     if (design.shape === 'ellipse') {
       const rx = (canvasWidth / 2) - 10; // Padding from edges
       const ry = (canvasHeight / 2) - 10;
+      const ratio = ry / rx;
 
       // Add borders
       if (design.borderStyle === 'single') {
@@ -773,14 +774,25 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          // Allow user yPosition [-100,100] to vary radius ±25% 
+          // Calculate ellipse radius
           const baseRadius = Math.min(rx, ry) * 0.7;
           const maxDelta = Math.min(rx, ry) * 0.25;
           const textRadius = baseRadius + (line.yPosition / 100) * maxDelta;
           const isBottom = line.textPosition === 'bottom';
-          
-          svgContent += `<defs><ellipse id="${pathId}" cx="${centerX}" cy="${centerY}" rx="${textRadius}" ry="${textRadius * (ry/rx)}" /></defs>`;
-          
+          // Use SVG elliptical arc path for <textPath>
+          svgContent += `<defs>`;
+          if (isBottom) {
+            // Bottom arc: sweep from right to left
+            svgContent += `<path id="${pathId}" d="M ${centerX + textRadius} ${centerY} A ${textRadius},${textRadius * ratio} 0 1,1 ${centerX - textRadius} ${centerY}" />`;
+          } else {
+            // Top arc: sweep from left to right
+            svgContent += `<path id="${pathId}" d="M ${centerX - textRadius} ${centerY} A ${textRadius},${textRadius * ratio} 0 1,0 ${centerX + textRadius} ${centerY}" />`;
+          }
+          svgContent += `</defs>`;
+
+          // Match circle logic for offset if needed
+          const startOffset = 50 + (line.xPosition / 100) * 25;
+
           if (isBottom) {
             svgContent += `
             <g transform="rotate(180 ${centerX} ${centerY})">
@@ -788,7 +800,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
                     ${line.bold ? 'font-weight="bold"' : ''} 
                     ${line.italic ? 'font-style="italic"' : ''} 
                     fill="${design.inkColor}" text-anchor="middle">
-                <textPath href="#${pathId}" startOffset="50%">
+                <textPath href="#${pathId}" startOffset="${100 - startOffset}%">
                   ${line.text}
                 </textPath>
               </text>
@@ -799,7 +811,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
                   ${line.bold ? 'font-weight="bold"' : ''} 
                   ${line.italic ? 'font-style="italic"' : ''} 
                   fill="${design.inkColor}" text-anchor="middle">
-              <textPath href="#${pathId}" startOffset="50%">
+              <textPath href="#${pathId}" startOffset="${startOffset}%">
                 ${line.text}
               </textPath>
             </text>`;
