@@ -22,11 +22,7 @@ const Hero = () => {
             <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight md:text-7xl md:mb-10 md:leading-tight lg:text-5xl">
               {heroContent.title}
             </h1>
-            <h2 className="
-              text-lg font-medium text-brand-blue mb-2
-              md:text-4xl md:mb-10
-              lg:text-5xl
-            ">
+            <h2 className="text-lg font-medium text-brand-blue mb-2 md:text-4xl md:mb-10 lg:text-3xl">
               {heroContent.subtitle}
             </h2>
             <p className="
