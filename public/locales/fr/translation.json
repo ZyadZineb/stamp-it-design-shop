@@ -1,4 +1,3 @@
-
 {
   "navigation": {
     "home": "Accueil",
@@ -107,6 +106,60 @@
   },
   "common": {
     "brand": "Cachets Maroc",
-    "currency": "DHS"
+    "currency": "DHS",
+    "home": "Accueil"
+  },
+  "design": {
+    "welcome": "Bienvenue sur le Concepteur de tampons",
+    "welcomeDesc": "Suivez l’assistant étape par étape pour créer votre tampon personnalisé"
+  },
+  "designStamp": {
+    "title": "Concevez votre tampon professionnel",
+    "subtitle": "Créez un tampon propre et professionnel avec notre concepteur facile à utiliser.",
+    "selectProduct": "Sélectionner un produit",
+    "selectProductAriaLabel": "Sélectionner un modèle de tampon",
+    "selectProductPlaceholder": "-- Sélectionnez un modèle de tampon --",
+    "step1Title": "Sélectionnez votre tampon",
+    "step1Description": "Choisissez parmi une large gamme de tampons auto-encreurs dans différentes tailles et styles.",
+    "step2Title": "Personnalisez votre design",
+    "step2Description": "Ajoutez d'abord votre logo, puis personnalisez le texte, ajustez le formatage, sélectionnez la couleur d’encre et ajoutez des bordures.",
+    "step3Title": "Aperçu et commande",
+    "step3Description": "Voyez un aperçu précis de votre tampon avant d'ajouter au panier et de finaliser votre achat."
+  },
+  "steps": {
+    "customize": "Personnaliser",
+    "preview": "Aperçu",
+    "order": "Commander"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "download": "Télécharger l’aperçu",
+    "stampPreview": "Aperçu du tampon",
+    "noPreview": "Aucun aperçu disponible",
+    "customizeStamp": "Personnalisez votre tampon pour voir un aperçu",
+    "physicalSize": "Taille physique : {{size}}mm",
+    "dragInstructions": "Cliquez et faites glisser les éléments pour les repositionner",
+    "movingText": "Déplacement de la ligne de texte {{index}}",
+    "movingLogo": "Déplacement du logo",
+    "ariaLabel": "Zone d'aperçu du tampon. Utilisez les touches fléchées pour positionner les éléments sélectionnés.",
+    "backgroundChanged": "Arrière-plan modifié",
+    "backgroundChangedDesc": "L’arrière-plan d’aperçu a été mis à jour",
+    "downloadHelp": "Téléchargez votre design de tampon au format PNG haute qualité",
+    "zoomHelp": "Zoomez avant/arrière pour plus de détails",
+    "noPreviewAvailable": "Aucun aperçu disponible pour l’instant",
+    "instructionDragText": "Cliquez et faites glisser pour positionner le texte",
+    "instructionDragLogo": "Cliquez et faites glisser pour positionner le logo",
+    "instructionGeneral": "Sélectionnez un texte ou un logo pour déplacer les éléments",
+    "size": "Taille",
+    "editingLine": "Édition de la ligne {{line}}",
+    "editingLogo": "Édition du logo",
+    "stampDesign": "Design du tampon"
+  },
+  "languages": {
+    "selectLanguage": "Choisir la langue",
+    "en": "Anglais",
+    "fr": "Français"
   }
 }
