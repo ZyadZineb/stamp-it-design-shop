@@ -1,8 +1,5 @@
 
 import '@testing-library/jest-dom';
-import { expect } from 'vitest';
-
-// Setup global utilities for RTL here if needed
-
-// Example: add custom matchers
-global.expect = expect;
+import '@testing-library/react';
+import '@testing-library/user-event';
+// If further test setup is required, add here.

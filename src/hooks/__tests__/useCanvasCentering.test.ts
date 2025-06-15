@@ -2,9 +2,21 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useCanvasCentering } from '../useCanvasCentering';
+import { StampTextLine } from '@/types';
+
+// Helper to create a minimal valid StampTextLine
+const line = (overrides: Partial<StampTextLine> = {}): StampTextLine => ({
+  text: 'Test',
+  fontSize: 16,
+  fontFamily: 'Arial',
+  bold: false,
+  italic: false,
+  alignment: 'center',
+  ...overrides,
+});
 
 describe('useCanvasCentering', () => {
-  const mockLine = { text: 'Test', fontSize: 16, alignment: 'center' };
+  const mockLine = line();
 
   it('calculates canvas dimensions correctly', () => {
     const { result } = renderHook(() => useCanvasCentering());
@@ -15,12 +27,13 @@ describe('useCanvasCentering', () => {
   it('calculates text bounding box for line', () => {
     const { result } = renderHook(() => useCanvasCentering());
     // Font size 20: charWidth = 12, lineHeight=24, text='abcd' => width=48, height=24
-    expect(result.current.calculateTextBounds({ text: 'abcd' }, 20)).toEqual({ width: 48, height: 24 });
+    const customLine = line({ text: 'abcd' });
+    expect(result.current.calculateTextBounds(customLine, 20)).toEqual({ width: 48, height: 24 });
   });
 
   it('centers a single text line as a group', () => {
     const { result } = renderHook(() => useCanvasCentering());
-    const lines = [{ text: 'Test', fontSize: 16, alignment: 'center' }];
+    const lines: StampTextLine[] = [line()];
     const centered = result.current.centerTextGroup(
       lines,
       100, 100,
@@ -33,9 +46,9 @@ describe('useCanvasCentering', () => {
 
   it('computes multi-line group bounds', () => {
     const { result } = renderHook(() => useCanvasCentering());
-    const lines = [
-      { text: 'Hello', fontSize: 18 },
-      { text: 'World', fontSize: 18 }
+    const lines: StampTextLine[] = [
+      line({ text: 'Hello', fontSize: 18 }),
+      line({ text: 'World', fontSize: 18 }),
     ];
     const { width, height } = result.current.calculateMultiLineGroupBounds(lines, 18);
     expect(width).toBeGreaterThan(0);
