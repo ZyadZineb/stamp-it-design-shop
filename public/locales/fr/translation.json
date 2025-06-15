@@ -319,5 +319,20 @@
     "curvedVerticalPosition": "Ajustement du rayon",
     "addLine": "Ajouter une ligne de texte",
     "maxLinesReached": "Nombre maximum de lignes atteint"
+  },
+  "inkColors": {
+    "black": "Noir",
+    "blue": "Bleu",
+    "red": "Rouge",
+    "green": "Vert",
+    "violet": "Violet"
+  },
+  "shapes": {
+    "rectangle": "Rectangle",
+    "round": "Rond",
+    "circle": "Rond",
+    "square": "Carré",
+    "ellipse": "Ellipse",
+    "oval": "Ovale"
   }
 }

@@ -408,5 +408,20 @@
     "savedFound": "Saved design found",
     "savedFoundDescription": "You have a saved design. Would you like to load it?",
     "loadDesign": "Load Design"
+  },
+  "inkColors": {
+    "black": "Black",
+    "blue": "Blue",
+    "red": "Red",
+    "green": "Green",
+    "violet": "Violet"
+  },
+  "shapes": {
+    "rectangle": "Rectangle",
+    "round": "Circle",
+    "circle": "Circle",
+    "square": "Square",
+    "ellipse": "Ellipse",
+    "oval": "Oval"
   }
 }

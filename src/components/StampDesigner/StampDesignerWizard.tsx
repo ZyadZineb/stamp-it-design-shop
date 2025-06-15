@@ -589,27 +589,53 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             <div className="space-y-4">
               <div className={`${highContrast ? 'bg-gray-100' : 'bg-gradient-to-r from-green-50 to-green-100'} p-4 rounded-md border border-green-200`}>
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium text-brand-blue">{product.name}</h3>
-                  <span className={`font-bold text-lg ${highContrast ? 'text-black' : 'text-brand-red'}`}>{product.price} DHS TTC</span>
+                  <h3 className="font-medium text-brand-blue">
+                    {product.name}
+                  </h3>
+                  <span className={`font-bold text-lg ${highContrast ? 'text-black' : 'text-brand-red'}`}>
+                    {product.price} {t('common.currency', 'DHS')} TTC
+                  </span>
                 </div>
                 <ul className="mb-2 text-gray-700 text-sm">
                   {design.lines.filter(l => l.text).length > 0 && (
                     <li>
-                      <span className="font-semibold">{t('design.summary.textLines', 'Text')}:</span> {design.lines.map(l => l.text).filter(Boolean).join(", ")}
+                      <span className="font-semibold">
+                        {t('design.summary.textLines', 'Text')}
+                      </span>
+                      {': '}
+                      {design.lines.map((l, idx) => l.text).filter(Boolean).join(', ')}
                     </li>
                   )}
                   <li>
-                    <span className="font-semibold">{t('design.summary.inkColor', 'Ink color')}:</span> {design.inkColor}
+                    <span className="font-semibold">
+                      {t('design.summary.inkColor', 'Ink color')}
+                    </span>
+                    {': '}
+                    {t(`inkColors.${design.inkColor}`, design.inkColor)}
                   </li>
                   <li>
-                    <span className="font-semibold">{t('design.summary.shape', 'Shape')}:</span> {design.shape}
+                    <span className="font-semibold">
+                      {t('design.summary.shape', 'Shape')}
+                    </span>
+                    {': '}
+                    {t(`shapes.${design.shape}`, design.shape)}
                   </li>
                   <li>
-                    <span className="font-semibold">{t('design.summary.border', 'Border')}:</span> {design.borderStyle !== "none" ? `${design.borderStyle} (${design.borderThickness})` : t('design.summary.noBorder', "No border")}
+                    <span className="font-semibold">
+                      {t('design.summary.border', 'Border')}
+                    </span>
+                    {': '}
+                    {design.borderStyle !== "none"
+                      ? `${t(`borderStyle.${design.borderStyle}`, design.borderStyle)} (${design.borderThickness})`
+                      : t('design.summary.noBorder', "No border")}
                   </li>
                   {design.includeLogo && (
                     <li>
-                      <span className="font-semibold">{t('design.summary.logo', 'Logo')}:</span> {t('design.summary.included', 'Included')}
+                      <span className="font-semibold">
+                        {t('design.summary.logo', 'Logo')}
+                      </span>
+                      {': '}
+                      {t('design.summary.included', 'Included')}
                     </li>
                   )}
                 </ul>
@@ -624,7 +650,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                 </Button>
               </div>
               {/* Optionally provide below a "go to cart" link or message */}
-              <p className="text-xs text-gray-500">{t('design.summary.editAnyStep', "You can edit your design in any previous step before adding to cart.")}</p>
+              <p className="text-xs text-gray-500">
+                {t('design.summary.editAnyStep', "You can edit your design in any previous step before adding to cart.")}
+              </p>
             </div>
           )}
         </div>
