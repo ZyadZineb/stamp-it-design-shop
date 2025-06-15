@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
@@ -35,7 +36,7 @@ const Navbar = () => {
             <img 
               src="/lovable-uploads/36d86151-4951-4ebe-a585-8d2d9aebb963.png"
               alt={t('common.brand')}
-              className="h-10 w-auto"
+              className="h-16 w-auto"  {/* <-- Increased logo size */}
             />
           </Link>
           
@@ -123,3 +124,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
