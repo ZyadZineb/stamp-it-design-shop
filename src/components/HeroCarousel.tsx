@@ -23,23 +23,59 @@ const HeroCarousel: React.FC = () => {
   }, [emblaApi]);
 
   return (
-    <div className="relative w-[370px] sm:w-[500px] md:w-[680px] mx-auto">
-      <div ref={emblaRef} className="overflow-hidden rounded-2xl shadow-xl border-2 border-white bg-white">
+    <div
+      className="
+        relative
+        w-[370px] sm:w-[500px] 
+        md:w-[760px] lg:w-[840px] xl:w-[950px] 
+        mx-auto
+      "
+    >
+      <div
+        ref={emblaRef}
+        className="
+          overflow-hidden rounded-2xl shadow-xl border-2 border-white bg-white
+          md:h-[384px] lg:h-[420px] xl:h-[480px]
+        "
+        style={{
+          // Ensures the container always has the same height as the images, desktop only
+          height: "auto",
+        }}
+      >
         <div className="flex">
           {carouselProducts.map(product => (
             <div
               key={product.id}
-              className="min-w-0 shrink-0 grow-0 basis-full px-3 flex items-center justify-center h-96"
+              className="
+                min-w-0 shrink-0 grow-0 basis-full px-3
+                flex items-center justify-center
+                h-96
+                md:h-[384px] lg:h-[420px] xl:h-[480px]
+              "
             >
-              <Link to={`/products/${product.id}`} aria-label={product.name} className="w-full h-full flex items-center justify-center">
+              <Link
+                to={`/products/${product.id}`}
+                aria-label={product.name}
+                className="w-full h-full flex items-center justify-center"
+              >
                 <img
                   src={product.images[0]}
                   alt={product.name}
-                  className="w-full h-96 object-contain rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full"
-                  width="660"
-                  height="384"
+                  className="
+                    w-full h-96 object-contain rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full
+                    md:h-[360px] md:w-[680px]
+                    lg:h-[390px] lg:w-[760px]
+                    xl:h-[440px] xl:w-[880px]
+                  "
+                  width="880"
+                  height="440"
                   loading="lazy"
-                  style={{ objectFit: "contain" }}
+                  style={{
+                    objectFit: "contain",
+                    // These ensure that on desktop, the image is always centered and same size
+                    display: "block",
+                    margin: "0 auto",
+                  }}
                 />
               </Link>
             </div>
@@ -51,4 +87,3 @@ const HeroCarousel: React.FC = () => {
 };
 
 export default HeroCarousel;
-

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -22,20 +23,44 @@ const Hero = () => {
       <div className="container-custom relative z-10">
         <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center">
           <div>
-            <h1 className="text-2xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-2 md:mb-6 leading-tight">
+            <h1 className="
+              text-2xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight
+              md:text-6xl md:mb-8 md:leading-tight
+              lg:text-7xl
+            ">
               {heroContent.title}
             </h1>
-            <h2 className="text-base md:text-2xl font-medium text-brand-blue mb-2 md:mb-6">
+            <h2 className="
+              text-base font-medium text-brand-blue mb-2
+              md:text-3xl md:mb-8
+              lg:text-4xl
+            ">
               {heroContent.subtitle}
             </h2>
-            <p className="text-sm md:text-xl text-gray-600 mb-3 md:mb-10 max-w-xl font-light">
+            <p className="
+              text-sm text-gray-600 mb-3 max-w-xl font-light
+              md:text-2xl md:mb-12
+              lg:text-2xl
+            ">
               {heroContent.description}
             </p>
-            <div className="flex flex-wrap gap-1.5 md:gap-4">
-              <Link to="/products" className="btn-primary text-xs md:text-base px-2 md:px-8 py-2 md:py-3 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11">
+            <div className="flex flex-wrap gap-1.5 md:gap-6">
+              <Link
+                to="/products"
+                className="
+                  btn-primary text-xs px-2 py-2 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11
+                  md:text-2xl md:px-10 md:py-4 md:rounded-xl md:min-w-[180px] md:min-h-[56px] md:font-semibold
+                "
+              >
                 {heroContent.ctaProducts}
               </Link>
-              <Link to="/design" className="btn-secondary text-xs md:text-base px-2 md:px-8 py-2 md:py-3 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11">
+              <Link
+                to="/design"
+                className="
+                  btn-secondary text-xs px-2 py-2 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11
+                  md:text-2xl md:px-10 md:py-4 md:rounded-xl md:min-w-[180px] md:min-h-[56px] md:font-semibold
+                "
+              >
                 {heroContent.ctaDesign}
               </Link>
             </div>
