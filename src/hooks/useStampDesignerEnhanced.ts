@@ -96,35 +96,42 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     );
   };
 
-  // --- [2] Only center content when product changes ---
+  // Fix: auto-center lines and logo on init and product change (even after load).
   useEffect(() => {
     if (product) {
       const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(product.size);
       const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
-      const centeredLines = centerTextGroup(
-        initializeLines(),
-        canvasWidth,
-        canvasHeight,
-        baseFontSize,
-        design.globalAlignment || 'center'
-      );
+      // Defensive: auto-center any lines and logo
+      let linesInitial = initializeLines();
+      try {
+        linesInitial = centerTextGroup(
+          linesInitial,
+          canvasWidth,
+          canvasHeight,
+          baseFontSize,
+          design.globalAlignment || 'center'
+        );
+      } catch (e) {
+        console.error("[useStampDesignerEnhanced] Centering error", e);
+      }
       const updatedDesign = {
         ...design,
-        lines: centeredLines,
+        lines: linesInitial,
         inkColor: product?.inkColors[0] || design.inkColor,
-        shape: detectShape(product)
+        shape: detectShape(product),
+        logoX: 0,
+        logoY: 0 // ensure logo is centered too
       };
-
       setHistory({
         past: [],
         present: updatedDesign,
         future: []
       });
+      console.log("[useStampDesignerEnhanced] Product changed: auto-centered lines and logo", updatedDesign);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  // --- [3] Keep preview generation in effect, but only update preview image (not lines positions) ---
   // Debounce design changes for preview generation
   const debouncedDesign = useDebounce(design, 300);
 
@@ -591,13 +598,13 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return errors;
   };
 
-  // --- [4] Enhanced auto-arrange: still uses centering when user clicks auto-arrange ---
+  // When auto-arranging, re-center after
   const enhancedAutoArrange = () => {
     const lines = [...design.lines];
     const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
     if (nonEmptyLines.length === 0) return;
 
-    console.log('[StampDesigner] enhancedAutoArrange');
+    console.log('[StampDesigner] enhancedAutoArrange: Before centering', design.lines);
 
     // Auto-center all content based on shape
     if (design.shape === 'circle' || design.shape === 'ellipse') {
@@ -667,16 +674,38 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // after arranging, auto-center using the latest canvas size/font
     const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(product?.size || '38x14mm');
     const baseFontSize = Math.min(canvasWidth, canvasHeight) / 15;
-    const centeredLines = centerTextGroup(
-      lines,
-      canvasWidth,
-      canvasHeight,
-      baseFontSize,
-      design.globalAlignment || 'center'
-    );
-
+    let centeredLines = [];
+    try {
+      centeredLines = centerTextGroup(
+        lines,
+        canvasWidth,
+        canvasHeight,
+        baseFontSize,
+        design.globalAlignment || 'center'
+      );
+      console.log('[StampDesigner] enhancedAutoArrange: After centering', centeredLines);
+    } catch (e) {
+      console.error("[enhancedAutoArrange] Centering error", e);
+      centeredLines = lines;
+    }
     updateMultipleLines(centeredLines);
   };
+
+  // Log any design changes/positions for debug
+  useEffect(() => {
+    if (product) {
+      console.log("[useStampDesignerEnhanced] current design lines", design.lines.map((l, i) => ({
+        idx: i,
+        x: l.xPosition,
+        y: l.yPosition,
+        curved: l.curved,
+        alignment: l.alignment,
+        text: l.text
+      })));
+      // Logo
+      console.log("[useStampDesignerEnhanced] logo pos", { x: design.logoX, y: design.logoY });
+    }
+  }, [design, product]);
 
   // Generate preview image with perfect centering
   const generatePreview = (): string => {

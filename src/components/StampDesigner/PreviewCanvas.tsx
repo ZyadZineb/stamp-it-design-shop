@@ -59,6 +59,44 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   const widthPx = mmToPx(widthMm);
   const heightPx = mmToPx(heightMm);
 
+  // Debug overlays: center and bounding box visual
+  const DebugGuides = (
+    <>
+      {/* Center Point */}
+      <circle
+        cx={widthPx / 2}
+        cy={heightPx / 2}
+        r={6}
+        fill="#06f5"
+        stroke="#3af"
+        strokeWidth={2}
+        className="pointer-events-none"
+      />
+      {/* Bounding Rectangle */}
+      <rect
+        x={0}
+        y={0}
+        width={widthPx}
+        height={heightPx}
+        fill="none"
+        stroke="#fa3"
+        strokeDasharray="4,2"
+        strokeWidth={2}
+        className="pointer-events-none"
+      />
+    </>
+  );
+
+  // Logging for debug: preview size and center
+  React.useEffect(() => {
+    console.log(
+      "[PreviewCanvas] pxSize:",
+      { widthPx, heightPx },
+      "Center:",
+      { x: widthPx / 2, y: heightPx / 2 }
+    );
+  }, [widthPx, heightPx]);
+
   // Determine the cursor style based on state
   const getCursorStyle = () => {
     if (isDragging) return "grabbing";
@@ -150,13 +188,25 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onTouchEnd={onCanvasTouchEnd}
         tabIndex={0}
       >
-        {Ruler}
+        <svg width={widthPx} height={heightPx} className="absolute z-20 inset-0 pointer-events-none">
+          {DebugGuides}
+          {/* The ruler guides */}
+          {Ruler.props.children}
+        </svg>
         <div className="relative w-full h-full z-30" style={{
-          transform: `scale(${zoomLevel})`,
+          transform: `scale(${zoomLevel?.toFixed(3)})`,
+          transformOrigin: "center center",
           transition: isAnimating ? "none" : "transform 0.3s cubic-bezier(.4,2,.6,1)"
         }}>
           {previewImage ? (
-            <img src={previewImage} alt={t("preview.stampDesign", "Stamp design")} className="object-contain w-full h-full" />
+            <img
+              src={previewImage}
+              alt={t("preview.stampDesign", "Stamp design")}
+              className="object-contain w-full h-full"
+              style={{
+                imageRendering: "auto"
+              }}
+            />
           ) : (
             <div className="flex items-center justify-center w-full h-full">
               <span className="text-gray-400 text-center">
@@ -166,7 +216,9 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
           )}
         </div>
         {/* Focus/Drop guides */}
-        {isDragging && <div className="absolute inset-0 pointer-events-none bg-blue-200/10 border-2 border-dashed border-blue-400 z-50" />}
+        {isDragging && (
+          <div className="absolute inset-0 pointer-events-none bg-blue-200/10 border-2 border-dashed border-blue-400 z-50" />
+        )}
       </div>
       {/* Footer info */}
       <div className="text-xs text-gray-500 flex justify-between mt-1">
