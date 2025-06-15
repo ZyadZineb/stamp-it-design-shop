@@ -162,6 +162,7 @@
   },
   "features": {
     "whyChoose": "Why Choose Our Stamps?",
+    "whyChooseDesc": "We offer high-quality self-inking stamps with a variety of options to meet your business needs in Morocco.",
     "premiumQuality": "Premium Quality",
     "premiumQualityDesc": "All our stamps are made with high-quality materials for long-lasting durability.",
     "customizable": "Customizable",
@@ -180,5 +181,9 @@
     "title": "Contact Us",
     "help": "For questions or assistance",
     "address": "Casablanca, Morocco"
+  },
+  "seo": {
+    "indexTitle": "Custom Self-Inking Stamps for Business",
+    "indexDesc": "Design and order custom self-inking stamps for your business or personal use. Choose from a wide range of models with free delivery in Casablanca, Morocco."
   }
 }

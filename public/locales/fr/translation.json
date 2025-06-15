@@ -216,6 +216,7 @@
   },
   "features": {
     "whyChoose": "Pourquoi choisir nos tampons ?",
+    "whyChooseDesc": "Nous proposons des tampons auto-encreurs de haute qualité avec de nombreuses options pour répondre aux besoins des entreprises au Maroc.",
     "premiumQuality": "Qualité supérieure",
     "premiumQualityDesc": "Tous nos tampons sont fabriqués avec des matériaux de haute qualité pour une durabilité exceptionnelle.",
     "customizable": "Personnalisable",
@@ -234,5 +235,9 @@
     "title": "Contactez-nous",
     "help": "Pour toute question ou assistance",
     "address": "Casablanca, Maroc"
+  },
+  "seo": {
+    "indexTitle": "Tampons personnalisés professionnels au Maroc",
+    "indexDesc": "Créez et commandez des tampons auto-encreurs personnalisés pour votre entreprise ou usage privé. Plusieurs modèles et livraison gratuite à Casablanca, Maroc."
   }
 }
