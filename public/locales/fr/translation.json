@@ -239,31 +239,5 @@
   "seo": {
     "indexTitle": "Tampons personnalisés professionnels au Maroc",
     "indexDesc": "Créez et commandez des tampons auto-encreurs personnalisés pour votre entreprise ou usage privé. Plusieurs modèles et livraison gratuite à Casablanca, Maroc."
-  },
-  "contact": {
-    "title": "Contactez-nous",
-    "description": "Vous avez des questions sur nos produits ou besoin d'aide pour votre commande ? Nous sommes là pour vous accompagner ! Contactez-nous via les informations ci-dessous ou remplissez le formulaire.",
-    "getInTouch": "Entrer en contact",
-    "phoneLabel": "Téléphone / WhatsApp",
-    "emailLabel": "E-mail",
-    "addressLabel": "Adresse",
-    "hoursTitle": "Horaires d'ouverture",
-    "weekdays": "Lundi - Vendredi",
-    "weekdaysHours": "9h00 - 18h00",
-    "saturday": "Samedi",
-    "saturdayHours": "9h00 - 13h00",
-    "sunday": "Dimanche",
-    "sundayHours": "Fermé",
-    "formTitle": "Envoyez-nous un message",
-    "fullNameLabel": "Nom complet *",
-    "fullNamePlaceholder": "Votre nom et prénom",
-    "emailInputLabel": "E-mail *",
-    "emailInputPlaceholder": "Entrez votre e-mail",
-    "phoneInputLabel": "Numéro de téléphone *",
-    "phoneInputPlaceholder": "Entrez votre téléphone",
-    "messageLabel": "Message *",
-    "messagePlaceholder": "Votre message...",
-    "sendButton": "Envoyer le message",
-    "success": "Message envoyé avec succès ! Nous vous répondrons bientôt."
   }
 }
