@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ColorSelectorProps {
   inkColors: string[];
@@ -17,9 +18,11 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
   highContrast = false,
   largeControls = false
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-3">
-      <h3 className="font-medium text-gray-800">Ink Color</h3>
+      <h3 className="font-medium text-gray-800">{t('design.inkColor', 'Ink Color')}</h3>
       <div className="flex flex-wrap gap-3">
         {inkColors.map((color) => (
           <button 
@@ -39,4 +42,3 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
 };
 
 export default ColorSelector;
-

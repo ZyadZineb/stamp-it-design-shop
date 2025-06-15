@@ -98,7 +98,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     { 
       id: 'shape' as WizardStepType, 
       labelKey: 'wizard.steps.shape.label', 
-      label: t('wizard.steps.shape.label', 'Shape & Border'), 
+      label: t('wizard.steps.shape.label', 'Shape'), 
       descriptionKey: 'wizard.steps.shape.description', 
       description: t('wizard.steps.shape.description', 'Choose your stamp shape and border style'),
       tooltip: t('wizard.tooltips.shape', 'Set up the basic appearance of your stamp')
