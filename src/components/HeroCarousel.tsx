@@ -38,17 +38,12 @@ const HeroCarousel: React.FC = () => {
                 md:h-[384px] lg:h-[420px] xl:h-[480px]
               ">
               <Link to={`/products/${product.id}`} aria-label={product.name} className="w-full h-full flex items-center justify-center -mx-0 ">
-                <img src={product.images[0]} alt={product.name} className="
-                    w-full h-96 object-contain rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full
-                    md:h-[360px] md:w-[680px]
-                    lg:h-[390px] lg:w-[760px]
-                    xl:h-[440px] xl:w-[880px]
-                  " width="880" height="440" loading="lazy" style={{
+                <img src={product.images[0]} alt={product.name} width="880" height="440" loading="lazy" style={{
               objectFit: "contain",
               // These ensure that on desktop, the image is always centered and same size
               display: "block",
               margin: "0 auto"
-            }} />
+            }} className="-bottom-0 h-96 rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full md:h-[360px] md:w-[680px] lg:h-[390px] lg:w-[760px] xl:h-[440px] xl:w-[880px] object-contain" />
               </Link>
             </div>)}
         </div>
