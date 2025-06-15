@@ -7,23 +7,25 @@ interface TranslatedTextProps {
   values?: Record<string, unknown>;
   children?: React.ReactNode;
   className?: string;
+  ns?: string; // <- Added namespace support
 }
 
-const TranslatedText: React.FC<TranslatedTextProps> = ({ 
-  i18nKey, 
-  values, 
+const TranslatedText: React.FC<TranslatedTextProps> = ({
+  i18nKey,
+  values,
   children,
-  className = "" 
+  className = "",
+  ns,
 }) => {
-  const { t } = useTranslation();
-  
+  const { t } = useTranslation(ns);
+
   const translated = t(i18nKey, values);
-  
+
   // If translation is not found, fallback to children
   if (translated === i18nKey && children) {
     return <span className={className}>{children}</span>;
   }
-  
+
   return <span className={className}>{translated}</span>;
 };
 
