@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -273,7 +272,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       {/* Layout changes for preview step to show clean design */}
       {currentStep === 'preview' ? (
         <div className="p-10">
-          <div className="max-w-6xl mx-auto">
+          <div className="mx-auto">
             <h2 className="text-3xl font-bold text-center mb-10">Final Preview</h2>
             
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-10 mb-10">
@@ -440,11 +439,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           <div className="border-t bg-gray-50 p-10 flex-grow">
             <h3 className="text-2xl font-semibold mb-8 text-center">Aperçu en temps réel</h3>
             
-            {/* Much larger preview container */}
-            <div className="max-w-7xl mx-auto">
+            {/* Much larger preview container - removed max-width constraints */}
+            <div className="mx-auto w-full">
               <div className="bg-white rounded-lg p-12 shadow-lg mb-8">
                 <div className="flex justify-center">
-                  <div className="w-full max-w-5xl">
+                  <div className="w-full">
                     <StampPreview
                       previewImage={previewImage}
                       productSize={product.size}
