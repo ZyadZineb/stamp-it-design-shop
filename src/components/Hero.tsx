@@ -7,16 +7,11 @@ const Hero = () => {
   
   // Use translations for hero fields
   const heroContent = {
-    title: t('hero.title', i18n.language.startsWith('fr') ? "Tampons Auto-Encreurs Professionnels" : "Professional Self-Inking Stamps"),
-    subtitle: t('hero.subtitle', i18n.language.startsWith('fr') ? "Des tampons de qualité pour vos besoins professionnels" : "Quality stamps for your business needs"),
-    description: t(
-      'hero.description',
-      i18n.language.startsWith('fr')
-        ? "Concevez et commandez des tampons auto-encreurs personnalisés pour votre entreprise. Choisissez parmi différentes tailles, formes et couleurs."
-        : "Design and order custom self-inking stamps for your business. Choose from various sizes, shapes, and colors."
-    ),
-    ctaProducts: t('hero.ctaProducts', i18n.language.startsWith('fr') ? "Parcourir la Collection" : "Browse Collection"),
-    ctaDesign: t('hero.ctaDesign', i18n.language.startsWith('fr') ? "Concevoir Votre Tampon" : "Design Your Stamp"),
+    title: t('hero.title'),
+    subtitle: t('hero.subtitle'),
+    description: t('hero.description'),
+    ctaProducts: t('hero.ctaProducts'),
+    ctaDesign: t('hero.ctaDesign'),
     imagePath: i18n.language.startsWith('en')
       ? "/lovable-uploads/28a683e8-de59-487e-b2ab-af1930ed01d6.png"
       : "/lovable-uploads/96fba4bf-cc54-4b59-8b27-7e5776d0b544.png"
@@ -54,7 +49,7 @@ const Hero = () => {
           <div className="hidden md:flex justify-end">
             <img 
               src={heroContent.imagePath} 
-              alt={t('hero.imageAlt', 'Stamp showcase')} 
+              alt={t('hero.imageAlt')} 
               className="max-w-full rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
               width="500"
               height="350"

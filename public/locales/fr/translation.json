@@ -209,5 +209,30 @@
     "ctaProducts": "Parcourir la Collection",
     "ctaDesign": "Concevoir Votre Tampon",
     "imageAlt": "Exemple de tampons"
+  },
+  "navbar": {
+    "exploreCollection": "Explorer la collection",
+    "cart": "Panier"
+  },
+  "features": {
+    "whyChoose": "Pourquoi choisir nos tampons ?",
+    "premiumQuality": "Qualité supérieure",
+    "premiumQualityDesc": "Tous nos tampons sont fabriqués avec des matériaux de haute qualité pour une durabilité exceptionnelle.",
+    "customizable": "Personnalisable",
+    "customizableDesc": "Créez facilement vos propres tampons grâce à notre outil de conception en ligne intuitif.",
+    "fastDelivery": "Livraison rapide",
+    "fastDeliveryDesc": "Livraison gratuite à Casablanca et dans les régions avoisinantes avec des délais courts.",
+    "wideSelection": "Large choix",
+    "wideSelectionDesc": "Choisissez parmi une variété de tailles, de modèles et de marques selon vos besoins."
+  },
+  "cta": {
+    "readyToCreate": "Prêt·e à créer votre tampon personnalisé ?",
+    "designerDesc": "Concevez votre tampon dès maintenant avec notre outil en ligne facile à utiliser. Visualisez l’aperçu avant de commander !",
+    "startDesigning": "Commencer la conception"
+  },
+  "contactBlock": {
+    "title": "Contactez-nous",
+    "help": "Pour toute question ou assistance",
+    "address": "Casablanca, Maroc"
   }
 }

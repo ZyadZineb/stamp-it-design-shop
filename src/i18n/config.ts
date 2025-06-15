@@ -13,13 +13,13 @@ i18n
   .use(initReactI18next)
   // Init i18next
   .init({
-    fallbackLng: 'en',
+    fallbackLng: 'fr',
     debug: process.env.NODE_ENV === 'development',
-    
+
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
@@ -28,6 +28,8 @@ i18n
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
+    // Set French as default language.
+    lng: 'fr',
   });
 
 export default i18n;

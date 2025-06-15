@@ -11,48 +11,48 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-semibold mb-4">{t('footer.brand', 'Cachets Maroc')}</h3>
+            <h3 className="text-xl font-semibold mb-4">{t('footer.brand')}</h3>
             <p className="mb-4 text-gray-300">
-              {t('footer.description', 'Your trusted partner for high-quality self-inking stamps in Morocco. We offer a wide range of stamps for business and personal use.')}
+              {t('footer.description')}
             </p>
             <div className="flex items-center gap-2 mb-2">
               <Phone size={18} className="text-brand-red" />
-              <span className="text-gray-300">{t('footer.phone', '06 99 11 80 28')}</span>
+              <span className="text-gray-300">{t('footer.phone')}</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
               <Mail size={18} className="text-brand-red" />
-              <span className="text-gray-300">{t('footer.email', 'zyad.sobhi@gmail.com')}</span>
+              <span className="text-gray-300">{t('footer.email')}</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin size={18} className="text-brand-red" />
-              <span className="text-gray-300">{t('footer.location', 'Casablanca, Morocco')}</span>
+              <span className="text-gray-300">{t('footer.location')}</span>
             </div>
           </div>
           
           {/* Quick Links */}
           <div>
             <h3 className="text-xl font-semibold mb-4">
-              {t('footer.quickLinks', 'Quick Links')}
+              {t('footer.quickLinks')}
             </h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-gray-300 hover:text-white transition-colors">
-                  {t('navigation.home', 'Home')}
+                  {t('navigation.home')}
                 </Link>
               </li>
               <li>
                 <Link to="/products" className="text-gray-300 hover:text-white transition-colors">
-                  {t('navigation.products', 'Products')}
+                  {t('navigation.products')}
                 </Link>
               </li>
               <li>
                 <Link to="/design" className="text-gray-300 hover:text-white transition-colors">
-                  {t('navigation.design', 'Design a Stamp')}
+                  {t('navigation.design')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  {t('navigation.contact', 'Contact')}
+                  {t('navigation.contact')}
                 </Link>
               </li>
             </ul>
@@ -60,23 +60,23 @@ const Footer: React.FC = () => {
           
           {/* Free Shipping */}
           <div>
-            <h3 className="text-xl font-semibold mb-4">{t('footer.freeDelivery', 'Free Delivery')}</h3>
+            <h3 className="text-xl font-semibold mb-4">{t('footer.freeDelivery')}</h3>
             <p className="text-gray-300 mb-4">
-              {t('footer.deliveryDescription', 'We offer free delivery for all orders in Casablanca and surrounding regions.')}
+              {t('footer.deliveryDescription')}
             </p>
             <div className="bg-white/10 p-4 rounded-md">
-              <h4 className="font-medium mb-2">{t('footer.whyChooseUs', 'Why Choose Us?')}</h4>
+              <h4 className="font-medium mb-2">{t('footer.whyChooseUs')}</h4>
               <ul className="text-gray-300 list-disc pl-5 space-y-1">
-                <li>{t('footer.highQualityStamps', 'High-quality self-inking stamps')}</li>
-                <li>{t('footer.customDesign', 'Custom design options')}</li>
-                <li>{t('footer.quickDelivery', 'Quick delivery')}</li>
-                <li>{t('footer.customerService', 'Excellent customer service')}</li>
+                <li>{t('footer.highQualityStamps')}</li>
+                <li>{t('footer.customDesign')}</li>
+                <li>{t('footer.quickDelivery')}</li>
+                <li>{t('footer.customerService')}</li>
               </ul>
             </div>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} {t('footer.brand', 'Cachets Maroc')}. {t('footer.allRightsReserved', 'All rights reserved.')}</p>
+          <p>&copy; {new Date().getFullYear()} {t('footer.brand')}. {t('footer.allRightsReserved')}</p>
         </div>
       </div>
     </footer>

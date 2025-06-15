@@ -155,5 +155,30 @@
     "ctaProducts": "Browse Collection",
     "ctaDesign": "Design Your Stamp",
     "imageAlt": "Stamp showcase"
+  },
+  "navbar": {
+    "exploreCollection": "Explore Our Collection",
+    "cart": "Cart"
+  },
+  "features": {
+    "whyChoose": "Why Choose Our Stamps?",
+    "premiumQuality": "Premium Quality",
+    "premiumQualityDesc": "All our stamps are made with high-quality materials for long-lasting durability.",
+    "customizable": "Customizable",
+    "customizableDesc": "Easily design your own stamps with our intuitive online design tool.",
+    "fastDelivery": "Fast Delivery",
+    "fastDeliveryDesc": "Free delivery in Casablanca and surrounding regions with quick processing times.",
+    "wideSelection": "Wide Selection",
+    "wideSelectionDesc": "Choose from various sizes, models, and brands to fit your specific needs."
+  },
+  "cta": {
+    "readyToCreate": "Ready to Create Your Custom Stamp?",
+    "designerDesc": "Design your own stamp now with our easy-to-use online designer tool. See a preview before you order!",
+    "startDesigning": "Start Designing Now"
+  },
+  "contactBlock": {
+    "title": "Contact Us",
+    "help": "For questions or assistance",
+    "address": "Casablanca, Morocco"
   }
 }

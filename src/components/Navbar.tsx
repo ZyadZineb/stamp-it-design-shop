@@ -12,10 +12,10 @@ const Navbar = () => {
   const { cartItems } = useCart();
   
   const navLinks = [
-    { name: t('navigation.home', 'Home'), path: '/' },
-    { name: t('navigation.products', 'Products'), path: '/products' },
-    { name: t('navigation.design', 'Design a Stamp'), path: '/design' },
-    { name: t('navigation.contact', 'Contact'), path: '/contact' },
+    { name: t('navigation.home'), path: '/' },
+    { name: t('navigation.products'), path: '/products' },
+    { name: t('navigation.design'), path: '/design' },
+    { name: t('navigation.contact'), path: '/contact' },
   ];
 
   const toggleMenu = () => {
@@ -31,7 +31,7 @@ const Navbar = () => {
       <div className="container-custom mx-auto px-4 py-3">
         <nav className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center" aria-label={t('common.brand')}>
             <img 
               src="/logo.svg" 
               alt={t('common.brand')} 
@@ -57,7 +57,7 @@ const Navbar = () => {
             <LanguageSwitcher />
             
             {/* Cart Icon */}
-            <Link to="/cart" className="relative">
+            <Link to="/cart" className="relative" aria-label={t('navigation.cart')}>
               <ShoppingCart className="h-6 w-6 text-gray-600 hover:text-brand-blue transition-colors" />
               {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-brand-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
