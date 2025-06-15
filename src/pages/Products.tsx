@@ -155,7 +155,7 @@ const Products = () => {
       <main className="flex-grow py-8 bg-gray-50">
         <div className="container-custom">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            {t('products.title', 'Our Products')}
+            <TranslatedText i18nKey="products.title">Notre Collection de Tampons</TranslatedText>
           </h1>
           
           <div className="flex flex-col md:flex-row gap-6">
@@ -168,7 +168,11 @@ const Products = () => {
                   className="w-full flex items-center justify-center gap-2"
                 >
                   <SlidersHorizontal size={18} />
-                  {showFilters ? t('products.hideFilters', 'Hide Filters') : t('products.showFilters', 'Show Filters')}
+                  {showFilters ? (
+                    <TranslatedText i18nKey="products.hideFilters">Masquer les filtres</TranslatedText>
+                  ) : (
+                    <TranslatedText i18nKey="products.showFilters">Afficher les filtres</TranslatedText>
+                  )}
                 </Button>
               </div>
             )}
@@ -177,15 +181,19 @@ const Products = () => {
             <div className={`md:w-1/4 ${(isMobile && !showFilters) ? 'hidden' : 'block'}`}>
               <div className="bg-white p-4 rounded-lg shadow-md">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-lg">{t('products.filters.title', 'Filters')}</h2>
+                  <h2 className="font-semibold text-lg">
+                    <TranslatedText i18nKey="products.filters.title">Filtres</TranslatedText>
+                  </h2>
                   <Button variant="ghost" size="sm" onClick={clearFilters} className="text-sm">
-                    {t('products.filters.clear', 'Clear All')}
+                    <TranslatedText i18nKey="products.filters.clear">Effacer les filtres</TranslatedText>
                   </Button>
                 </div>
                 
                 {/* Brand filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">{t('products.filters.brand', 'Brand')}</h3>
+                  <h3 className="font-medium mb-2">
+                    <TranslatedText i18nKey="products.filters.brand">Marque</TranslatedText>
+                  </h3>
                   <div className="space-y-2">
                     {brands.map(brand => (
                       <div key={brand} className="flex items-center">
@@ -195,7 +203,7 @@ const Products = () => {
                           onCheckedChange={() => handleBrandChange(brand)}
                         />
                         <Label htmlFor={`brand-${brand}`} className="ml-2 cursor-pointer">
-                          {t(`brands.${brand}`, brand)}
+                          <TranslatedText i18nKey={`brands.${brand}`}>{brand}</TranslatedText>
                         </Label>
                       </div>
                     ))}
@@ -204,7 +212,9 @@ const Products = () => {
                 
                 {/* Shape filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">{t('products.filters.shape', 'Shape')}</h3>
+                  <h3 className="font-medium mb-2">
+                    <TranslatedText i18nKey="products.filters.shape">Forme</TranslatedText>
+                  </h3>
                   <div className="space-y-2">
                     {shapes.map(shape => (
                       <div key={shape} className="flex items-center">
@@ -214,7 +224,7 @@ const Products = () => {
                           onCheckedChange={() => handleShapeChange(shape)}
                         />
                         <Label htmlFor={`shape-${shape}`} className="ml-2 cursor-pointer">
-                          {t(`shapes.${shape}`, shape)}
+                          <TranslatedText i18nKey={`shapes.${shape}`}>{shape}</TranslatedText>
                         </Label>
                       </div>
                     ))}
@@ -223,7 +233,9 @@ const Products = () => {
                 
                 {/* Size filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">{t('products.filters.size', 'Size')}</h3>
+                  <h3 className="font-medium mb-2">
+                    <TranslatedText i18nKey="products.filters.size">Taille</TranslatedText>
+                  </h3>
                   <div className="space-y-2">
                     {sizes.map(size => (
                       <div key={size} className="flex items-center">
@@ -233,7 +245,7 @@ const Products = () => {
                           onCheckedChange={() => handleSizeChange(size)}
                         />
                         <Label htmlFor={`size-${size}`} className="ml-2 cursor-pointer">
-                          {t(`sizes.${size}`, size)}
+                          <TranslatedText i18nKey={`sizes.${size}`}>{size}</TranslatedText>
                         </Label>
                       </div>
                     ))}
@@ -242,7 +254,9 @@ const Products = () => {
                 
                 {/* Ink color filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">{t('products.filters.inkColor', 'Ink Color')}</h3>
+                  <h3 className="font-medium mb-2">
+                    <TranslatedText i18nKey="products.filters.inkColor">Couleur d'encre</TranslatedText>
+                  </h3>
                   <div className="space-y-2">
                     {inkColors.map(color => (
                       <div key={color} className="flex items-center">
@@ -252,7 +266,7 @@ const Products = () => {
                           onCheckedChange={() => handleInkColorChange(color)}
                         />
                         <Label htmlFor={`color-${color}`} className="ml-2 cursor-pointer">
-                          {t(`colors.${color}`, color)}
+                          <TranslatedText i18nKey={`colors.${color}`}>{color}</TranslatedText>
                         </Label>
                       </div>
                     ))}
@@ -261,7 +275,9 @@ const Products = () => {
                 
                 {/* Price range filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">{t('products.filters.price', 'Price Range')}</h3>
+                  <h3 className="font-medium mb-2">
+                    <TranslatedText i18nKey="products.filters.price">Plage de prix</TranslatedText>
+                  </h3>
                   <div className="px-2">
                     <Slider
                       defaultValue={[minPrice, maxPrice]}
@@ -286,11 +302,11 @@ const Products = () => {
               {/* Sort options */}
               <div className="flex justify-between items-center mb-6">
                 <p className="text-sm text-gray-600">
-                  {t('products.showing', 'Showing')} {products.length} {t('products.items', 'items')}
+                  <TranslatedText i18nKey="products.showing">Affichage de</TranslatedText> {products.length} <TranslatedText i18nKey="products.items">articles</TranslatedText>
                 </p>
                 <div className="flex items-center">
                   <label htmlFor="sort-select" className="text-sm mr-2">
-                    {t('products.sort.sortBy', 'Sort by')}:
+                    <TranslatedText i18nKey="products.sort.sortBy">Trier par</TranslatedText>:
                   </label>
                   <select 
                     id="sort-select" 
@@ -298,10 +314,18 @@ const Products = () => {
                     onChange={handleSortChange}
                     className="text-sm border rounded-md p-1"
                   >
-                    <option value="">{t('products.sort.recommended', 'Recommended')}</option>
-                    <option value="price-asc">{t('products.sort.priceLowHigh', 'Price: Low to High')}</option>
-                    <option value="price-desc">{t('products.sort.priceHighLow', 'Price: High to Low')}</option>
-                    <option value="name">{t('products.sort.name', 'Name')}</option>
+                    <option value="">
+                      <TranslatedText i18nKey="products.sort.recommended">Recommandé</TranslatedText>
+                    </option>
+                    <option value="price-asc">
+                      <TranslatedText i18nKey="products.sort.priceLowHigh">Prix: croissant</TranslatedText>
+                    </option>
+                    <option value="price-desc">
+                      <TranslatedText i18nKey="products.sort.priceHighLow">Prix: décroissant</TranslatedText>
+                    </option>
+                    <option value="name">
+                      <TranslatedText i18nKey="products.sort.name">Nom</TranslatedText>
+                    </option>
                   </select>
                 </div>
               </div>
@@ -310,10 +334,10 @@ const Products = () => {
               {products.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-md p-8 text-center">
                   <p className="text-gray-600 mb-4">
-                    {t('products.empty', 'No products found matching your filters.')}
+                    <TranslatedText i18nKey="products.empty">Aucun produit correspondant à votre recherche.</TranslatedText>
                   </p>
                   <Button onClick={clearFilters}>
-                    {t('products.clearFilters', 'Clear Filters')}
+                    <TranslatedText i18nKey="products.clearFilters">Effacer les filtres</TranslatedText>
                   </Button>
                 </div>
               ) : (
