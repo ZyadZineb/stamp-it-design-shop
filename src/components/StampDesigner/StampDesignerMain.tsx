@@ -410,7 +410,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onTouchStart={handleTouchStart}
-                        onTouchMove={onTouchMove}
+                        onTouchMove={handleTouchMove}
                         downloadAsPng={downloadAsPng}
                         zoomLevel={zoomLevel}
                         onZoomIn={zoomIn}
@@ -435,13 +435,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 
                 <div className="text-center">
                   <div className="text-sm text-gray-500 mb-1">
-                    Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1} sur 6
+                    Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview']).indexOf(currentStep) + 1} sur 6
                   </div>
                   <div className="w-48 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       style={{ 
-                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) + 1) / 6) * 100}%` 
+                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview']).indexOf(currentStep) + 1) / 6) * 100}%` 
                       }}
                     ></div>
                   </div>
