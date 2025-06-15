@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../types';
@@ -29,7 +30,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className="flex items-center justify-between">
           <span className="text-gray-600">{product.price} DHS</span>
           <Link to={`/products/${product.id}`} className="btn-primary">
-            {t('products.details', "More details")}
+            {t('products.detailsLabel', "More details")}
           </Link>
         </div>
       </div>

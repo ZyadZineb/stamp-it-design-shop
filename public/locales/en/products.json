@@ -1,5 +1,3 @@
-
-// ... only moving the "products" key and its children from translation.json here ...
 {
   "description": "Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.",
   "filters": "Filters",
@@ -18,5 +16,6 @@
     "model": "Model"
   },
   "title": "Our Stamp Collection",
-  "empty": "No product found matching your query."
+  "empty": "No product found matching your query.",
+  "detailsLabel": "More details"
 }

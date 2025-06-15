@@ -1,4 +1,3 @@
-
 {
   "details": {
     "shape": "Forme",
@@ -17,5 +16,6 @@
   "noProductsFound": "Aucun produit ne correspond à vos filtres.",
   "clearFilters": "Effacer les filtres",
   "searchPlaceholder": "Rechercher des produits...",
-  "empty": "Aucun produit correspondant à votre recherche."
+  "empty": "Aucun produit correspondant à votre recherche.",
+  "detailsLabel": "Plus de détails"
 }
