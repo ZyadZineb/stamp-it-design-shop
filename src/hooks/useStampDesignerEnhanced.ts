@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product, StampElement } from '../types';
 import { useCanvasCentering } from './useCanvasCentering';
+import { useDebounce } from './useDebounce';
 
 interface DesignHistoryState {
   past: StampDesign[];
@@ -124,12 +125,15 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   }, [product]);
 
   // --- [3] Keep preview generation in effect, but only update preview image (not lines positions) ---
+  // Debounce design changes for preview generation
+  const debouncedDesign = useDebounce(design, 300);
+
   useEffect(() => {
     if (product) {
       generatePreview();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [design, product]);
+  }, [debouncedDesign, product]);
 
   // Helper function to update history when design changes
   const updateHistory = (updatedDesign: StampDesign) => {
@@ -143,15 +147,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Update text line with history tracking (do NOT re-center on every style change)
   const updateLine = (index: number, updates: Partial<StampTextLine>) => {
     const newLines = [...design.lines];
-    // Only update targeted properties—DO NOT recenter
     newLines[index] = { ...newLines[index], ...updates };
-
-    // If the update changes the text content itself (not font/style/size), optionally
-    // re-center that line—otherwise keep current position as set by user
-    // We'll assume: Text changes may affect layout, but style changes (font, size) should not affect x/y
-    // You can tune this logic if you want to "smart center" only on very specific triggers.
-    // For now, we'll simply update the property, keep positions as set.
-
+    console.log('[StampDesigner] updateLine', { index, updates });
     const updatedDesign = { ...design, lines: newLines };
     updateHistory(updatedDesign);
   };
@@ -204,6 +201,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         ...design,
         lines: [...design.lines, { ...defaultLine }]
       };
+      console.log('[StampDesigner] addLine');
       updateHistory(updatedDesign);
     }
   };
@@ -212,47 +210,55 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const removeLine = (index: number) => {
     const newLines = design.lines.filter((_, i) => i !== index);
     const updatedDesign = { ...design, lines: newLines };
+    console.log('[StampDesigner] removeLine', index);
     updateHistory(updatedDesign);
   };
 
   // Set ink color with history tracking
   const setInkColor = (color: string) => {
+    console.log('[StampDesigner] setInkColor', color);
     const updatedDesign = { ...design, inkColor: color };
     updateHistory(updatedDesign);
   };
 
   // Toggle logo inclusion with history tracking
   const toggleLogo = () => {
+    console.log('[StampDesigner] toggleLogo', !design.includeLogo);
     const updatedDesign = { ...design, includeLogo: !design.includeLogo };
     updateHistory(updatedDesign);
   };
 
   // Set logo position with history tracking
   const setLogoPosition = (position: 'top' | 'bottom' | 'left' | 'right' | 'center') => {
+    console.log('[StampDesigner] setLogoPosition', position);
     const updatedDesign = { ...design, logoPosition: position };
     updateHistory(updatedDesign);
   };
 
   // Set logo image with history tracking
   const setLogoImage = (imageUrl: string) => {
+    console.log('[StampDesigner] setLogoImage', imageUrl);
     const updatedDesign = { ...design, logoImage: imageUrl };
     updateHistory(updatedDesign);
   };
 
   // Set border style with history tracking
   const setBorderStyle = (style: 'single' | 'double' | 'wavy' | 'none') => {
+    console.log('[StampDesigner] setBorderStyle', style);
     const updatedDesign = { ...design, borderStyle: style };
     updateHistory(updatedDesign);
   };
 
   // Set border thickness with history tracking
   const setBorderThickness = (thickness: number) => {
+    console.log('[StampDesigner] setBorderThickness', thickness);
     const updatedDesign = { ...design, borderThickness: thickness };
     updateHistory(updatedDesign);
   };
 
   // Toggle curved text with history tracking
   const toggleCurvedText = (index: number, textPosition: 'top' | 'bottom' | 'left' | 'right' = 'top') => {
+    console.log('[StampDesigner] toggleCurvedText', { index, textPosition });
     const current = design.lines[index];
     updateLine(index, {
       curved: !current.curved,
@@ -262,6 +268,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Update text position with history tracking
   const updateTextPosition = (index: number, x: number, y: number) => {
+    console.log('[StampDesigner] updateTextPosition', { index, x, y });
     // Constrain the movement within -100 to 100 range
     const constrainedX = Math.max(-100, Math.min(100, x));
     const constrainedY = Math.max(-100, Math.min(100, y));
@@ -282,6 +289,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Start text drag
   const startTextDrag = (index: number) => {
+    console.log('[StampDesigner] startTextDrag', index);
     const newLines = [...design.lines];
     newLines.forEach((line, i) => {
       line.isDragging = i === index;
@@ -295,6 +303,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Start logo drag
   const startLogoDrag = () => {
+    console.log('[StampDesigner] startLogoDrag');
     const newLines = [...design.lines];
     newLines.forEach(line => {
       line.isDragging = false;
@@ -308,6 +317,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Stop dragging
   const stopDragging = () => {
+    console.log('[StampDesigner] stopDragging');
     const newLines = [...design.lines];
     newLines.forEach(line => {
       line.isDragging = false;
@@ -344,6 +354,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
     if (draggingLineIndex !== -1) {
       // Update text position
+      console.log('[StampDesigner] handleDrag - text line', draggingLineIndex, { relativeX, relativeY });
       const newLines = [...design.lines];
       newLines[draggingLineIndex] = {
         ...newLines[draggingLineIndex],
@@ -357,6 +368,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       }));
     } else if (design.logoDragging && design.includeLogo) {
       // Update logo position
+      console.log('[StampDesigner] handleDrag - logo', { relativeX, relativeY });
       setHistory(prev => ({
         ...prev,
         present: {
@@ -370,6 +382,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Update logo position with history tracking
   const updateLogoPosition = (x: number, y: number) => {
+    console.log('[StampDesigner] updateLogoPosition', { x, y });
     // Constrain the movement within -100 to 100 range
     const constrainedX = Math.max(-100, Math.min(100, x));
     const constrainedY = Math.max(-100, Math.min(100, y));
@@ -389,7 +402,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Undo functionality
   const undo = () => {
     if (!canUndo) return;
-
+    console.log('[StampDesigner] undo');
     setHistory(prev => {
       const newPresent = prev.past[prev.past.length - 1];
       return {
@@ -403,7 +416,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Redo functionality
   const redo = () => {
     if (!canRedo) return;
-
+    console.log('[StampDesigner] redo');
     setHistory(prev => {
       const newPresent = prev.future[0];
       return {
@@ -426,6 +439,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
         savedAt: new Date().toISOString()
       };
 
+      console.log('[StampDesigner] saveDesign', designData);
       localStorage.setItem('savedStampDesign', JSON.stringify(designData));
       return true;
     } catch (error) {
@@ -457,6 +471,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       const { design: savedDesign, productId } = JSON.parse(savedData);
 
       if (productId === product?.id && savedDesign) {
+        console.log('[StampDesigner] loadDesign', savedDesign);
         // Update history with saved design
         setHistory({
           past: [],
@@ -478,6 +493,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const clearSavedDesign = () => {
     try {
       localStorage.removeItem('savedStampDesign');
+      console.log('[StampDesigner] clearSavedDesign');
       return true;
     } catch (error) {
       console.error('Error clearing saved design:', error);
@@ -488,6 +504,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Apply a template to the current design
   const applyTemplate = (template: Partial<StampDesign>) => {
     if (!template) return;
+    console.log('[StampDesigner] applyTemplate', template);
 
     const updatedDesign = {
       ...design,
@@ -501,6 +518,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Add or update custom element (like QR code or barcode)
   const addElement = (element: { type: string; dataUrl: string; width: number; height: number }) => {
+    console.log('[StampDesigner] addElement', element);
     // Parse dimensions from product size
     const sizeDimensions = product?.size ? product.size.split('x').map(dim => parseInt(dim.trim(), 10)) : [60, 40];
 
@@ -527,10 +545,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Zoom functions
   const zoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 0.25, 3));
+    console.log('[StampDesigner] zoomIn');
   };
 
   const zoomOut = () => {
     setZoomLevel(prev => Math.max(prev - 0.25, 1));
+    console.log('[StampDesigner] zoomOut');
   };
 
   // Validate design based on current step
@@ -576,6 +596,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     const lines = [...design.lines];
     const nonEmptyLines = lines.filter(l => l.text.trim().length > 0);
     if (nonEmptyLines.length === 0) return;
+
+    console.log('[StampDesigner] enhancedAutoArrange');
 
     // Auto-center all content based on shape
     if (design.shape === 'circle' || design.shape === 'ellipse') {
@@ -997,6 +1019,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   // Download preview as PNG with exact stamp size and transparent background
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
+
+    console.log('[StampDesigner] downloadAsPng');
 
     // Create a canvas element with exact stamp dimensions
     const canvas = document.createElement('canvas');

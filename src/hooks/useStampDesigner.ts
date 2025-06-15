@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import useStampDesignerEnhanced from './useStampDesignerEnhanced';
 import { Product, StampDesign, StampTextLine } from '@/types';
@@ -47,6 +46,7 @@ const defaultLine: StampTextLine = {
 };
 
 export const useStampDesigner = (product: Product | null): UseStampDesignerReturn => {
+  console.log("[StampDesigner] Hook initialized for product:", product);
   const enhancedDesigner = useStampDesignerEnhanced(product);
   
   const { 

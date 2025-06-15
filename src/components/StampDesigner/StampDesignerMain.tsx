@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -18,8 +18,9 @@ import BorderSelector from './BorderSelector';
 import TemplateSelector from './TemplateSelector';
 import LogoUploader from './LogoUploader';
 import ColorSelector from './ColorSelector';
-import { useRef, useState } from 'react';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
+const BarcodeGenerator = React.lazy(() => import("./BarcodeGenerator"));
 
 type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
 
@@ -289,14 +290,22 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       largeControls={largeControls}
                     />
                     <Separator className="my-6" />
-                    <Suspense fallback={<div>Loading export tools…</div>}>
-                      <ExportDesign 
-                        svgRef={null}
-                        previewImage={previewImage}
-                        productName={product?.name || ''}
-                        downloadAsPng={downloadAsPng}
-                      />
-                    </Suspense>
+                    <ErrorBoundary>
+                      <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
+                        <ExportDesign 
+                          svgRef={null}
+                          previewImage={previewImage}
+                          productName={product?.name || ''}
+                          downloadAsPng={downloadAsPng}
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
+                    <Separator className="my-6" />
+                    <ErrorBoundary>
+                      <Suspense fallback={<div className="p-4 text-gray-400">Loading barcode generator…</div>}>
+                        <BarcodeGenerator onGenerate={() => {}} />
+                      </Suspense>
+                    </ErrorBoundary>
                   </CardContent>
                 </Card>
               </TabsContent>
