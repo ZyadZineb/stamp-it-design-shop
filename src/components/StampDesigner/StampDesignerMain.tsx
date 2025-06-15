@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -217,7 +218,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
   return (
     <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
-      {/* Enhanced Header - Fixed at top */}
       <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -234,7 +234,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           </div>
         </div>
         
-        {/* Enhanced Progress Steps */}
         <div className="bg-white rounded-lg p-3 shadow-sm">
           <div className="flex items-center justify-between">
             {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).map((step, index) => {
@@ -267,7 +266,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         </div>
       </div>
       
-      {/* Layout changes for preview step - Full screen */}
       {currentStep === 'preview' ? (
         <div className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-white overflow-auto">
           <div className="h-full flex flex-col">
@@ -298,7 +296,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               />
             </div>
             
-            {/* Product Summary Card */}
             <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg">
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -333,21 +330,16 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Main editing section - Full height grid */}
           <div className="flex-1 p-6 bg-gray-50 overflow-hidden">
             <div className="h-full">
-              {/* Step Content */}
               <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 h-[calc(100%-120px)]">
                 <div className="mb-4">
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{getStepInfo(currentStep).title}</h3>
                   <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
                 </div>
 
-                {/* Two column layout for better use of space - made wider */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100%-80px)]">
-                  {/* Left column: Controls - expanded to take more space */}
                   <div className="xl:col-span-2 space-y-4 overflow-y-auto">
-                    {/* Show design step based on current step */}
                     {currentStep === 'templates' && design.shape === 'circle' && (
                       <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
                     )}
@@ -405,7 +397,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     )}
                   </div>
 
-                  {/* Right column: Preview - reduced to 1 column */}
                   <div className="xl:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
                     <h4 className="text-lg font-semibold mb-3 text-gray-900">Aperçu en Temps Réel</h4>
                     <div className="h-[calc(100%-40px)]">
@@ -431,7 +422,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 </div>
               </div>
               
-              {/* Step navigation buttons - Fixed at bottom */}
               <div className="flex justify-between items-center">
                 <Button
                   variant="outline"
@@ -472,7 +462,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
           </div>
           
-          {/* Product info and add to cart - Fixed at bottom */}
           <div className="flex-shrink-0 bg-gradient-to-r from-red-50 to-pink-50 border-t border-red-100 p-4">
             <div className="flex justify-between items-center">
               <div>
