@@ -19,7 +19,7 @@ const Hero = () => {
       <div className="container-custom relative z-10">
         <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight md:text-7xl md:mb-10 md:leading-tight lg:text-5xl">
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight md:text-7xl md:mb-10 md:leading-tight py-0 lg:text-5xl my-[14px] mx-[37px] px-[35px] text-center">
               {heroContent.title}
             </h1>
             <h2 className="text-lg font-medium text-brand-blue mb-2 md:text-4xl md:mb-10 lg:text-3xl">
