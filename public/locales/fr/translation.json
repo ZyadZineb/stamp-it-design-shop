@@ -260,107 +260,109 @@
     "exploreCollection": "Explorer la collection",
     "cart": "Panier"
   },
+  "stampTypes": {
+    "selfInking": "Auto-encreur",
+    "preInked": "Pré-encré",
+    "wooden": "Tampon bois",
+    "manual": "Tampon manuel",
+    "pocket": "Tampon de poche",
+    "date": "Dateur",
+    "numbering": "Numéroteur",
+    "professional": "Tampon professionnel",
+    "custom": "Tampon personnalisé",
+    "automaticNumbering": "Numéroteur automatique",
+    "rectangular": "Tampon rectangulaire",
+    "round": "Tampon rond"
+  },
   "features": {
-    "whyChoose": "Pourquoi choisir nos tampons ?",
-    "whyChooseDesc": "Nous proposons des tampons auto-encreurs de haute qualité avec de nombreuses options pour répondre aux besoins des entreprises au Maroc.",
-    "premiumQuality": "Qualité supérieure",
-    "premiumQualityDesc": "Tous nos tampons sont fabriqués avec des matériaux de haute qualité pour une durabilité exceptionnelle.",
-    "customizable": "Personnalisable",
-    "customizableDesc": "Créez facilement vos propres tampons grâce à notre outil de conception en ligne intuitif.",
-    "fastDelivery": "Livraison rapide",
-    "fastDeliveryDesc": "Livraison gratuite à Casablanca et dans les régions avoisinantes avec des délais courts.",
-    "wideSelection": "Large choix",
-    "wideSelectionDesc": "Choisissez parmi une variété de tailles, de modèles et de marques selon vos besoins."
+    "designOnline": "Concevoir en ligne",
+    "customize": "Personnaliser",
+    "personalize": "Personnaliser",
+    "easyOrder": "Commande facile en ligne",
+    "preview": "Aperçu en direct",
+    "chooseModel": "Choisir un modèle",
+    "uploadLogo": "Télécharger un logo",
+    "addText": "Ajouter du texte",
+    "borderOptions": "Options de bordure",
+    "expressDelivery": "Livraison express",
+    "satisfactionGuaranteed": "Satisfaction garantie",
+    "freeProof": "Bon à tirer gratuit",
+    "moneyBack": "Garantie satisfait ou remboursé",
+    "securePayment": "Paiement sécurisé",
+    "customerSupport": "Service client",
+    "fastProcessing": "Traitement rapide"
   },
-  "cta": {
-    "readyToCreate": "Prêt·e à créer votre tampon personnalisé ?",
-    "designerDesc": "Concevez votre tampon dès maintenant avec notre outil en ligne facile à utiliser. Visualisez l’aperçu avant de commander !",
-    "startDesigning": "Commencer la conception"
-  },
-  "contactBlock": {
-    "title": "Contactez-nous",
-    "help": "Pour toute question ou assistance",
-    "address": "Casablanca, Maroc"
-  },
-  "seo": {
-    "indexTitle": "Tampons personnalisés professionnels au Maroc",
-    "indexDesc": "Créez et commandez des tampons auto-encreurs personnalisés pour votre entreprise ou usage privé. Plusieurs modèles et livraison gratuite à Casablanca, Maroc."
-  },
-  "borderStyle": {
-    "title": "Style de bordure",
-    "none": "Aucune bordure",
-    "single": "Simple",
-    "double": "Double",
-    "wavy": "Ondulée",
-    "thickness": "Épaisseur de la bordure"
+  "callouts": {
+    "bestseller": "Meilleure vente",
+    "new": "Nouveau",
+    "madeIn": "Fabriqué au {{country}}",
+    "freeShipping": "Livraison gratuite",
+    "deliversIn": "Livraison sous {{days}} jours"
   },
   "actions": {
     "undo": "Annuler",
     "redo": "Rétablir",
     "undoTooltip": "Annuler la dernière action",
-    "redoTooltip": "Rétablir la dernière action annulée"
+    "redoTooltip": "Rétablir la dernière action annulée",
+    "addToCart": "Ajouter au panier",
+    "goBack": "Retour",
+    "continueShopping": "Continuer mes achats",
+    "checkout": "Valider la commande",
+    "submit": "Envoyer",
+    "cancel": "Annuler",
+    "remove": "Supprimer",
+    "edit": "Modifier",
+    "viewDetails": "Voir les détails",
+    "download": "Télécharger",
+    "save": "Enregistrer",
+    "print": "Imprimer",
+    "share": "Partager",
+    "upload": "Téléverser",
+    "apply": "Appliquer",
+    "search": "Rechercher"
   },
-  "textEditor": {
-    "title": "Lignes de texte",
-    "help": "Aide",
-    "helpText": "Ajoutez et modifiez le texte de votre cachet. Cliquez sur une ligne pour la sélectionner et ajuster ses propriétés.",
-    "line": "Ligne",
-    "emptyLine": "(Ligne vide)",
-    "enterText": "Saisir le texte",
-    "textStyle": "Style du texte",
-    "bold": "Gras",
-    "italic": "Italique",
-    "curved": "Courbé",
-    "curvedText": "Texte courbé",
-    "flipText": "Inverser la position du texte",
-    "moveToBottom": "Haut → Bas",
-    "moveToTop": "Bas → Haut",
-    "font": "Police",
-    "fontSize": "Taille de police",
-    "selectFont": "Choisir une police",
-    "alignment": "Alignement",
-    "alginLeft": "Aligner à gauche",
-    "center": "Centre",
-    "alignRight": "Aligner à droite",
-    "horizontalPosition": "Position horizontale",
-    "verticalPosition": "Position verticale",
-    "curvedHorizontalPosition": "Position de l’arc",
-    "curvedVerticalPosition": "Ajustement du rayon",
-    "addLine": "Ajouter une ligne de texte",
-    "maxLinesReached": "Nombre maximum de lignes atteint"
+  "form": {
+    "name": "Nom",
+    "fullName": "Nom complet",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "company": "Société",
+    "message": "Message",
+    "city": "Ville",
+    "zip": "Code postal",
+    "country": "Pays",
+    "required": "Obligatoire",
+    "optional": "Optionnel",
+    "submit": "Envoyer",
+    "success": "Votre message a été envoyé !",
+    "error": "Une erreur est survenue lors de l'envoi du message."
   },
-  "inkColors": {
-    "black": "Noir",
-    "blue": "Bleu",
-    "red": "Rouge",
-    "green": "Vert",
-    "violet": "Violet"
+  "orderStatus": {
+    "pending": "En attente",
+    "confirmed": "Confirmée",
+    "inProduction": "En production",
+    "shipped": "Expédiée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée"
   },
-  "brands": {
-    "Trodat": "Trodat",
-    "Shiny": "Shiny",
-    "MobiStamps": "MobiStamps",
-    "Sirdas": "Sirdas",
-    "Brother": "Brother"
+  "errors": {
+    "fieldRequired": "Ce champ est obligatoire.",
+    "invalidEmail": "Adresse e-mail invalide.",
+    "minLength": "Au moins {{count}} caractères.",
+    "maxLength": "Maximum {{count}} caractères autorisés.",
+    "unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+    "404": "Page introuvable."
   },
-  "colors": {
-    "black": "Noir",
-    "blue": "Bleu",
-    "red": "Rouge",
-    "green": "Vert",
-    "violet": "Violet"
-  },
-  "sizes": {
-    "small": "Petit",
-    "medium": "Moyen",
-    "large": "Grand"
-  },
-  "shapes": {
-    "rectangle": "Rectangle",
-    "round": "Rond",
-    "circle": "Rond",
-    "square": "Carré",
-    "ellipse": "Ellipse",
-    "oval": "Ovale"
+  "misc": {
+    "yes": "Oui",
+    "no": "Non",
+    "and": "et",
+    "or": "ou",
+    "more": "Plus",
+    "less": "Moins",
+    "loading": "Chargement...",
+    "outOfStock": "Rupture de stock",
+    "inStock": "En stock"
   }
 }
