@@ -43,7 +43,7 @@ const HeroCarousel: React.FC = () => {
               // These ensure that on desktop, the image is always centered and same size
               display: "block",
               margin: "0 auto"
-            }} className="-bottom-0 h-96 rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full md:h-[360px] md:w-[680px] lg:h-[390px] lg:w-[760px] xl:h-[440px] xl:w-[880px] object-contain" />
+            }} className="-bottom-0 -bottom-0 rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full md:h-[360px] md:w-[680px] lg:h-[390px] lg:w-[760px] xl:h-[440px] xl:rounded-2xl object-contain" />
               </Link>
             </div>)}
         </div>
