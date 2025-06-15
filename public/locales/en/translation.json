@@ -125,6 +125,94 @@
   },
   "design": {
     "autoArrange": "Auto-Arrange",
+    "autoArrangeTooltip": "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing.",
+    "title": "Custom stamp designer",
+    "shape": "Shape",
+    "border": "Border",
+    "borderStyle": "Border style",
+    "saveDesign": "Save design",
+    "inkColor": "Ink Color",
+    "line": "Line",
+    "startWithLogo": "Start with your Logo",
+    "addLogo": "Add Logo",
+    "saveDesignForLater": "Save design for later",
+    "saved": "Design saved",
+    "savedDescription": "Your design has been saved and will be available when you return",
+    "loaded": "Design loaded",
+    "loadedDescription": "Your saved design has been loaded",
+    "saveDesignForLaterTooltip": "Save your current design to continue later",
+    "loadSavedDesignTooltip": "Load your previously saved design",
+    "clearSavedDesignTooltip": "Clear saved design from storage",
+    "loadDesign": "Load design",
+    "clearSaved": "Clear saved",
+    "productInfo": "Designing a {{name}} stamp ({{size}}). You can add up to {{lines}} lines of text and choose from {{inkColors}} ink colors.",
+    "removeLogo": "Remove Logo",
+    "uploadYourLogo": "Upload Your Logo",
+    "uploadInstructions": "Click to upload an image file or drag and drop",
+    "uploadRecommendation": "Recommended: Square PNG or SVG with transparent background",
+    "changeLogo": "Click to change logo",
+    "logoPosition": "Logo Position",
+    "horizontalPosition": "Horizontal Position",
+    "verticalPosition": "Vertical Position",
+    "left": "Left",
+    "center": "Center",
+    "right": "Right",
+    "top": "Top",
+    "bottom": "Bottom",
+    "logoDragTip": "You can also drag the logo directly on the preview area",
+    "tip": "Tip",
+    "logoTipText": "After positioning your logo, click \"Next\" to add and arrange your text.",
+    "textOnlyDesc": "Proceed without a logo to create a text-only stamp design",
+    "continueToText": "Continue to Text Design",
+    "shape": "Shape",
+    "border": "Border",
+    "borderStyle": "Border style"
+  },
+  "textEditor": {
+    "title": "Text Lines",
+    "help": "Help",
+    "helpText": "Add and edit text for your stamp. Click on a line to select it and adjust its properties.",
+    "line": "Line",
+    "emptyLine": "(Empty line)",
+    "enterText": "Enter text",
+    "textStyle": "Text Style",
+    "bold": "Bold",
+    "italic": "Italic",
+    "curved": "Curved",
+    "curvedText": "Curved Text",
+    "flipText": "Flip Text Position",
+    "moveToBottom": "Top → Bottom",
+    "moveToTop": "Bottom → Top",
+    "font": "Font",
+    "fontSize": "Font Size",
+    "selectFont": "Select font",
+    "alignment": "Alignment",
+    "alginLeft": "Align Left",
+    "center": "Center",
+    "alignRight": "Align Right",
+    "horizontalPosition": "Horizontal Position",
+    "verticalPosition": "Vertical Position",
+    "curvedHorizontalPosition": "Arc Position",
+    "curvedVerticalPosition": "Radius Adjustment",
+    "addLine": "Add Text Line",
+    "maxLinesReached": "Maximum number of lines reached"
+  },
+  "borderStyle": {
+    "title": "Border style",
+    "none": "No border",
+    "single": "Single",
+    "double": "Double",
+    "wavy": "Wavy",
+    "thickness": "Border thickness"
+  },
+  "actions": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "undoTooltip": "Undo last action",
+    "redoTooltip": "Redo last undone action"
+  },
+  "design": {
+    "autoArrange": "Auto-Arrange",
     "autoArrangeTooltip": "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing."
   },
   "alignment": {
@@ -244,7 +332,17 @@
     "tip": "Tip",
     "logoTipText": "After positioning your logo, click \"Next\" to add and arrange your text.",
     "textOnlyDesc": "Proceed without a logo to create a text-only stamp design",
-    "continueToText": "Continue to Text Design"
+    "continueToText": "Continue to Text Design",
+    "summary": {
+      "textLines": "Text",
+      "inkColor": "Ink color",
+      "shape": "Shape",
+      "border": "Border",
+      "noBorder": "No border",
+      "logo": "Logo",
+      "included": "Included",
+      "editAnyStep": "You can edit your design in any previous step before adding to cart."
+    }
   },
   "borderStyle": {
     "title": "Border style",
@@ -259,5 +357,56 @@
     "redo": "Redo",
     "undoTooltip": "Undo last action",
     "redoTooltip": "Redo last undone action"
+  },
+  "textEditor": {
+    "title": "Text Lines",
+    "help": "Help",
+    "helpText": "Add and edit text for your stamp. Click on a line to select it and adjust its properties.",
+    "line": "Line",
+    "emptyLine": "(Empty line)",
+    "enterText": "Enter text",
+    "textStyle": "Text Style",
+    "bold": "Bold",
+    "italic": "Italic",
+    "curved": "Curved",
+    "curvedText": "Curved Text",
+    "flipText": "Flip Text Position",
+    "moveToBottom": "Top → Bottom",
+    "moveToTop": "Bottom → Top",
+    "font": "Font",
+    "fontSize": "Font Size",
+    "selectFont": "Select font",
+    "alignment": "Alignment",
+    "alginLeft": "Align Left",
+    "center": "Center",
+    "alignRight": "Align Right",
+    "horizontalPosition": "Horizontal Position",
+    "verticalPosition": "Vertical Position",
+    "curvedHorizontalPosition": "Arc Position",
+    "curvedVerticalPosition": "Radius Adjustment",
+    "addLine": "Add Text Line",
+    "maxLinesReached": "Maximum number of lines reached"
+  },
+  "validation": {
+    "fixIssues": "Please fix the following issues:"
+  },
+  "ai": {
+    "suggestionApplied": "Suggestion applied"
+  },
+  "design": {
+    "elementAdded": "Element added",
+    "elementAddedDescription": "Element added to your design. Adjust position in the preview."
+  },
+  "design": {
+    "autoArranged": "Layout Auto-Arranged",
+    "autoArrangedDesc": "Text has been automatically arranged for optimal layout"
+  },
+  "wizard": {
+    "stepOf": "Step {{current}} of {{total}}"
+  },
+  "design": {
+    "savedFound": "Saved design found",
+    "savedFoundDescription": "You have a saved design. Would you like to load it?",
+    "loadDesign": "Load Design"
   }
 }
