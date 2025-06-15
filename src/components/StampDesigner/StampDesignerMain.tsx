@@ -329,7 +329,10 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-700"><span className="font-medium">Taille:</span> {product.size}</p>
                     <p className="text-gray-700">
                       <span className="font-medium">Couleur d'encre:</span> 
-                      <span className="inline-block w-3 h-3 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> 
+                      <span
+                        className="inline-block w-3 h-3 rounded-full ml-2"
+                        style={{ backgroundColor: design.inkColor }}
+                      ></span>
                       {design.inkColor}
                     </p>
                   </div>
