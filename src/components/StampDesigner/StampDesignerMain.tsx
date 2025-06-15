@@ -225,8 +225,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
   if (!product) {
     return (
-      <div className="p-8 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-sm">
-        <div className="max-w-md mx-auto">
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="max-w-md mx-auto text-center p-8 bg-white rounded-xl shadow-sm">
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">🏷️</span>
           </div>
@@ -238,26 +238,26 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden w-full min-h-screen">
-      {/* Enhanced Header with better visual hierarchy */}
-      <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
+      {/* Enhanced Header - Fixed at top */}
+      <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Créateur de Tampon Professionnel</h2>
-            <p className="text-blue-700 font-medium mt-1">
-              <span className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+            <h2 className="text-xl font-bold text-gray-900">Créateur de Tampon Professionnel</h2>
+            <p className="text-blue-700 font-medium">
+              <span className="bg-blue-100 px-2 py-1 rounded-full text-sm">
                 {product.name} • {product.size}
               </span>
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-blue-600">{product.price} DHS</div>
+            <div className="text-2xl font-bold text-blue-600">{product.price} DHS</div>
             <div className="text-sm text-gray-600">TTC</div>
           </div>
         </div>
         
-        {/* Enhanced Progress Steps with better design */}
-        <div className="bg-white rounded-lg p-4 shadow-sm">
+        {/* Enhanced Progress Steps */}
+        <div className="bg-white rounded-lg p-3 shadow-sm">
           <div className="flex items-center justify-between">
             {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).map((step, index) => {
               const stepInfo = getStepInfo(step);
@@ -267,25 +267,20 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               return (
                 <div 
                   key={step}
-                  className={`flex-1 text-center cursor-pointer transition-all duration-200 ${
-                    isActive ? 'transform scale-105' : ''
-                  }`}
+                  className={`flex-1 text-center cursor-pointer transition-all duration-200 ${isActive ? 'transform scale-105' : ''}`}
                   onClick={() => setCurrentStep(step)}
                 >
-                  <div className={`w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-200 ${
+                  <div className={`w-8 h-8 mx-auto mb-1 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 ${
                     isCompleted 
                       ? 'bg-green-500 text-white shadow-lg' 
                       : isActive 
-                      ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-200' 
+                      ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-200' 
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                   }`}>
                     {isCompleted ? '✓' : stepInfo.icon}
                   </div>
-                  <div className={`text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
+                  <div className={`text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
                     {stepInfo.title}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1 hidden sm:block">
-                    {stepInfo.description}
                   </div>
                 </div>
               );
@@ -294,16 +289,16 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
         </div>
       </div>
       
-      {/* Layout changes for preview step to show clean design */}
+      {/* Layout changes for preview step - Full screen */}
       {currentStep === 'preview' ? (
-        <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen w-full">
-          <div className="w-full max-w-none">
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Aperçu Final</h2>
-              <p className="text-lg text-gray-600">Votre tampon est prêt ! Vérifiez tous les détails avant de commander.</p>
+        <div className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-white overflow-auto">
+          <div className="h-full flex flex-col">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Aperçu Final</h2>
+              <p className="text-gray-600">Votre tampon est prêt ! Vérifiez tous les détails avant de commander.</p>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-xl p-10 mb-8 w-full">
+            <div className="flex-1 bg-white rounded-2xl shadow-xl p-6 mb-6 min-h-0">
               <StampPreviewAccessible
                 previewImage={previewImage}
                 productSize={product.size}
@@ -325,52 +320,52 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               />
             </div>
             
-            {/* Enhanced Product Summary Card */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg w-full">
-              <div className="flex justify-between items-start mb-6">
+            {/* Product Summary Card */}
+            <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{product.name}</h3>
                   <div className="space-y-1">
                     <p className="text-gray-700"><span className="font-medium">Taille:</span> {product.size}</p>
                     <p className="text-gray-700">
                       <span className="font-medium">Couleur d'encre:</span> 
-                      <span className="inline-block w-4 h-4 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> 
+                      <span className="inline-block w-3 h-3 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> 
                       {design.inkColor}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-bold text-blue-600 mb-1">{product.price} DHS</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-1">{product.price} DHS</div>
                   <div className="text-sm text-gray-600">TTC, livraison incluse</div>
                 </div>
               </div>
               
               <Button
                 onClick={handleAddToCart}
-                className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
               >
-                <ShoppingCart size={28} className="mr-3" />
+                <ShoppingCart size={24} className="mr-2" />
                 Ajouter au Panier
               </Button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col min-h-screen w-full">
-          {/* Enhanced Main editing section - Full width layout */}
-          <div className="p-8 bg-gray-50 w-full">
-            <div className="w-full">
-              {/* Step Content with improved styling */}
-              <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 w-full">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{getStepInfo(currentStep).title}</h3>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Main editing section - Full height grid */}
+          <div className="flex-1 p-6 bg-gray-50 overflow-hidden">
+            <div className="h-full">
+              {/* Step Content */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 h-[calc(100%-120px)]">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{getStepInfo(currentStep).title}</h3>
                   <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
                 </div>
 
                 {/* Two column layout for better use of space */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100%-80px)]">
                   {/* Left column: Controls */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 overflow-y-auto">
                     {/* Show design step based on current step */}
                     {currentStep === 'templates' && design.shape === 'circle' && (
                       <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
@@ -390,7 +385,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     )}
                     
                     {currentStep === 'text' && (
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         <TextLinesEditor
                           lines={design.lines}
                           product={product}
@@ -430,31 +425,33 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   </div>
 
                   {/* Right column: Large Preview */}
-                  <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl border">
-                    <h4 className="text-lg font-semibold mb-4 text-gray-900">Aperçu en Temps Réel</h4>
-                    <StampPreview
-                      previewImage={previewImage}
-                      productSize={product.size}
-                      previewRef={previewRef}
-                      isDragging={isDragging}
-                      activeLineIndex={activeLineIndex}
-                      includeLogo={design.includeLogo}
-                      onMouseDown={handleMouseDown}
-                      onMouseMove={handleMouseMove}
-                      onMouseUp={handleMouseUp}
-                      onTouchStart={handleTouchStart}
-                      onTouchMove={handleTouchMove}
-                      downloadAsPng={downloadAsPng}
-                      zoomLevel={zoomLevel}
-                      onZoomIn={zoomIn}
-                      onZoomOut={zoomOut}
-                    />
+                  <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
+                    <h4 className="text-lg font-semibold mb-3 text-gray-900">Aperçu en Temps Réel</h4>
+                    <div className="h-[calc(100%-40px)]">
+                      <StampPreview
+                        previewImage={previewImage}
+                        productSize={product.size}
+                        previewRef={previewRef}
+                        isDragging={isDragging}
+                        activeLineIndex={activeLineIndex}
+                        includeLogo={design.includeLogo}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        downloadAsPng={downloadAsPng}
+                        zoomLevel={zoomLevel}
+                        onZoomIn={zoomIn}
+                        onZoomOut={zoomOut}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Enhanced Step navigation buttons */}
-              <div className="flex justify-between items-center w-full">
+              {/* Step navigation buttons - Fixed at bottom */}
+              <div className="flex justify-between items-center">
                 <Button
                   variant="outline"
                   onClick={goToPrevStep}
@@ -491,27 +488,27 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   {currentStep === 'color' ? 'Aperçu' : 'Suivant'} →
                 </Button>
               </div>
-              
-              {/* Enhanced Product info and add to cart - Full width */}
-              <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-100 rounded-2xl p-8 shadow-lg mt-8 w-full">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="font-bold text-2xl text-gray-900 mb-1">{product.name}</h3>
-                    <p className="text-gray-600">Taille: {product.size} • Couleur: {design.inkColor}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-3xl text-red-600">{product.price} DHS</span>
-                    <p className="text-sm text-gray-600">TTC</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={handleAddToCart}
-                  className={`w-full py-6 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-4 ${largeControls ? "text-xl py-8" : "text-lg"}`}
-                >
-                  <ShoppingCart size={largeControls ? 32 : 28} />
-                  Ajouter au Panier
-                </Button>
+            </div>
+          </div>
+          
+          {/* Product info and add to cart - Fixed at bottom */}
+          <div className="flex-shrink-0 bg-gradient-to-r from-red-50 to-pink-50 border-t border-red-100 p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">{product.name}</h3>
+                <p className="text-gray-600 text-sm">Taille: {product.size} • Couleur: {design.inkColor}</p>
               </div>
+              <div className="text-right mr-4">
+                <span className="font-bold text-2xl text-red-600">{product.price} DHS</span>
+                <p className="text-sm text-gray-600">TTC</p>
+              </div>
+              <Button
+                onClick={handleAddToCart}
+                className="py-3 px-6 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center gap-2"
+              >
+                <ShoppingCart size={20} />
+                Ajouter au Panier
+              </Button>
             </div>
           </div>
         </div>
