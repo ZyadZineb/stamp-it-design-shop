@@ -15,6 +15,7 @@ interface StampPreviewAccessibleProps {
   onMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onTouchStart?: (e: React.TouchEvent<HTMLDivElement>) => void;
   onTouchMove?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void; // <-- ADDED
   downloadAsPng?: () => void;
   zoomIn?: () => void;
   zoomOut?: () => void;
@@ -36,6 +37,7 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   onMouseUp,
   onTouchStart,
   onTouchMove,
+  onTouchEnd, // <-- ADDED
   downloadAsPng,
   zoomIn,
   zoomOut,
@@ -73,10 +75,9 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
       onCanvasMouseUp={onMouseUp}
       onCanvasTouchStart={onTouchStart}
       onCanvasTouchMove={onTouchMove}
-      onCanvasTouchEnd={onMouseUp}
+      onCanvasTouchEnd={onTouchEnd} {/* <-- CORRECT TYPE */}
     />
   );
 };
 
 export default StampPreviewAccessible;
-
