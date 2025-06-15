@@ -1,8 +1,9 @@
-
 import React, { useRef, useState } from 'react';
 import { Download, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import BaseStampRenderer from "./BaseStampRenderer";
+import { calcAlignedX, calcCenteredY } from "@/lib/previewEngine";
 
 interface StampPreviewProps {
   previewImage: string | null;
@@ -14,7 +15,7 @@ interface StampPreviewProps {
   onMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
   onTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove: (React.TouchEvent<HTMLDivElement>) => void;
   downloadAsPng: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -129,6 +130,16 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
     setPanPosition({ x: 0, y: 0 });
   };
 
+  // parse size to mm
+  let widthMm = 38, heightMm = 14;
+  if (productSize) {
+    const parts = productSize.replace("mm", "").split("x");
+    if (parts.length === 2) {
+      widthMm = parseFloat(parts[0]);
+      heightMm = parseFloat(parts[1]);
+    }
+  }
+
   return (
     <div className="border rounded-md p-4 bg-gray-50">
       <div className="flex justify-between items-center mb-3">
@@ -188,37 +199,27 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
       </div>
       
       <div className="overflow-hidden rounded-md">
-        <div 
-          className={`
-            flex justify-center items-center bg-white border p-4 min-h-60 
-            ${isPanning || (zoomLevel > 1) ? 'cursor-grab' : 'cursor-pointer'} 
-            ${isPanning ? 'cursor-grabbing' : ''} 
-            relative touch-none
-          `}
-          ref={previewRef}
-          onMouseDown={handleMouseDownForPan}
-          onMouseMove={handleMouseMoveForPan}
-          onMouseUp={handleMouseUpForPan}
-          onMouseLeave={handleMouseUpForPan}
-          onTouchStart={handleTouchStartForPan}
-          onTouchMove={handleTouchMoveForPan}
-          onTouchEnd={handleTouchEndForPan}
+        <BaseStampRenderer
+          widthMm={widthMm}
+          heightMm={heightMm}
+          zoomLevel={zoomLevel}
+          className={`flex justify-center items-center bg-white border min-h-60 relative touch-none ${isPanning || (zoomLevel > 1) ? "cursor-grab" : "cursor-pointer"} ${isPanning ? "cursor-grabbing" : ""}`}
+          ariaLabel="Live Stamp Preview"
           style={{
-            height: '300px',
-            overflow: 'hidden'
+            overflow: "hidden",
+            height: "300px",
           }}
         >
           {previewImage ? (
             <div
               style={{
-                transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                transition: isPanning ? 'none' : 'transform 0.2s ease-out',
-                transformOrigin: 'center',
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
+                transform: `translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                transition: isPanning ? "none" : "transform 0.2s ease-out",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
               }}
             >
               <img 
@@ -257,7 +258,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
               </p>
             </div>
           )}
-        </div>
+        </BaseStampRenderer>
       </div>
       
       {zoomLevel > 1 && (

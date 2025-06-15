@@ -24,6 +24,9 @@ interface StampPreviewAccessibleProps {
   isAnimating?: boolean;
 }
 
+import BaseStampRenderer from "./BaseStampRenderer";
+import { calcAlignedX, calcCenteredY } from "@/lib/previewEngine";
+
 const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   previewImage,
   productSize,
@@ -35,7 +38,7 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   onMouseUp,
   onTouchStart,
   onTouchMove,
-  onTouchEnd, // <-- ADDED
+  onTouchEnd,
   downloadAsPng,
   zoomIn,
   zoomOut,
@@ -45,36 +48,38 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
   largeControls = false,
   isAnimating = false
 }) => {
-  // Calculate preview physical dimensions from productSize string (e.g. "60x40" or "38x14mm")
+  const { t } = useTranslation();
   const sizeParts = productSize.replace('mm', '').split('x');
   const widthMm = parseFloat(sizeParts[0]) || 38;
   const heightMm = parseFloat(sizeParts[1]) || 14;
 
   return (
-    <PreviewCanvas
-      previewImage={previewImage}
+    <BaseStampRenderer
       widthMm={widthMm}
       heightMm={heightMm}
-      productSize={productSize}
-      isDragging={isDragging}
-      activeLineIndex={activeLineIndex}
-      includeLogo={includeLogo}
       highContrast={highContrast}
       zoomLevel={zoomLevel}
-      onZoomIn={zoomIn}
-      onZoomOut={zoomOut}
-      downloadAsPng={downloadAsPng}
-      largeControls={largeControls}
       background={background}
       isAnimating={isAnimating}
-      // Direct drag handlers
-      onCanvasMouseDown={onMouseDown}
-      onCanvasMouseMove={onMouseMove}
-      onCanvasMouseUp={onMouseUp}
-      onCanvasTouchStart={onTouchStart}
-      onCanvasTouchMove={onTouchMove}
-      onCanvasTouchEnd={onTouchEnd}
-    />
+      ariaLabel={t("preview.ariaLabel", "Stamp preview area")}
+    >
+      {previewImage ? (
+        <img
+          src={previewImage}
+          alt={t("preview.stampDesign", "Stamp design")}
+          className="object-contain w-full h-full"
+          style={{
+            imageRendering: "auto"
+          }}
+        />
+      ) : (
+        <div className="flex items-center justify-center w-full h-full">
+          <span className="text-gray-400 text-center">
+            {t("preview.noPreview", "No preview available")}
+          </span>
+        </div>
+      )}
+    </BaseStampRenderer>
   );
 };
 

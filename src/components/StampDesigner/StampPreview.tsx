@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Download, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import PreviewCanvas from "./PreviewCanvas";
 import { mmToPx } from "@/utils/dimensions";
+import BaseStampRenderer from "./BaseStampRenderer";
+import { calcAlignedX, calcCenteredY } from "@/lib/previewEngine";
 
-interface StampPreviewProps {
+export interface StampPreviewProps {
   previewImage: string | null;
   productSize?: string;
   previewRef: React.RefObject<HTMLDivElement>;
@@ -54,12 +55,13 @@ const StampPreview: React.FC<StampPreviewProps> = ({
     }
   }
 
+  // Remove duplicate <div> markup, use BaseStampRenderer for layout
   return (
     <Card className={highContrast ? "border-2 border-black" : ""}>
       <CardContent className="p-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"}`}>
-            {t('preview.title', 'Stamp Preview')}
+            {t("preview.title", "Stamp Preview")}
           </h3>
           <div className="flex items-center gap-2">
             {onZoomIn && onZoomOut && (
@@ -69,7 +71,7 @@ const StampPreview: React.FC<StampPreviewProps> = ({
                   size="sm" 
                   onClick={onZoomOut} 
                   className="w-8 h-8 p-0" 
-                  title={t('preview.zoomOut', 'Zoom Out')}
+                  title={t("preview.zoomOut", "Zoom Out")}
                 >
                   <ZoomOut size={16} />
                 </Button>
@@ -79,7 +81,7 @@ const StampPreview: React.FC<StampPreviewProps> = ({
                   size="sm" 
                   onClick={onZoomIn} 
                   className="w-8 h-8 p-0" 
-                  title={t('preview.zoomIn', 'Zoom In')}
+                  title={t("preview.zoomIn", "Zoom In")}
                 >
                   <ZoomIn size={16} />
                 </Button>
@@ -90,37 +92,38 @@ const StampPreview: React.FC<StampPreviewProps> = ({
               size="sm"
               onClick={downloadAsPng}
               disabled={!previewImage}
-              title={t('preview.download', 'Download')}
+              title={t("preview.download", "Download")}
             >
               <Download size={16} />
             </Button>
           </div>
         </div>
-        <PreviewCanvas
-          previewImage={previewImage}
+        <BaseStampRenderer
           widthMm={widthMm}
           heightMm={heightMm}
-          productSize={productSize}
           highContrast={highContrast}
           zoomLevel={zoomLevel}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
-          downloadAsPng={downloadAsPng}
-          activeLineIndex={activeLineIndex}
-          includeLogo={includeLogo}
-          isDragging={isDragging}
-          onCanvasMouseDown={onMouseDown}
-          onCanvasMouseMove={onMouseMove}
-          onCanvasMouseUp={onMouseUp}
-          onCanvasTouchStart={onTouchStart}
-          onCanvasTouchMove={onTouchMove}
-          onCanvasTouchEnd={onMouseUp}
-          // you may add any additional required props here
-        />
+          ariaLabel={t("preview.ariaLabel", "Stamp preview area")}
+        >
+          {previewImage ? (
+            <img
+              src={previewImage}
+              alt={t("preview.stampDesign", "Stamp design")}
+              className="object-contain w-full h-full"
+              style={{ imageRendering: "auto", pointerEvents: "none" }}
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full">
+              <span className="text-gray-400 text-center">
+                {t("preview.noPreview", "No preview available")}
+              </span>
+            </div>
+          )}
+        </BaseStampRenderer>
         {productSize && (
           <div className="mt-2 text-center">
             <span className="text-xs text-gray-500">
-              {t('preview.physicalSize', 'Physical size')}: {productSize}mm
+              {t("preview.physicalSize", "Physical size")}: {productSize}mm
             </span>
           </div>
         )}
