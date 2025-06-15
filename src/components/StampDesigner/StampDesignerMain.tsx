@@ -287,8 +287,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 onTouchMove={handleTouchMove}
                 downloadAsPng={downloadAsPng}
                 zoomLevel={zoomLevel}
-                onZoomIn={zoomIn}
-                onZoomOut={zoomOut}
+                zoomIn={zoomIn}
+                zoomOut={zoomOut}
                 background="paper"
                 highContrast={highContrast}
                 largeControls={largeControls}
@@ -336,7 +336,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{getStepInfo(currentStep).title}</h3>
                   <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
                 </div>
-
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100%-80px)]">
                   <div className="xl:col-span-2 space-y-4 overflow-y-auto">
                     {currentStep === 'templates' && design.shape === 'circle' && (
@@ -395,7 +394,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       />
                     )}
                   </div>
-
                   <div className="xl:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
                     <h4 className="text-lg font-semibold mb-3 text-gray-900">Aperçu en Temps Réel</h4>
                     <div className="h-[calc(100%-40px)]">
@@ -420,7 +418,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   </div>
                 </div>
               </div>
-              
               <div className="flex justify-between items-center">
                 <Button
                   variant="outline"
@@ -460,7 +457,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               </div>
             </div>
           </div>
-          
           <div className="flex-shrink-0 bg-gradient-to-r from-red-50 to-pink-50 border-t border-red-100 p-4">
             <div className="flex justify-between items-center">
               <div>
@@ -484,7 +480,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       )}
     </div>
   );
-
 };
 
 export default StampDesignerMain;
