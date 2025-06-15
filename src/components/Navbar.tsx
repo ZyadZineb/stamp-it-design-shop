@@ -12,10 +12,10 @@ const Navbar = () => {
   const { cartItems } = useCart();
   
   const navLinks = [
-    { name: t('navigation.home'), path: '/' },
-    { name: t('navigation.products'), path: '/products' },
-    { name: t('navigation.design'), path: '/design' },
-    { name: t('navigation.contact'), path: '/contact' },
+    { name: t('navigation.home', 'Home'), path: '/' },
+    { name: t('navigation.products', 'Products'), path: '/products' },
+    { name: t('navigation.design', 'Design a Stamp'), path: '/design' },
+    { name: t('navigation.contact', 'Contact'), path: '/contact' },
   ];
 
   const toggleMenu = () => {
@@ -80,7 +80,7 @@ const Navbar = () => {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-500 hover:text-gray-700 focus:outline-none"
-              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={isMenuOpen ? t('navigation.closeMenu', 'Close menu') : t('navigation.openMenu', 'Open menu')}
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />

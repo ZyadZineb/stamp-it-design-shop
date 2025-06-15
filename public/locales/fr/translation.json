@@ -1,5 +1,7 @@
 {
   "navigation": {
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
     "home": "Accueil",
     "products": "Produits",
     "design": "Concevoir un Tampon",
@@ -183,5 +185,29 @@
     "left": "Aligner à gauche",
     "center": "Centrer",
     "right": "Aligner à droite"
+  },
+  "footer": {
+    "brand": "Cachets Maroc",
+    "description": "Votre partenaire de confiance pour des tampons auto-encreurs de qualité au Maroc. Nous proposons une large gamme de tampons pour les professionnels et les particuliers.",
+    "phone": "06 99 11 80 28",
+    "email": "zyad.sobhi@gmail.com",
+    "location": "Casablanca, Maroc",
+    "quickLinks": "Liens rapides",
+    "freeDelivery": "Livraison gratuite",
+    "deliveryDescription": "Nous offrons la livraison gratuite pour toutes les commandes à Casablanca et alentours.",
+    "whyChooseUs": "Pourquoi nous choisir ?",
+    "highQualityStamps": "Tampons auto-encreurs de haute qualité",
+    "customDesign": "Options de conception personnalisée",
+    "quickDelivery": "Livraison rapide",
+    "customerService": "Service client de qualité",
+    "allRightsReserved": "Tous droits réservés."
+  },
+  "hero": {
+    "title": "Tampons Auto-Encreurs Professionnels",
+    "subtitle": "Des tampons de qualité pour vos besoins professionnels",
+    "description": "Concevez et commandez des tampons auto-encreurs personnalisés pour votre entreprise. Choisissez parmi différentes tailles, formes et couleurs.",
+    "ctaProducts": "Parcourir la Collection",
+    "ctaDesign": "Concevoir Votre Tampon",
+    "imageAlt": "Exemple de tampons"
   }
 }
