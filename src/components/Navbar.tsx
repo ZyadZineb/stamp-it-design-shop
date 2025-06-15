@@ -33,9 +33,9 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center" aria-label={t('common.brand')}>
             <img 
-              src="/logo.svg" 
-              alt={t('common.brand')} 
-              className="h-10 w-auto" 
+              src="/lovable-uploads/36d86151-4951-4ebe-a585-8d2d9aebb963.png"
+              alt={t('common.brand')}
+              className="h-10 w-auto"
             />
           </Link>
           
