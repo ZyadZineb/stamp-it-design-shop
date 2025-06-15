@@ -1,9 +1,10 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import PreviewCanvas from "./PreviewCanvas";
+import { mmToPx } from "@/utils/dimensions";
 
 interface StampPreviewProps {
   previewImage: string | null;
@@ -46,6 +47,16 @@ const StampPreview: React.FC<StampPreviewProps> = ({
   
   // Add a grid pattern for precise alignment
   const gridSize = 5; // 5mm grid
+
+  // Parse mm size
+  let widthMm = 38, heightMm = 14;
+  if (productSize) {
+    const parts = productSize.replace("mm", "").split("x");
+    if (parts.length === 2) {
+      widthMm = parseFloat(parts[0]);
+      heightMm = parseFloat(parts[1]);
+    }
+  }
 
   return (
     <Card className={highContrast ? "border-2 border-black" : ""}>
@@ -92,59 +103,28 @@ const StampPreview: React.FC<StampPreviewProps> = ({
           </div>
         </div>
         
-        <div 
-          className="relative border border-gray-200 rounded-md bg-white overflow-hidden"
-          style={{ 
-            minHeight: '200px',
-            cursor: isDragging ? 'grabbing' : 
-                    (activeLineIndex !== null || includeLogo) ? 'grab' : 'default'
-          }}
+        <PreviewCanvas
+          widthMm={widthMm}
+          heightMm={heightMm}
+          showRuler={true}
+          showBaselineBox={true}
+          className="mx-auto"
         >
-          {/* Grid for precision alignment */}
-          <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="smallGrid" width={gridSize} height={gridSize} patternUnits="userSpaceOnUse">
-                <path d="M 5 0 L 0 0 0 5" fill="none" stroke="gray" strokeWidth="0.5" />
-              </pattern>
-              <pattern id="grid" width={gridSize * 10} height={gridSize * 10} patternUnits="userSpaceOnUse">
-                <rect width={gridSize * 10} height={gridSize * 10} fill="url(#smallGrid)" />
-                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="gray" strokeWidth="1" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-            
-            {/* Measurement ruler (horizontal) */}
-            <rect x="0" y="0" width="100%" height="10" fill="white" fillOpacity="0.8" />
-            {Array.from({ length: 10 }).map((_, i) => (
-              <React.Fragment key={`h-${i}`}>
-                <line x1={i * 10 * gridSize} y1="0" x2={i * 10 * gridSize} y2="10" stroke="black" strokeWidth="1" />
-                <text x={i * 10 * gridSize + 2} y="8" fontSize="8" fill="black">{i * 10}</text>
-              </React.Fragment>
-            ))}
-            
-            {/* Measurement ruler (vertical) */}
-            <rect x="0" y="0" width="10" height="100%" fill="white" fillOpacity="0.8" />
-            {Array.from({ length: 10 }).map((_, i) => (
-              <React.Fragment key={`v-${i}`}>
-                <line x1="0" y1={i * 10 * gridSize} x2="10" y2={i * 10 * gridSize} stroke="black" strokeWidth="1" />
-                <text x="2" y={i * 10 * gridSize + 8} fontSize="8" fill="black">{i * 10}</text>
-              </React.Fragment>
-            ))}
-          </svg>
-          
           {previewImage ? (
             <div 
               ref={previewRef}
-              className="flex items-center justify-center p-4 w-full min-h-[200px] select-none"
+              className="flex items-center justify-center w-full h-full select-none"
               onMouseDown={onMouseDown}
               onMouseMove={onMouseMove}
               onMouseUp={onMouseUp}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onMouseUp}
-              style={{ 
+              style={{
                 transform: `scale(${zoomLevel})`,
-                transition: isDragging ? 'none' : 'transform 0.2s ease-in-out'
+                transition: isDragging ? "none" : "transform 0.2s ease-in-out",
+                width: "100%",
+                height: "100%"
               }}
             >
               <img 
@@ -152,19 +132,19 @@ const StampPreview: React.FC<StampPreviewProps> = ({
                 alt={t('preview.stampPreview', 'Stamp preview')}
                 className="object-contain max-w-full max-h-full"
                 style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
+                  width: "100%",
+                  height: "100%"
                 }}
               />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-60 bg-gray-50">
+            <div className="flex items-center justify-center h-full w-full bg-gray-50">
               <p className="text-gray-400">
                 {t('preview.noPreview', 'No preview available')}
               </p>
             </div>
           )}
-        </div>
+        </PreviewCanvas>
         
         {productSize && (
           <div className="mt-2 text-center">

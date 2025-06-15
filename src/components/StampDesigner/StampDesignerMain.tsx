@@ -1,52 +1,63 @@
-import React, { useState, useRef } from 'react';
-import { ShoppingCart } from 'lucide-react';
-import { useStampDesigner } from '@/hooks/useStampDesigner';
+import React, { Suspense } from "react";
+import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
-import { useCart } from '@/contexts/CartContext';
+import { useStampDesigner } from '@/hooks/useStampDesigner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import TextLinesEditor from './TextLinesEditor';
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ShoppingCart, Check } from 'lucide-react';
 import StampPreview from './StampPreview';
-import ColorSelector from './ColorSelector';
-import LogoUploader from './LogoUploader';
-import BorderStyleSelector from './BorderStyleSelector';
-import SampleDesigns from './SampleDesigns';
-import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
-import AutoArrange from './AutoArrange';
+import StampPreviewEnhanced from './StampPreviewEnhanced';
 import StampPreviewAccessible from './StampPreviewAccessible';
-import StepNavigationHeader from './StepNavigationHeader';
-import StepNavigationControls from './StepNavigationControls';
+import PreviewOnPaper from './PreviewOnPaper';
 import SummaryBar from './SummaryBar';
+import StepNavigationControls from './StepNavigationControls';
+import TextEditor from './TextEditor';
+import LogoUploader from './LogoUploader';
+import BorderSelector from './BorderSelector';
+import ColorSelector from './ColorSelector';
+import TemplateSelector from './TemplateSelector';
+import { useRef, useState } from 'react';
+const ExportDesign = React.lazy(() => import("./ExportDesign"));
+
+type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
 
 interface StampDesignerMainProps {
   product: Product | null;
   onAddToCart?: () => void;
+  onPreview?: () => void;
+  initialStep?: StepType;
   highContrast?: boolean;
   largeControls?: boolean;
 }
 
-type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
-
-const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
-
-const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ 
-  product, 
+const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
+  product,
   onAddToCart,
+  onPreview,
+  initialStep = 'templates',
   highContrast = false,
   largeControls = false
 }) => {
-  const { 
-    design, 
-    updateLine, 
-    addLine, 
-    removeLine, 
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState<StepType>(initialStep);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  
+  const {
+    design,
+    updateLine,
+    addLine,
+    removeLine,
     setInkColor,
-    toggleLogo, 
+    toggleLogo,
     setLogoPosition,
+    updateLogoPosition,
     setBorderStyle,
     setBorderThickness,
     toggleCurvedText,
     updateTextPosition,
-    updateLogoPosition,
     startTextDrag,
     startLogoDrag,
     stopDragging,
@@ -61,336 +72,327 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     enhancedAutoArrange,
     setGlobalAlignment
   } = useStampDesigner(product);
-  
-  const { addToCart } = useCart();
-  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
-  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<StepType>('templates');
 
-  const getCompatibleShape = (
-    shape: "rectangle" | "circle" | "square" | "ellipse"
-  ): "rectangle" | "circle" | "square" => {
-    if (shape === "ellipse") return "rectangle";
-    return shape;
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    
+    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+      handleDrag(e, rect);
+    } else {
+      const activeLineIndex = design.lines.findIndex(line => line.isDragging);
+      if (activeLineIndex !== -1) {
+        startTextDrag(activeLineIndex);
+      } else if (design.includeLogo) {
+        startLogoDrag();
+      }
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    
+    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+      handleDrag(e, rect);
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    
+    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+      handleDrag(e, rect);
+    } else {
+      const activeLineIndex = design.lines.findIndex(line => line.isDragging);
+      if (activeLineIndex !== -1) {
+        startTextDrag(activeLineIndex);
+      } else if (design.includeLogo) {
+        startLogoDrag();
+      }
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    
+    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+      handleDrag(e, rect);
+    }
+  };
+
+  const handleNextStep = () => {
+    const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
+    const currentIndex = steps.indexOf(currentStep);
+    
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevStep = () => {
+    const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
+    const currentIndex = steps.indexOf(currentStep);
+    
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+    }
   };
 
   const handleAddToCart = () => {
-    if (!product) return;
-    
-    const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
-    addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
-    
-    if (onAddToCart) onAddToCart();
-  };
-
-  const handleLogoUpload = () => {
-    const logoUrl = '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png';
-    setUploadedLogo(logoUrl);
-  };
-
-  React.useEffect(() => {
-    if (uploadedLogo) {
-      design.logoImage = uploadedLogo;
-    }
-  }, [uploadedLogo]);
-
-  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!previewRef.current) return;
-    
-    const rect = previewRef.current.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-    
-    const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
-    const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
-    
-    if (activeLineIndex !== null) {
-      updateTextPosition(activeLineIndex, relativeX, relativeY);
-      startTextDrag(activeLineIndex);
-    }
-    else if (design.includeLogo) {
-      updateLogoPosition(relativeX, relativeY);
-      startLogoDrag();
+    if (onAddToCart) {
+      onAddToCart();
     }
   };
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !previewRef.current) return;
-    event.preventDefault();
+  const handlePreview = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 1000);
     
-    const rect = previewRef.current.getBoundingClientRect();
-    handleDrag(event, rect);
-  };
-
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || !previewRef.current) return;
-    
-    const rect = previewRef.current.getBoundingClientRect();
-    handleDrag(event, rect);
-  };
-
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    handlePreviewClick(event);
-  };
-
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    
-    if (!previewRef.current || event.touches.length === 0) return;
-    
-    const rect = previewRef.current.getBoundingClientRect();
-    const touch = event.touches[0];
-    
-    const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
-    const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
-    
-    if (activeLineIndex !== null) {
-      updateTextPosition(activeLineIndex, relativeX, relativeY);
-      startTextDrag(activeLineIndex);
-    } else if (design.includeLogo) {
-      updateLogoPosition(relativeX, relativeY);
-      startLogoDrag();
+    if (onPreview) {
+      onPreview();
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    stopDragging();
-  };
-
-  React.useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        stopDragging();
-      }
-    };
-    
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    document.addEventListener('touchend', handleGlobalMouseUp);
-    
-    return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-      document.removeEventListener('touchend', handleGlobalMouseUp);
-    };
-  }, [isDragging, stopDragging]);
-
-  const goToNextStep = () => {
-    const idx = steps.indexOf(currentStep);
-    if (idx < steps.length - 1) setCurrentStep(steps[idx + 1]);
-  };
-
-  const goToPrevStep = () => {
-    const idx = steps.indexOf(currentStep);
-    if (idx > 0) setCurrentStep(steps[idx - 1]);
-  };
-
-  const getStepInfo = (step: StepType) => {
-    const stepInfo = {
-      templates: { title: 'Modèles', description: 'Choisissez un modèle professionnel', icon: '📋' },
-      logo: { title: 'Logo', description: 'Ajoutez votre logo d\'entreprise', icon: '🖼️' },
-      text: { title: 'Texte', description: 'Personnalisez votre contenu textuel', icon: '✏️' },
-      border: { title: 'Forme', description: 'Définissez les bordures et la forme', icon: '⬜' },
-      color: { title: 'Couleur', description: 'Sélectionnez la couleur d\'encre', icon: '🎨' },
-      preview: { title: 'Aperçu', description: 'Vérifiez le rendu final', icon: '👁️' }
-    };
-    return stepInfo[step];
-  };
-
-  if (!product) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="max-w-md mx-auto text-center p-8 bg-white rounded-xl shadow-sm">
-          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">🏷️</span>
-          </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Aucun produit sélectionné</h3>
-          <p className="text-gray-600">Veuillez sélectionner un produit pour commencer à créer votre tampon professionnel.</p>
-        </div>
-      </div>
-    );
-  }
+  const activeLineIndex = design.lines.findIndex(line => line.isDragging);
+  const isDragging = design.lines.some(line => line.isDragging) || design.logoDragging;
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
-      <StepNavigationHeader 
-        product={product}
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-        getStepInfo={getStepInfo}
-      />
-      {currentStep === 'preview' ? (
-        <div className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-white overflow-auto">
-          <div className="h-full flex flex-col">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Aperçu Final</h2>
-              <p className="text-gray-600">Votre tampon est prêt ! Vérifiez tous les détails avant de commander.</p>
-            </div>
-            
-            <div className="flex-1 bg-white rounded-2xl shadow-xl p-6 mb-6 min-h-0">
-              <StampPreviewAccessible
-                previewImage={previewImage}
-                productSize={product.size}
-                isDragging={isDragging}
-                activeLineIndex={activeLineIndex}
-                includeLogo={design.includeLogo}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                downloadAsPng={downloadAsPng}
-                zoomLevel={zoomLevel}
-                zoomIn={zoomIn}
-                zoomOut={zoomOut}
-                background="paper"
-                highContrast={highContrast}
-                largeControls={largeControls}
-              />
-            </div>
-            
-            <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{product.name}</h3>
-                  <div className="space-y-1">
-                    <p className="text-gray-700"><span className="font-medium">Taille:</span> {product.size}</p>
-                    <p className="text-gray-700">
-                      <span className="font-medium">Couleur d'encre:</span> 
-                      <span
-                        className="inline-block w-3 h-3 rounded-full ml-2"
-                        style={{ backgroundColor: design.inkColor }}
-                      ></span>
-                      {design.inkColor}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">{product.price} DHS</div>
-                  <div className="text-sm text-gray-600">TTC, livraison incluse</div>
-                </div>
-              </div>
-              
-              <Button
-                onClick={handleAddToCart}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-              >
-                <ShoppingCart size={24} className="mr-2" />
-                Ajouter au Panier
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 p-6 bg-gray-50 overflow-hidden">
-            <div className="h-full">
-              <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 h-[calc(100%-120px)]">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{getStepInfo(currentStep).title}</h3>
-                  <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
-                </div>
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100%-80px)]">
-                  <div className="xl:col-span-2 space-y-4 overflow-y-auto">
-                    {currentStep === 'templates' && design.shape === 'circle' && (
-                      <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
-                    )}
+    <div className="flex flex-col h-full">
+      <div className="flex-grow overflow-y-auto">
+        <Tabs defaultValue={currentStep} value={currentStep} onValueChange={(value) => setCurrentStep(value as StepType)}>
+          <TabsList className="w-full justify-start mb-4 overflow-x-auto">
+            <TabsTrigger value="templates" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.templates', "Templates")}
+            </TabsTrigger>
+            <TabsTrigger value="logo" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.logo', "Logo")}
+            </TabsTrigger>
+            <TabsTrigger value="text" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.text', "Text")}
+            </TabsTrigger>
+            <TabsTrigger value="border" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.border', "Border")}
+            </TabsTrigger>
+            <TabsTrigger value="color" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.color', "Color")}
+            </TabsTrigger>
+            <TabsTrigger value="preview" className={largeControls ? "text-lg py-3 px-5" : ""}>
+              {t('steps.preview', "Preview")}
+            </TabsTrigger>
+          </TabsList>
 
-                    {currentStep === 'logo' && (
-                      <LogoUploader
-                        includeLogo={design.includeLogo}
-                        toggleLogo={toggleLogo}
-                        logoX={design.logoX}
-                        logoY={design.logoY}
-                        uploadedLogo={uploadedLogo}
-                        onLogoUpload={handleLogoUpload}
-                        updateLogoPosition={updateLogoPosition}
-                        largeControls={largeControls}
-                      />
-                    )}
-                    
-                    {currentStep === 'text' && (
-                      <>
-                        <TextLinesEditor
-                          lines={design.lines}
-                          product={product}
-                          onUpdateLine={updateLine}
-                          onAddLine={addLine}
-                          onRemoveLine={removeLine}
-                          onToggleCurvedText={toggleCurvedText}
-                          globalAlignment={design.globalAlignment}
-                          onGlobalAlignmentChange={setGlobalAlignment}
-                        />
-                        
-                        <AutoArrange 
-                          design={design}
-                          onEnhancedAutoArrange={enhancedAutoArrange}
-                          shape={getCompatibleShape(design.shape)}
-                        />
-                      </>
-                    )}
-                    
-                    {currentStep === 'border' && (
-                      <BorderStyleSelector 
-                        borderStyle={design.borderStyle} 
-                        borderThickness={design.borderThickness}
-                        onBorderStyleChange={setBorderStyle}
-                        onBorderThicknessChange={setBorderThickness}
-                        largeControls={largeControls}
-                      />
-                    )}
-                    
-                    {currentStep === 'color' && (
-                      <ColorSelector 
-                        inkColors={product.inkColors} 
-                        selectedColor={design.inkColor} 
-                        onColorSelect={setInkColor}
-                      />
-                    )}
-                  </div>
-                  <div className="xl:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
-                    <h4 className="text-lg font-semibold mb-3 text-gray-900">Aperçu en Temps Réel</h4>
-                    <div className="h-[calc(100%-40px)]">
-                      <StampPreview
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Left Column - Editor */}
+            <div className="md:col-span-2">
+              <TabsContent value="templates">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('templates.title', "Choose a Template")}</h2>
+                    <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
+                    <TemplateSelector 
+                      onSelectTemplate={applyTemplate} 
+                      productShape={design.shape}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="logo">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('logo.title', "Add Your Logo")}</h2>
+                    <p className="text-gray-600 mb-6">{t('logo.description', "Upload and position your logo or skip this step.")}</p>
+                    <LogoUploader 
+                      includeLogo={design.includeLogo}
+                      logoPosition={design.logoPosition}
+                      onToggleLogo={toggleLogo}
+                      onSetLogoPosition={setLogoPosition}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="text">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('text.title', "Add Your Text")}</h2>
+                    <p className="text-gray-600 mb-6">{t('text.description', "Enter the text for your stamp and customize the font and style.")}</p>
+                    <TextEditor 
+                      lines={design.lines}
+                      onUpdateLine={updateLine}
+                      onAddLine={addLine}
+                      onRemoveLine={removeLine}
+                      onToggleCurvedText={toggleCurvedText}
+                      onStartTextDrag={startTextDrag}
+                      maxLines={product?.lines || 5}
+                      shape={design.shape}
+                      onAutoArrange={enhancedAutoArrange}
+                      onSetGlobalAlignment={setGlobalAlignment}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="border">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('border.title', "Choose Border Style")}</h2>
+                    <p className="text-gray-600 mb-6">{t('border.description', "Select a border style for your stamp.")}</p>
+                    <BorderSelector 
+                      borderStyle={design.borderStyle}
+                      borderThickness={design.borderThickness}
+                      onSetBorderStyle={setBorderStyle}
+                      onSetBorderThickness={setBorderThickness}
+                      shape={design.shape}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="color">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('color.title', "Choose Ink Color")}</h2>
+                    <p className="text-gray-600 mb-6">{t('color.description', "Select the ink color for your stamp.")}</p>
+                    <ColorSelector 
+                      selectedColor={design.inkColor}
+                      availableColors={product?.inkColors || ['black', 'blue', 'red', 'green']}
+                      onSelectColor={setInkColor}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="preview">
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">{t('preview.title', "Preview Your Stamp")}</h2>
+                    <p className="text-gray-600 mb-6">{t('preview.description', "Review your stamp design before adding to cart.")}</p>
+                    <PreviewOnPaper 
+                      previewImage={previewImage}
+                      productName={product?.name || ''}
+                      onAnimate={handlePreview}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                    />
+                    <Separator className="my-6" />
+                    <Suspense fallback={<div>Loading export tools…</div>}>
+                      <ExportDesign 
                         previewImage={previewImage}
-                        productSize={product.size}
-                        previewRef={previewRef}
-                        isDragging={isDragging}
-                        activeLineIndex={activeLineIndex}
-                        includeLogo={design.includeLogo}
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUp}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
+                        productName={product?.name || ''}
                         downloadAsPng={downloadAsPng}
-                        zoomLevel={zoomLevel}
-                        onZoomIn={zoomIn}
-                        onZoomOut={zoomOut}
+                        highContrast={highContrast}
+                        largeControls={largeControls}
                       />
-                    </div>
+                    </Suspense>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </div>
+
+            {/* Right Column - Preview */}
+            <div className="md:col-span-1">
+              <Card className="sticky top-4">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-4">{t('preview.livePreview', "Live Preview")}</h3>
+                  
+                  {currentStep === 'preview' ? (
+                    <StampPreviewAccessible
+                      previewImage={previewImage}
+                      productSize={product?.size || ''}
+                      isDragging={isDragging}
+                      activeLineIndex={activeLineIndex}
+                      includeLogo={design.includeLogo}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={stopDragging}
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      downloadAsPng={downloadAsPng}
+                      zoomIn={zoomIn}
+                      zoomOut={zoomOut}
+                      zoomLevel={zoomLevel}
+                      highContrast={highContrast}
+                      largeControls={largeControls}
+                      isAnimating={isAnimating}
+                    />
+                  ) : (
+                    <StampPreviewEnhanced
+                      previewImage={previewImage}
+                      productSize={product?.size || ''}
+                      isDragging={isDragging}
+                      activeLineIndex={activeLineIndex}
+                      includeLogo={design.includeLogo}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={stopDragging}
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      downloadAsPng={downloadAsPng}
+                      zoomIn={zoomIn}
+                      zoomOut={zoomOut}
+                      zoomLevel={zoomLevel}
+                    />
+                  )}
+                  
+                  <div className="mt-6">
+                    <Button 
+                      onClick={currentStep === 'preview' ? handleAddToCart : handleNextStep}
+                      className={`w-full ${largeControls ? "text-lg py-4" : ""}`}
+                      variant={currentStep === 'preview' ? "default" : "outline"}
+                    >
+                      {currentStep === 'preview' ? (
+                        <>
+                          <ShoppingCart className="mr-2" size={largeControls ? 20 : 16} />
+                          {t('preview.addToCart', "Add to Cart")}
+                        </>
+                      ) : (
+                        <>
+                          <Check className="mr-2" size={largeControls ? 20 : 16} />
+                          {t('preview.continue', "Continue")}
+                        </>
+                      )}
+                    </Button>
                   </div>
-                </div>
-              </div>
-              <StepNavigationControls
-                currentStep={currentStep}
-                onPrev={goToPrevStep}
-                onNext={goToNextStep}
-                largeControls={largeControls}
-              />
+                </CardContent>
+              </Card>
             </div>
           </div>
-          <SummaryBar
-            product={product}
-            inkColor={design.inkColor}
-            price={product.price}
-            onAddToCart={handleAddToCart}
-          />
-        </div>
-      )}
+        </Tabs>
+      </div>
+
+      <div className="mt-6">
+        <StepNavigationControls
+          currentStep={currentStep}
+          onPrev={handlePrevStep}
+          onNext={handleNextStep}
+          largeControls={largeControls}
+        />
+      </div>
+
+      <div className="mt-6">
+        <SummaryBar
+          product={product || { id: '', name: '', price: 0, size: '', lines: 0, inkColors: [], shape: 'rectangle' }}
+          inkColor={design.inkColor}
+          price={product?.price || 0}
+          onAddToCart={handleAddToCart}
+        />
+      </div>
     </div>
   );
 };
