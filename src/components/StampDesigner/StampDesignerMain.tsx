@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -340,61 +339,63 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100%-80px)]">
                   <div className="xl:col-span-2 space-y-4 overflow-y-auto">
-                    {currentStep === 'templates' && design.shape === 'circle' && (
-                      <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
-                    )}
+                    <>
+                      {currentStep === 'templates' && design.shape === 'circle' && (
+                        <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
+                      )}
 
-                    {currentStep === 'logo' && (
-                      <LogoUploader
-                        includeLogo={design.includeLogo}
-                        toggleLogo={toggleLogo}
-                        logoX={design.logoX}
-                        logoY={design.logoY}
-                        uploadedLogo={uploadedLogo}
-                        onLogoUpload={handleLogoUpload}
-                        updateLogoPosition={updateLogoPosition}
-                        largeControls={largeControls}
-                      />
-                    )}
-                    
-                    {currentStep === 'text' && (
-                      <div className="space-y-4">
-                        <TextLinesEditor
-                          lines={design.lines}
-                          product={product}
-                          onUpdateLine={updateLine}
-                          onAddLine={addLine}
-                          onRemoveLine={removeLine}
-                          onToggleCurvedText={toggleCurvedText}
-                          globalAlignment={design.globalAlignment}
-                          onGlobalAlignmentChange={setGlobalAlignment}
+                      {currentStep === 'logo' && (
+                        <LogoUploader
+                          includeLogo={design.includeLogo}
+                          toggleLogo={toggleLogo}
+                          logoX={design.logoX}
+                          logoY={design.logoY}
+                          uploadedLogo={uploadedLogo}
+                          onLogoUpload={handleLogoUpload}
+                          updateLogoPosition={updateLogoPosition}
+                          largeControls={largeControls}
                         />
-                        
-                        <AutoArrange 
-                          design={design}
-                          onEnhancedAutoArrange={enhancedAutoArrange}
-                          shape={getCompatibleShape(design.shape)}
+                      )}
+                      
+                      {currentStep === 'text' && (
+                        <div className="space-y-4">
+                          <TextLinesEditor
+                            lines={design.lines}
+                            product={product}
+                            onUpdateLine={updateLine}
+                            onAddLine={addLine}
+                            onRemoveLine={removeLine}
+                            onToggleCurvedText={toggleCurvedText}
+                            globalAlignment={design.globalAlignment}
+                            onGlobalAlignmentChange={setGlobalAlignment}
+                          />
+                          
+                          <AutoArrange 
+                            design={design}
+                            onEnhancedAutoArrange={enhancedAutoArrange}
+                            shape={getCompatibleShape(design.shape)}
+                          />
+                        </div>
+                      )}
+                      
+                      {currentStep === 'border' && (
+                        <BorderStyleSelector 
+                          borderStyle={design.borderStyle} 
+                          borderThickness={design.borderThickness}
+                          onBorderStyleChange={setBorderStyle}
+                          onBorderThicknessChange={setBorderThickness}
+                          largeControls={largeControls}
                         />
-                      </div>
-                    )}
-                    
-                    {currentStep === 'border' && (
-                      <BorderStyleSelector 
-                        borderStyle={design.borderStyle} 
-                        borderThickness={design.borderThickness}
-                        onBorderStyleChange={setBorderStyle}
-                        onBorderThicknessChange={setBorderThickness}
-                        largeControls={largeControls}
-                      />
-                    )}
-                    
-                    {currentStep === 'color' && (
-                      <ColorSelector 
-                        inkColors={product.inkColors} 
-                        selectedColor={design.inkColor} 
-                        onColorSelect={setInkColor}
-                      />
-                    )}
+                      )}
+                      
+                      {currentStep === 'color' && (
+                        <ColorSelector 
+                          inkColors={product.inkColors} 
+                          selectedColor={design.inkColor} 
+                          onColorSelect={setInkColor}
+                        />
+                      )}
+                    </>
                   </div>
 
                   <div className="xl:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
