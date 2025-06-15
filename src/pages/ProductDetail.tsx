@@ -16,7 +16,7 @@ const infoTagGrayClass =
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['products', 'translation']);
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
@@ -59,7 +59,7 @@ const ProductDetail = () => {
   };
 
   // Debug: log the value resolved by i18n
-  const resolvedDescription = t(`productDescriptions.${product.id}`, product.description);
+  const resolvedDescription = t(`productDescriptions.${product?.id}`, { ns: 'products', defaultValue: product?.description });
   console.log(
     "[i18n DEBUG]",
     {
@@ -100,7 +100,7 @@ const ProductDetail = () => {
               </div>
               {/* Product Title & Price */}
               <h1 className="text-2xl md:text-3xl font-extrabold text-brand-blue mb-2 text-center md:text-left">
-                {t(`productNames.${product.id}`, product.name)}
+                {t(`productNames.${product.id}`, { ns: 'products', defaultValue: product.name })}
               </h1>
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="text-lg md:text-xl font-bold text-green-600 bg-green-50 rounded-md px-4 py-1">{product.price} DHS</span>
@@ -118,7 +118,6 @@ const ProductDetail = () => {
               {/* Description */}
               <h2 className="text-lg text-brand-blue font-semibold mb-1">{t("products.details.about", "About this product")}</h2>
               <p className="text-gray-700 mb-6 italic">
-                {/* DEBUG: If the translation is missing, show fallback visually too */}
                 {resolvedDescription} {resolvedDescription === product.description ? (
                   <span className="text-red-500 ml-2 font-bold">[MISSING FR TRANSLATION]</span>
                 ) : null}

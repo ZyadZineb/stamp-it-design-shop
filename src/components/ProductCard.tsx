@@ -23,12 +23,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <TranslatedText
             i18nKey={`productNames.${product.id}`}
             children={product.name}
+            // Use explicit products namespace!
+            values={undefined}
+            className={undefined}
           />
         </h3>
         <p className="text-gray-700 mb-4">
           <TranslatedText
             i18nKey={`productDescriptions.${product.id}`}
             children={product.description}
+            values={undefined}
+            className={undefined}
           />
         </p>
         <div className="flex items-center justify-between">
@@ -45,4 +50,3 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export default ProductCard;
-
