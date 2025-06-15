@@ -17,5 +17,9 @@
   },
   "title": "Our Stamp Collection",
   "empty": "No product found matching your query.",
-  "detailsLabel": "More details"
+  "detailsLabel": "More details",
+  "productDescriptions": {
+    "1234": "Professional rectangular stamp, perfect for office use.",
+    "5678": "Round blue stamp with ergonomic grip, designed for daily use."
+  }
 }

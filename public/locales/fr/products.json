@@ -16,6 +16,10 @@
   "noProductsFound": "Aucun produit ne correspond à vos filtres.",
   "clearFilters": "Effacer les filtres",
   "searchPlaceholder": "Rechercher des produits...",
+  "detailsLabel": "Plus de détails",
   "empty": "Aucun produit correspondant à votre recherche.",
-  "detailsLabel": "Plus de détails"
+  "productDescriptions": {
+    "1234": "Tampon rectangulaire professionnel, parfait pour le bureau.",
+    "5678": "Tampon rond bleu avec une prise en main ergonomique, conçu pour un usage quotidien."
+  }
 }
