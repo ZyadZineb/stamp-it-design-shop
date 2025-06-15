@@ -22,6 +22,7 @@
     "next": "Suivant",
     "finish": "Terminer",
     "goToStep": "Aller à l'étape",
+    "addToCart": "Ajouter au panier",
     "steps": {
       "shape": {
         "label": "Forme",
@@ -51,6 +52,13 @@
         "label": "Commandez",
         "description": "Vérifiez et passez la commande de votre tampon"
       }
+    },
+    "tooltips": {
+      "shape": "Sélectionnez la forme de base de votre tampon.",
+      "text": "Modifiez et agencez le texte du tampon.",
+      "color": "Choisissez la couleur de l'encre.",
+      "logo": "Téléchargez et placez le logo de votre entreprise.",
+      "order": "Confirmez les détails et passez la commande."
     }
   },
   "textEffects": {
@@ -140,7 +148,7 @@
     "noPreview": "Aucun aperçu disponible",
     "customizeStamp": "Personnalisez votre tampon pour voir un aperçu",
     "physicalSize": "Taille physique : {{size}}mm",
-    "dragInstructions": "Cliquez et faites glisser les éléments pour les repositionner",
+    "dragInstructions": "Cliquez et faites glisser pour positionner les éléments",
     "movingText": "Déplacement de la ligne de texte {{index}}",
     "movingLogo": "Déplacement du logo",
     "ariaLabel": "Zone d'aperçu du tampon. Utilisez les touches fléchées pour positionner les éléments sélectionnés.",
@@ -161,5 +169,19 @@
     "selectLanguage": "Choisir la langue",
     "en": "Anglais",
     "fr": "Français"
+  },
+  "cart": {
+    "addToCart": "Ajouter au panier",
+    "added": "Ajouté au panier",
+    "goToCart": "Aller au panier"
+  },
+  "design": {
+    "autoArrange": "Agencement auto",
+    "autoArrangeTooltip": "Organisez intelligemment le texte pour une disposition optimale selon la forme du tampon, tout en gardant la bonne orientation et les bons espacements."
+  },
+  "alignment": {
+    "left": "Aligner à gauche",
+    "center": "Centrer",
+    "right": "Aligner à droite"
   }
 }

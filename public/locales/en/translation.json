@@ -22,6 +22,7 @@
     "next": "Next",
     "finish": "Finish",
     "goToStep": "Go to step",
+    "addToCart": "Add to Cart",
     "steps": {
       "shape": {
         "label": "Shape",
@@ -51,6 +52,13 @@
         "label": "Order",
         "description": "Review and place your stamp order"
       }
+    },
+    "tooltips": {
+      "shape": "Select the base shape of your stamp.",
+      "text": "Edit and arrange the stamp text.",
+      "color": "Pick your ink color.",
+      "logo": "Upload and position your company logo.",
+      "order": "Confirm your details and place the order."
     }
   },
   "textEffects": {
@@ -107,5 +115,19 @@
   "common": {
     "brand": "Cachets Maroc",
     "currency": "DHS"
+  },
+  "cart": {
+    "addToCart": "Add to Cart",
+    "added": "Added to cart",
+    "goToCart": "Go to Cart"
+  },
+  "design": {
+    "autoArrange": "Auto-Arrange",
+    "autoArrangeTooltip": "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing."
+  },
+  "alignment": {
+    "left": "Align Left",
+    "center": "Center",
+    "right": "Align Right"
   }
 }
