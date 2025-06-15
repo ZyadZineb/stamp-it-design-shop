@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import HeroCarousel from './HeroCarousel';
 
 const Hero = () => {
   const { t, i18n } = useTranslation();
@@ -41,14 +41,7 @@ const Hero = () => {
             </div>
           </div>
           <div className="flex justify-center md:justify-end">
-            <img
-              src={heroContent.imagePath}
-              alt={t('hero.imageAlt')}
-              className="max-w-[430px] w-full rounded-xl shadow-lg border-4 border-white animate-fade-in"
-              style={{ background: "#fff" }}
-              width="430"
-              height="320"
-            />
+            <HeroCarousel />
           </div>
         </div>
       </div>
