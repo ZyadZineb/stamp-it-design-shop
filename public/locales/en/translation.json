@@ -9,14 +9,6 @@
     "cart": "Cart"
   },
   "products": {
-    "description": "Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.",
-    "filters": "Filters",
-    "compareProducts": "Compare products",
-    "cancelComparison": "Cancel comparison",
-    "productsFound": "{{count}} products found",
-    "noProductsFound": "No products found matching your filters.",
-    "clearFilters": "Clear filters",
-    "searchPlaceholder": "Search products...",
     "details": {
       "shape": "Shape",
       "size": "Size",
@@ -26,6 +18,14 @@
       "model": "Model"
     },
     "title": "Our Stamp Collection",
+    "description": "Browse our extensive collection of high-quality stamps from top brands like Trodat, Shiny, MobiStamps and more.",
+    "filters": "Filters",
+    "compareProducts": "Compare products",
+    "cancelComparison": "Cancel comparison",
+    "productsFound": "{{count}} products found",
+    "noProductsFound": "No products found matching your filters.",
+    "clearFilters": "Clear filters",
+    "searchPlaceholder": "Search products...",
     "empty": "No product found matching your query.",
     "productNames": {
       "1234": "Trodat Printy 4912",
@@ -42,18 +42,38 @@
       "1502": "Self-inking green square stamp for high volume tasks.",
       "2023": "Shiny brand rectangular stamp, built for durability.",
       "2890": "Classic MobiStamp model, suitable for professional paperwork."
-    }
+    },
+    "filters": {
+      "title": "Filters",
+      "clear": "Clear filters",
+      "brand": "Brand",
+      "shape": "Shape",
+      "size": "Size",
+      "inkColor": "Ink Color",
+      "price": "Price Range"
+    },
+    "hideFilters": "Hide filters",
+    "showFilters": "Show filters",
+    "sort": {
+      "sortBy": "Sort by",
+      "recommended": "Recommended",
+      "priceLowHigh": "Price: Low to High",
+      "priceHighLow": "Price: High to Low",
+      "name": "Name"
+    },
+    "showing": "Showing",
+    "items": "items"
   },
   "wizard": {
     "back": "Back",
     "next": "Next",
     "finish": "Finish",
     "goToStep": "Go to step",
-    "addToCart": "Add to Cart",
+    "addToCart": "Add to cart",
     "steps": {
       "shape": {
         "label": "Shape",
-        "description": "Choose your stamp shape and border style"
+        "description": "Choose the shape and border style"
       },
       "text": {
         "label": "Text",
@@ -61,11 +81,11 @@
       },
       "effects": {
         "label": "Effects",
-        "description": "Add text effects and styling"
+        "description": "Add text and style effects"
       },
       "color": {
         "label": "Color",
-        "description": "Select ink color"
+        "description": "Select the ink color"
       },
       "logo": {
         "label": "Logo",
@@ -77,21 +97,21 @@
       },
       "order": {
         "label": "Order",
-        "description": "Review and place your stamp order"
+        "description": "Check and place your stamp order"
       }
     },
     "tooltips": {
-      "shape": "Select the base shape of your stamp.",
+      "shape": "Select the basic shape of your stamp.",
       "text": "Edit and arrange the stamp text.",
-      "color": "Pick your ink color.",
-      "logo": "Upload and position your company logo.",
-      "order": "Confirm your details and place the order."
+      "color": "Choose the color of the ink.",
+      "logo": "Upload and place your company logo.",
+      "order": "Confirm the details and place the order."
     }
   },
   "textEffects": {
     "title": "Text Effects",
     "effectType": "Effect Type",
-    "selectEffect": "Select effect",
+    "selectEffect": "Select an effect",
     "none": "None",
     "bold": "Bold",
     "italic": "Italic",
@@ -114,10 +134,10 @@
     "highContrast": "High Contrast Mode",
     "highContrastDesc": "Increases contrast for better visibility",
     "largeControls": "Large Controls",
-    "largeControlsDesc": "Increases size of buttons and controls",
+    "largeControlsDesc": "Increases the size of buttons and controls",
     "toggleHighContrast": "Toggle high contrast mode",
     "toggleLargeControls": "Toggle large controls",
-    "keyboardTip": "Tip: Use arrow keys to move selected elements when focused on the preview area"
+    "keyboardTip": "Tip: Use arrow keys to move selected elements when in the preview area"
   },
   "preview": {
     "title": "Preview",
@@ -131,9 +151,9 @@
     "dragInstructions": "Click and drag elements to reposition them",
     "movingText": "Moving text line {{index}}",
     "movingLogo": "Moving logo",
-    "ariaLabel": "Stamp preview area. Use arrow keys to position elements when selected.",
+    "ariaLabel": "Stamp preview area. Use arrow keys to position selected elements.",
     "backgroundChanged": "Background Changed",
-    "backgroundChangedDesc": "Preview background has been updated"
+    "backgroundChangedDesc": "The preview background has been updated"
   },
   "languages": {
     "en": "English",
@@ -144,42 +164,23 @@
     "currency": "DHS",
     "home": "Home"
   },
-  "cart": {
-    "addToCart": "Add to Cart",
-    "added": "Added to cart",
-    "goToCart": "Go to Cart"
-  },
   "design": {
-    "autoArrange": "Auto-Arrange",
-    "autoArrangeTooltip": "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing.",
-    "title": "Custom stamp designer",
-    "shape": "Shape",
-    "border": "Border",
-    "borderStyle": "Border style",
-    "saveDesign": "Save design",
+    "welcome": "Welcome to the Stamp Designer",
+    "welcomeDesc": "Follow the step-by-step wizard to create your custom stamp",
     "inkColor": "Ink Color",
     "line": "Line",
-    "startWithLogo": "Start with your Logo",
-    "addLogo": "Add Logo",
-    "saveDesignForLater": "Save design for later",
-    "saved": "Design saved",
-    "savedDescription": "Your design has been saved and will be available when you return",
-    "loaded": "Design loaded",
-    "loadedDescription": "Your saved design has been loaded",
-    "saveDesignForLaterTooltip": "Save your current design to continue later",
-    "loadSavedDesignTooltip": "Load your previously saved design",
-    "clearSavedDesignTooltip": "Clear saved design from storage",
-    "loadDesign": "Load design",
-    "clearSaved": "Clear saved",
-    "productInfo": "Designing a {{name}} stamp ({{size}}). You can add up to {{lines}} lines of text and choose from {{inkColors}} ink colors.",
-    "removeLogo": "Remove Logo",
-    "uploadYourLogo": "Upload Your Logo",
-    "uploadInstructions": "Click to upload an image file or drag and drop",
+    "startWithLogo": "Start with your logo",
+    "startWithLogoDesc": "Start by inserting your logo for best results. We’ll position your text around it.",
+    "logoEnabled": "Logo enabled",
+    "addLogo": "Add a logo",
+    "removeLogo": "Remove logo",
+    "uploadYourLogo": "Upload your logo",
+    "uploadInstructions": "Click to upload an image or drag and drop it",
     "uploadRecommendation": "Recommended: Square PNG or SVG with transparent background",
     "changeLogo": "Click to change logo",
-    "logoPosition": "Logo Position",
-    "horizontalPosition": "Horizontal Position",
-    "verticalPosition": "Vertical Position",
+    "logoPosition": "Logo position",
+    "horizontalPosition": "Horizontal position",
+    "verticalPosition": "Vertical position",
     "left": "Left",
     "center": "Center",
     "right": "Right",
@@ -187,318 +188,151 @@
     "bottom": "Bottom",
     "logoDragTip": "You can also drag the logo directly on the preview area",
     "tip": "Tip",
-    "logoTipText": "After positioning your logo, click \"Next\" to add and arrange your text.",
-    "textOnlyDesc": "Proceed without a logo to create a text-only stamp design",
-    "continueToText": "Continue to Text Design",
-    "shape": "Shape",
-    "border": "Border",
-    "borderStyle": "Border style"
+    "logoTipText": "After positioning your logo, click “Next” to add and arrange your text.",
+    "textOnlyDesc": "Continue without a logo to create a text-only stamp",
+    "continueToText": "Continue to text composition",
+    "title": "Custom Stamp Designer",
+    "saveDesign": "Save design",
+    "saveDesignForLater": "Save design for later",
+    "saved": "Design saved",
+    "savedDescription": "Your design has been successfully saved and will be available when you return",
+    "loaded": "Design loaded",
+    "loadedDescription": "Your saved design has been loaded",
+    "saveDesignForLaterTooltip": "Save your design to continue later",
+    "loadSavedDesignTooltip": "Load your previously saved design",
+    "clearSavedDesignTooltip": "Remove the saved design from storage",
+    "loadDesign": "Load design",
+    "clearSaved": "Delete save",
+    "productInfo": "Designing a {{name}} stamp ({{size}}). You can add up to {{lines}} lines of text and choose from {{inkColors}} ink colors."
   },
-  "textEditor": {
-    "title": "Text Lines",
-    "help": "Help",
-    "helpText": "Add and edit text for your stamp. Click on a line to select it and adjust its properties.",
-    "line": "Line",
-    "emptyLine": "(Empty line)",
-    "enterText": "Enter text",
-    "textStyle": "Text Style",
-    "bold": "Bold",
-    "italic": "Italic",
-    "curved": "Curved",
-    "curvedText": "Curved Text",
-    "flipText": "Flip Text Position",
-    "moveToBottom": "Top → Bottom",
-    "moveToTop": "Bottom → Top",
-    "font": "Font",
-    "fontSize": "Font Size",
-    "selectFont": "Select font",
-    "alignment": "Alignment",
-    "alginLeft": "Align Left",
-    "center": "Center",
-    "alignRight": "Align Right",
-    "horizontalPosition": "Horizontal Position",
-    "verticalPosition": "Vertical Position",
-    "curvedHorizontalPosition": "Arc Position",
-    "curvedVerticalPosition": "Radius Adjustment",
-    "addLine": "Add Text Line",
-    "maxLinesReached": "Maximum number of lines reached"
+  "designStamp": {
+    "title": "Design Your Professional Stamp",
+    "subtitle": "Create a clean, professional stamp with our easy-to-use designer.",
+    "selectProduct": "Select a product",
+    "selectProductAriaLabel": "Select a stamp model",
+    "selectProductPlaceholder": "-- Select a stamp model --",
+    "step1Title": "Select Your Stamp",
+    "step1Description": "Choose from a wide range of self-inking stamps in various sizes and styles.",
+    "step2Title": "Customize Your Design",
+    "step2Description": "Add your logo first, then customize the text, adjust formatting, select ink color, and add borders.",
+    "step3Title": "Preview and Order",
+    "step3Description": "See an accurate preview of your stamp before adding to cart and finalizing your purchase."
   },
-  "borderStyle": {
-    "title": "Border style",
-    "none": "No border",
-    "single": "Single",
-    "double": "Double",
-    "wavy": "Wavy",
-    "thickness": "Border thickness"
+  "steps": {
+    "customize": "Customize",
+    "preview": "Preview",
+    "order": "Order"
   },
-  "actions": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "undoTooltip": "Undo last action",
-    "redoTooltip": "Redo last undone action"
+  "preview": {
+    "title": "Preview",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "download": "Download preview",
+    "stampPreview": "Stamp preview",
+    "noPreview": "No preview available",
+    "customizeStamp": "Customize your stamp to see a preview",
+    "physicalSize": "Physical size: {{size}}mm",
+    "dragInstructions": "Click and drag to position elements",
+    "movingText": "Moving text line {{index}}",
+    "movingLogo": "Moving logo",
+    "ariaLabel": "Stamp preview area. Use arrow keys to position selected elements.",
+    "backgroundChanged": "Background changed",
+    "backgroundChangedDesc": "The preview background has been updated",
+    "downloadHelp": "Download your stamp design in high-quality PNG format",
+    "zoomHelp": "Zoom in/out for more details",
+    "noPreviewAvailable": "No preview available at the moment",
+    "instructionDragText": "Click and drag to position the text",
+    "instructionDragLogo": "Click and drag to position the logo",
+    "instructionGeneral": "Select a text or logo to move elements",
+    "size": "Size",
+    "editingLine": "Editing line {{line}}",
+    "editingLogo": "Editing logo",
+    "stampDesign": "Stamp design"
   },
-  "design": {
-    "autoArrange": "Auto-Arrange",
-    "autoArrangeTooltip": "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing."
+  "languages": {
+    "selectLanguage": "Select language",
+    "en": "English",
+    "fr": "French"
+  },
+  "cart": {
+    "addToCart": "Add to cart",
+    "added": "Added to cart",
+    "goToCart": "Go to cart"
+  },
+  "autoArrange": {
+    "autoArrange": "Auto arrange",
+    "autoArrangeTooltip": "Intelligently arrange the text for optimal layout based on the stamp shape, while maintaining correct orientation and spacing."
   },
   "alignment": {
-    "left": "Align Left",
+    "left": "Align left",
     "center": "Center",
-    "right": "Align Right"
+    "right": "Align right"
   },
   "footer": {
     "brand": "Cachets Maroc",
-    "description": "Your trusted partner for high-quality self-inking stamps in Morocco. We offer a wide range of stamps for business and personal use.",
+    "description": "Your trusted partner for quality self-inking stamps in Morocco. We offer a wide range of stamps for professionals and individuals.",
     "phone": "06 99 11 80 28",
     "email": "zyad.sobhi@gmail.com",
     "location": "Casablanca, Morocco",
-    "quickLinks": "Quick Links",
-    "freeDelivery": "Free Delivery",
-    "deliveryDescription": "We offer free delivery for all orders in Casablanca and surrounding regions.",
-    "whyChooseUs": "Why Choose Us?",
+    "quickLinks": "Quick links",
+    "freeDelivery": "Free delivery",
+    "deliveryDescription": "We offer free delivery for all orders in Casablanca and surrounding areas.",
+    "whyChooseUs": "Why choose us?",
     "highQualityStamps": "High-quality self-inking stamps",
     "customDesign": "Custom design options",
     "quickDelivery": "Quick delivery",
-    "customerService": "Excellent customer service",
+    "customerService": "Quality customer service",
     "allRightsReserved": "All rights reserved."
   },
   "hero": {
     "title": "Professional Self-Inking Stamps",
-    "subtitle": "Quality stamps for your business needs",
-    "description": "Design and order custom self-inking stamps for your business. Choose from various sizes, shapes, and colors.",
-    "ctaProducts": "Browse Collection",
-    "ctaDesign": "Design Your Stamp",
-    "imageAlt": "Stamp showcase"
+    "subtitle": "Quality stamps for your professional needs",
+    "description": "Design and order custom self-inking stamps for your business. Choose from different sizes, shapes, and colors.",
+    "ctaProducts": "Browse the collection",
+    "ctaDesign": "Design your stamp",
+    "imageAlt": "Example of stamps"
   },
   "navbar": {
-    "exploreCollection": "Explore Our Collection",
+    "exploreCollection": "Explore the collection",
     "cart": "Cart"
   },
-  "features": {
-    "whyChoose": "Why Choose Our Stamps?",
-    "whyChooseDesc": "We offer high-quality self-inking stamps with a variety of options to meet your business needs in Morocco.",
-    "premiumQuality": "Premium Quality",
-    "premiumQualityDesc": "All our stamps are made with high-quality materials for long-lasting durability.",
-    "customizable": "Customizable",
-    "customizableDesc": "Easily design your own stamps with our intuitive online design tool.",
-    "fastDelivery": "Fast Delivery",
-    "fastDeliveryDesc": "Free delivery in Casablanca and surrounding regions with quick processing times.",
-    "wideSelection": "Wide Selection",
-    "wideSelectionDesc": "Choose from various sizes, models, and brands to fit your specific needs."
-  },
-  "cta": {
-    "readyToCreate": "Ready to Create Your Custom Stamp?",
-    "designerDesc": "Design your own stamp now with our easy-to-use online designer tool. See a preview before you order!",
-    "startDesigning": "Start Designing Now"
-  },
-  "contactBlock": {
-    "title": "Contact Us",
-    "description": "Have questions about our products or need assistance with your order? We're here to help! Contact us using the information below or fill out the form.",
-    "getInTouch": "Get In Touch",
-    "phoneLabel": "Phone / WhatsApp",
-    "emailLabel": "Email",
-    "addressLabel": "Address",
-    "hoursTitle": "Business Hours",
-    "weekdays": "Monday - Friday",
-    "weekdaysHours": "9:00 AM - 6:00 PM",
-    "saturday": "Saturday",
-    "saturdayHours": "9:00 AM - 1:00 PM",
-    "sunday": "Sunday",
-    "sundayHours": "Closed",
-    "formTitle": "Send Us a Message",
-    "fullNameLabel": "Full Name *",
-    "fullNamePlaceholder": "Enter your name",
-    "emailInputLabel": "Email *",
-    "emailInputPlaceholder": "Enter your email",
-    "phoneInputLabel": "Phone Number *",
-    "phoneInputPlaceholder": "Enter your phone number",
-    "messageLabel": "Message *",
-    "messagePlaceholder": "Type your message...",
-    "sendButton": "Send Message",
-    "success": "Message sent successfully! We'll get back to you soon."
-  },
-  "seo": {
-    "indexTitle": "Custom Self-Inking Stamps for Business",
-    "indexDesc": "Design and order custom self-inking stamps for your business or personal use. Choose from a wide range of models with free delivery in Casablanca, Morocco."
-  },
-  "design": {
-    "title": "Custom stamp designer",
-    "saveDesign": "Save design",
-    "saveDesignForLater": "Save design for later",
-    "saved": "Design saved",
-    "savedDescription": "Your design has been saved and will be available when you return",
-    "loaded": "Design loaded",
-    "loadedDescription": "Your saved design has been loaded",
-    "saveDesignForLaterTooltip": "Save your current design to continue later",
-    "loadSavedDesignTooltip": "Load your previously saved design",
-    "clearSavedDesignTooltip": "Clear saved design from storage",
-    "loadDesign": "Load design",
-    "clearSaved": "Clear saved",
-    "productInfo": "Designing a {{name}} stamp ({{size}}). You can add up to {{lines}} lines of text and choose from {{inkColors}} ink colors.",
-    "inkColor": "Ink Color",
-    "line": "Line",
-    "startWithLogo": "Start with your Logo",
-    "startWithLogoDesc": "Start with your logo for best results. We'll help position your text around it.",
-    "logoEnabled": "Logo Enabled",
-    "addLogo": "Add Logo",
-    "removeLogo": "Remove Logo",
-    "uploadYourLogo": "Upload Your Logo",
-    "uploadInstructions": "Click to upload an image file or drag and drop",
-    "uploadRecommendation": "Recommended: Square PNG or SVG with transparent background",
-    "changeLogo": "Click to change logo",
-    "logoPosition": "Logo Position",
-    "horizontalPosition": "Horizontal Position",
-    "verticalPosition": "Vertical Position",
-    "left": "Left",
-    "center": "Center",
-    "right": "Right",
-    "top": "Top",
-    "bottom": "Bottom",
-    "logoDragTip": "You can also drag the logo directly on the preview area",
-    "tip": "Tip",
-    "logoTipText": "After positioning your logo, click \"Next\" to add and arrange your text.",
-    "textOnlyDesc": "Proceed without a logo to create a text-only stamp design",
-    "continueToText": "Continue to Text Design",
-    "summary": {
-      "textLines": "Text",
-      "inkColor": "Ink color",
-      "shape": "Shape",
-      "border": "Border",
-      "noBorder": "No border",
-      "logo": "Included",
-      "included": "Included",
-      "editAnyStep": "You can edit your design in any previous step before adding to cart."
-    }
-  },
-  "borderStyle": {
-    "title": "Border style",
-    "none": "No border",
-    "single": "Single",
-    "double": "Double",
-    "wavy": "Wavy",
-    "thickness": "Border thickness"
-  },
-  "actions": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "undoTooltip": "Undo last action",
-    "redoTooltip": "Redo last undone action"
-  },
-  "textEditor": {
-    "title": "Text Lines",
-    "help": "Help",
-    "helpText": "Add and edit text for your stamp. Click on a line to select it and adjust its properties.",
-    "line": "Line",
-    "emptyLine": "(Empty line)",
-    "enterText": "Enter text",
-    "textStyle": "Text Style",
-    "bold": "Bold",
-    "italic": "Italic",
-    "curved": "Curved",
-    "curvedText": "Curved Text",
-    "flipText": "Flip Text Position",
-    "moveToBottom": "Top → Bottom",
-    "moveToTop": "Bottom → Top",
-    "font": "Font",
-    "fontSize": "Font Size",
-    "selectFont": "Select font",
-    "alignment": "Alignment",
-    "alginLeft": "Align Left",
-    "center": "Center",
-    "alignRight": "Align Right",
-    "horizontalPosition": "Horizontal Position",
-    "verticalPosition": "Vertical Position",
-    "curvedHorizontalPosition": "Arc Position",
-    "curvedVerticalPosition": "Radius Adjustment",
-    "addLine": "Add Text Line",
-    "maxLinesReached": "Maximum number of lines reached"
-  },
-  "validation": {
-    "fixIssues": "Please fix the following issues:"
-  },
-  "ai": {
-    "suggestionApplied": "Suggestion applied"
-  },
-  "design": {
-    "elementAdded": "Element added",
-    "elementAddedDescription": "Element added to your design. Adjust position in the preview."
-  },
-  "design": {
-    "autoArranged": "Layout Auto-Arranged",
-    "autoArrangedDesc": "Text has been automatically arranged for optimal layout"
-  },
-  "wizard": {
-    "stepOf": "Step {{current}} of {{total}}"
-  },
-  "design": {
-    "savedFound": "Saved design found",
-    "savedFoundDescription": "You have a saved design. Would you like to load it?",
-    "loadDesign": "Load Design"
-  },
-  "inkColors": {
-    "black": "Black",
-    "blue": "Blue",
-    "red": "Red",
-    "green": "Green",
-    "violet": "Violet"
-  },
-  "shapes": {
-    "rectangle": "Rectangle",
-    "round": "Circle",
-    "circle": "Circle",
-    "square": "Square",
-    "ellipse": "Ellipse",
-    "oval": "Oval"
-  },
-  "brands": {
-    "Trodat": "Trodat",
-    "Shiny": "Shiny",
-    "MobiStamps": "MobiStamps",
-    "Sirdas": "Sirdas",
-    "Brother": "Brother"
-  },
-  "sizes": {
-    "small": "Small",
-    "medium": "Medium",
-    "large": "Large"
-  },
   "stampTypes": {
-    "selfInking": "Self-Inking",
-    "preInked": "Pre-Inked",
-    "wooden": "Wooden Stamp",
-    "manual": "Manual Stamp",
-    "pocket": "Pocket Stamp",
-    "date": "Date Stamp",
-    "numbering": "Numbering Stamp",
-    "professional": "Professional Stamp",
-    "custom": "Custom Stamp",
-    "automaticNumbering": "Automatic Numbering",
-    "rectangular": "Rectangular Stamp",
-    "round": "Round Stamp"
+    "selfInking": "Self-inking",
+    "preInked": "Pre-inked",
+    "wooden": "Wooden stamp",
+    "manual": "Manual stamp",
+    "pocket": "Pocket stamp",
+    "date": "Date stamp",
+    "numbering": "Numbering stamp",
+    "professional": "Professional stamp",
+    "custom": "Custom stamp",
+    "automaticNumbering": "Automatic numbering",
+    "rectangular": "Rectangular stamp",
+    "round": "Round stamp"
   },
   "features": {
-    "designOnline": "Design Online",
+    "designOnline": "Design online",
     "customize": "Customize",
     "personalize": "Personalize",
-    "easyOrder": "Easy Online Ordering",
-    "preview": "Live Preview",
-    "chooseModel": "Choose Model",
-    "uploadLogo": "Upload Logo",
-    "addText": "Add Text",
-    "borderOptions": "Border Options",
-    "expressDelivery": "Express Delivery",
-    "satisfactionGuaranteed": "Satisfaction Guaranteed",
-    "freeProof": "Free Proof Before Production",
-    "moneyBack": "Money-back Guarantee",
-    "securePayment": "Secure Payment",
-    "customerSupport": "Customer Support",
-    "fastProcessing": "Fast Processing"
+    "easyOrder": "Easy online ordering",
+    "preview": "Live preview",
+    "chooseModel": "Choose a model",
+    "uploadLogo": "Upload a logo",
+    "addText": "Add text",
+    "borderOptions": "Border options",
+    "expressDelivery": "Express delivery",
+    "satisfactionGuaranteed": "Satisfaction guaranteed",
+    "freeProof": "Free proof",
+    "moneyBack": "Money-back guarantee",
+    "securePayment": "Secure payment",
+    "customerSupport": "Customer support",
+    "fastProcessing": "Fast processing"
   },
   "callouts": {
     "bestseller": "Bestseller",
     "new": "New",
     "madeIn": "Made in {{country}}",
-    "freeShipping": "Free Shipping",
+    "freeShipping": "Free shipping",
     "deliversIn": "Delivers in {{days}} days"
   },
   "actions": {
@@ -507,14 +341,14 @@
     "undoTooltip": "Undo last action",
     "redoTooltip": "Redo last undone action",
     "addToCart": "Add to cart",
-    "goBack": "Go Back",
-    "continueShopping": "Continue Shopping",
+    "goBack": "Go back",
+    "continueShopping": "Continue shopping",
     "checkout": "Checkout",
     "submit": "Submit",
     "cancel": "Cancel",
     "remove": "Remove",
     "edit": "Edit",
-    "viewDetails": "View Details",
+    "viewDetails": "View details",
     "download": "Download",
     "save": "Save",
     "print": "Print",
@@ -525,20 +359,20 @@
   },
   "form": {
     "name": "Name",
-    "fullName": "Full Name",
+    "fullName": "Full name",
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
     "company": "Company",
     "message": "Message",
     "city": "City",
-    "zip": "Postal Code",
+    "zip": "Zip code",
     "country": "Country",
     "required": "Required",
     "optional": "Optional",
     "submit": "Submit",
     "success": "Your message has been sent!",
-    "error": "There was an error sending your message."
+    "error": "An error occurred while sending the message."
   },
   "orderStatus": {
     "pending": "Pending",
@@ -551,7 +385,7 @@
   "errors": {
     "fieldRequired": "This field is required.",
     "invalidEmail": "Invalid email address.",
-    "minLength": "Must be at least {{count}} characters.",
+    "minLength": "At least {{count}} characters.",
     "maxLength": "Maximum {{count}} characters allowed.",
     "unexpected": "An unexpected error occurred. Please try again.",
     "404": "Page not found."
@@ -566,5 +400,39 @@
     "loading": "Loading...",
     "outOfStock": "Out of stock",
     "inStock": "In stock"
+  },
+  "brands": {
+    "Trodat": "Trodat",
+    "Shiny": "Shiny",
+    "MobiStamps": "MobiStamps",
+    "Sirdas": "Sirdas",
+    "Brother": "Brother"
+  },
+  "shapes": {
+    "rectangle": "Rectangle",
+    "round": "Round",
+    "circle": "Circle",
+    "square": "Square",
+    "ellipse": "Ellipse",
+    "oval": "Oval"
+  },
+  "sizes": {
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large"
+  },
+  "inkColors": {
+    "black": "Black",
+    "blue": "Blue",
+    "red": "Red",
+    "green": "Green",
+    "violet": "Violet"
+  },
+  "colors": {
+    "black": "Black",
+    "blue": "Blue",
+    "red": "Red",
+    "green": "Green",
+    "violet": "Violet"
   }
 }

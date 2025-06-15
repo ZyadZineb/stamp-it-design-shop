@@ -42,7 +42,27 @@
       "1502": "Tampon carré auto-encreur vert pour les tâches à gros volume.",
       "2023": "Tampon rectangulaire de marque Shiny, conçu pour durer.",
       "2890": "Modèle classique MobiStamp, adapté aux procédures professionnelles."
-    }
+    },
+    "filters": {
+      "title": "Filtres",
+      "clear": "Effacer les filtres",
+      "brand": "Marque",
+      "shape": "Forme",
+      "size": "Taille",
+      "inkColor": "Couleur d'encre",
+      "price": "Plage de prix"
+    },
+    "hideFilters": "Masquer les filtres",
+    "showFilters": "Afficher les filtres",
+    "sort": {
+      "sortBy": "Trier par",
+      "recommended": "Recommandé",
+      "priceLowHigh": "Prix: croissant",
+      "priceHighLow": "Prix: décroissant",
+      "name": "Nom"
+    },
+    "showing": "Affichage de",
+    "items": "articles"
   },
   "wizard": {
     "back": "Retour",
@@ -408,7 +428,7 @@
     "green": "Vert",
     "violet": "Violet"
   },
-  "colors": {
+    "colors": {
     "black": "Noir",
     "blue": "Bleu",
     "red": "Rouge",
