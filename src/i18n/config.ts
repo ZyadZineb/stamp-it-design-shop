@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -10,7 +11,15 @@ i18n
   .init({
     fallbackLng: 'fr',
     debug: process.env.NODE_ENV === 'development',
-    ns: ['translation', 'contact'],
+    ns: [
+      'translation',
+      'navigation',
+      'products',
+      'design',
+      'cart',
+      'footer'
+      // add more as you modularize
+    ],
     defaultNS: 'translation',
     interpolation: {
       escapeValue: false,
