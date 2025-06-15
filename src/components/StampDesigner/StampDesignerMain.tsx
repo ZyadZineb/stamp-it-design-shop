@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -208,74 +209,100 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     else if (currentStep === 'logo') setCurrentStep('templates');
   };
 
+  // Get step information for better UI
+  const getStepInfo = (step: string) => {
+    const steps = {
+      templates: { title: 'Modèles', description: 'Choisissez un modèle professionnel', icon: '📋' },
+      logo: { title: 'Logo', description: 'Ajoutez votre logo d\'entreprise', icon: '🖼️' },
+      text: { title: 'Texte', description: 'Personnalisez votre contenu textuel', icon: '✏️' },
+      border: { title: 'Forme', description: 'Définissez les bordures et la forme', icon: '⬜' },
+      color: { title: 'Couleur', description: 'Sélectionnez la couleur d\'encre', icon: '🎨' },
+      preview: { title: 'Aperçu', description: 'Vérifiez le rendu final', icon: '👁️' }
+    };
+    return steps[step as keyof typeof steps];
+  };
+
   if (!product) {
     return (
-      <div className="p-8 text-center bg-white rounded-lg">
-        <p className="text-gray-500">Please select a product to start designing your stamp.</p>
+      <div className="p-8 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-sm">
+        <div className="max-w-md mx-auto">
+          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">🏷️</span>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Aucun produit sélectionné</h3>
+          <p className="text-gray-600">Veuillez sélectionner un produit pour commencer à créer votre tampon professionnel.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden min-h-screen">
-      <div className="border-b border-gray-200 p-6 bg-gray-50">
-        <h2 className="text-2xl font-semibold">Professional Stamp Designer</h2>
-        <p className="text-base text-gray-600">Designing: {product.name} ({product.size})</p>
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden min-h-screen">
+      {/* Enhanced Header with better visual hierarchy */}
+      <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Créateur de Tampon Professionnel</h2>
+            <p className="text-blue-700 font-medium mt-1">
+              <span className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+                {product.name} • {product.size}
+              </span>
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-blue-600">{product.price} DHS</div>
+            <div className="text-sm text-gray-600">TTC</div>
+          </div>
+        </div>
         
-        {/* Design progress indicator emphasizing logo-first approach */}
-        <div className="flex mt-6 border-t pt-6">
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'templates' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('templates')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'templates' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
-            Templates
-          </div>
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'logo' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('logo')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'logo' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
-            Logo
-          </div>
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'text' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('text')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
-            Text
-          </div>
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'border' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('border')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'border' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>4</div>
-            Forme
-          </div>
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'color' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('color')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'color' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>5</div>
-            Color
-          </div>
-          <div 
-            className={`text-sm flex-1 text-center font-medium cursor-pointer ${currentStep === 'preview' ? 'text-blue-600' : 'text-gray-500'}`}
-            onClick={() => setCurrentStep('preview')}
-          >
-            <div className={`rounded-full w-8 h-8 mx-auto mb-2 flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>6</div>
-            Preview
+        {/* Enhanced Progress Steps with better design */}
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            {['templates', 'logo', 'text', 'border', 'color', 'preview'].map((step, index) => {
+              const stepInfo = getStepInfo(step);
+              const isActive = currentStep === step;
+              const isCompleted = ['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) > index;
+              
+              return (
+                <div 
+                  key={step}
+                  className={`flex-1 text-center cursor-pointer transition-all duration-200 ${
+                    isActive ? 'transform scale-105' : ''
+                  }`}
+                  onClick={() => setCurrentStep(step as any)}
+                >
+                  <div className={`w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-200 ${
+                    isCompleted 
+                      ? 'bg-green-500 text-white shadow-lg' 
+                      : isActive 
+                      ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-200' 
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  }`}>
+                    {isCompleted ? '✓' : stepInfo.icon}
+                  </div>
+                  <div className={`text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
+                    {stepInfo.title}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1 hidden sm:block">
+                    {stepInfo.description}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
       
       {/* Layout changes for preview step to show clean design */}
       {currentStep === 'preview' ? (
-        <div className="p-10">
-          <div className="mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-10">Final Preview</h2>
+        <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Aperçu Final</h2>
+              <p className="text-lg text-gray-600">Votre tampon est prêt ! Vérifiez tous les détails avant de commander.</p>
+            </div>
             
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-10 mb-10">
+            <div className="bg-white rounded-2xl shadow-xl p-10 mb-8">
               <StampPreviewAccessible
                 previewImage={previewImage}
                 productSize={product.size}
@@ -328,120 +355,145 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               />
             </div>
             
-            {/* Product info and add to cart */}
-            <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-              <div className="flex justify-between items-start mb-8">
+            {/* Enhanced Product Summary Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
-                  <p className="text-base text-gray-600 mt-2">Size: {product.size}</p>
-                  <p className="text-base text-gray-600">Ink Color: {design.inkColor}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                  <div className="space-y-1">
+                    <p className="text-gray-700"><span className="font-medium">Taille:</span> {product.size}</p>
+                    <p className="text-gray-700"><span className="font-medium">Couleur d'encre:</span> <span className="inline-block w-4 h-4 rounded-full ml-2" style={{ backgroundColor: design.inkColor }}></span> {design.inkColor}</p>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-3xl font-bold text-gray-900">{product.price} DHS</span>
-                  <p className="text-base text-gray-600">TTC</p>
+                  <div className="text-4xl font-bold text-blue-600 mb-1">{product.price} DHS</div>
+                  <div className="text-sm text-gray-600">TTC, livraison incluse</div>
                 </div>
               </div>
               
               <Button
                 onClick={handleAddToCart}
-                className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white text-xl font-medium rounded-lg transition-colors flex items-center justify-center gap-4"
+                className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
               >
-                <ShoppingCart size={28} />
-                Add to Cart
+                <ShoppingCart size={28} className="mr-3" />
+                Ajouter au Panier
               </Button>
             </div>
           </div>
         </div>
       ) : (
         <div className="flex flex-col min-h-screen">
-          {/* Main editing section */}
-          <div className="p-8">
-            {/* Show design step based on current step */}
-            {currentStep === 'templates' && design.shape === 'circle' && (
-              <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
-            )}
+          {/* Enhanced Main editing section */}
+          <div className="p-8 bg-gray-50">
+            <div className="max-w-4xl mx-auto">
+              {/* Step Content with improved styling */}
+              <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{getStepInfo(currentStep).title}</h3>
+                  <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
+                </div>
 
-            {currentStep === 'logo' && (
-              <LogoUploader
-                includeLogo={design.includeLogo}
-                toggleLogo={toggleLogo}
-                logoX={design.logoX}
-                logoY={design.logoY}
-                uploadedLogo={uploadedLogo}
-                onLogoUpload={handleLogoUpload}
-                updateLogoPosition={updateLogoPosition}
-                largeControls={largeControls}
-              />
-            )}
-            
-            {currentStep === 'text' && (
-              <>
-                <TextLinesEditor
-                  lines={design.lines}
-                  product={product}
-                  onUpdateLine={updateLine}
-                  onAddLine={addLine}
-                  onRemoveLine={removeLine}
-                  onToggleCurvedText={toggleCurvedText}
-                  globalAlignment={design.globalAlignment}
-                  onGlobalAlignmentChange={setGlobalAlignment}
-                />
+                {/* Show design step based on current step */}
+                {currentStep === 'templates' && design.shape === 'circle' && (
+                  <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
+                )}
+
+                {currentStep === 'logo' && (
+                  <LogoUploader
+                    includeLogo={design.includeLogo}
+                    toggleLogo={toggleLogo}
+                    logoX={design.logoX}
+                    logoY={design.logoY}
+                    uploadedLogo={uploadedLogo}
+                    onLogoUpload={handleLogoUpload}
+                    updateLogoPosition={updateLogoPosition}
+                    largeControls={largeControls}
+                  />
+                )}
                 
-                <AutoArrange 
-                  design={design}
-                  onEnhancedAutoArrange={enhancedAutoArrange}
-                  shape={getCompatibleShape(design.shape)}
-                />
-              </>
-            )}
-            
-            {currentStep === 'border' && (
-              <BorderStyleSelector 
-                borderStyle={design.borderStyle} 
-                borderThickness={design.borderThickness}
-                onBorderStyleChange={setBorderStyle}
-                onBorderThicknessChange={setBorderThickness}
-                largeControls={largeControls}
-              />
-            )}
-            
-            {currentStep === 'color' && (
-              <ColorSelector 
-                inkColors={product.inkColors} 
-                selectedColor={design.inkColor} 
-                onColorSelect={setInkColor}
-              />
-            )}
-            
-            {/* Step navigation buttons */}
-            <div className="flex justify-between pt-8 border-t mt-8">
-              <Button
-                variant="outline"
-                onClick={goToPrevStep}
-                disabled={currentStep === 'templates'}
-                className={`${largeControls ? "text-lg py-4 px-6" : "py-3 px-5"}`}
-              >
-                Previous
-              </Button>
+                {currentStep === 'text' && (
+                  <div className="space-y-6">
+                    <TextLinesEditor
+                      lines={design.lines}
+                      product={product}
+                      onUpdateLine={updateLine}
+                      onAddLine={addLine}
+                      onRemoveLine={removeLine}
+                      onToggleCurvedText={toggleCurvedText}
+                      globalAlignment={design.globalAlignment}
+                      onGlobalAlignmentChange={setGlobalAlignment}
+                    />
+                    
+                    <AutoArrange 
+                      design={design}
+                      onEnhancedAutoArrange={enhancedAutoArrange}
+                      shape={getCompatibleShape(design.shape)}
+                    />
+                  </div>
+                )}
+                
+                {currentStep === 'border' && (
+                  <BorderStyleSelector 
+                    borderStyle={design.borderStyle} 
+                    borderThickness={design.borderThickness}
+                    onBorderStyleChange={setBorderStyle}
+                    onBorderThicknessChange={setBorderThickness}
+                    largeControls={largeControls}
+                  />
+                )}
+                
+                {currentStep === 'color' && (
+                  <ColorSelector 
+                    inkColors={product.inkColors} 
+                    selectedColor={design.inkColor} 
+                    onColorSelect={setInkColor}
+                  />
+                )}
+              </div>
               
-              <Button
-                variant="default"
-                onClick={goToNextStep}
-                disabled={currentStep === 'preview'}
-                className={`${largeControls ? "text-lg py-4 px-6" : "py-3 px-5"} ${highContrast ? "bg-blue-800" : ""}`}
-              >
-                {currentStep === 'color' ? 'Preview' : 'Next'}
-              </Button>
+              {/* Enhanced Step navigation buttons */}
+              <div className="flex justify-between items-center">
+                <Button
+                  variant="outline"
+                  onClick={goToPrevStep}
+                  disabled={currentStep === 'templates'}
+                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl border-2 transition-all duration-200 ${
+                    currentStep === 'templates' ? 'opacity-50' : 'hover:bg-gray-50 hover:border-gray-300'
+                  }`}
+                >
+                  ← Précédent
+                </Button>
+                
+                <div className="text-center">
+                  <div className="text-sm text-gray-500 mb-1">Étape {['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) + 1} sur 6</div>
+                  <div className="w-48 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview'].indexOf(currentStep) + 1) / 6) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <Button
+                  variant="default"
+                  onClick={goToNextStep}
+                  disabled={currentStep === 'preview'}
+                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 ${
+                    currentStep === 'preview' ? 'opacity-50' : 'hover:scale-[1.02] shadow-lg'
+                  }`}
+                >
+                  {currentStep === 'color' ? 'Aperçu' : 'Suivant'} →
+                </Button>
+              </div>
             </div>
           </div>
           
-          {/* Large preview section below editing - now shows for all steps with bigger size */}
-          <div className="border-t bg-gray-50 p-10 flex-grow">
-            <h3 className="text-2xl font-semibold mb-8 text-center">Aperçu en temps réel</h3>
-            
-            {/* Much larger preview container - removed max-width constraints */}
-            <div className="mx-auto w-full">
-              <div className="bg-white rounded-lg p-12 shadow-lg mb-8">
+          {/* Enhanced Large preview section */}
+          <div className="border-t bg-gradient-to-br from-white to-gray-50 p-10 flex-grow">
+            <div className="max-w-6xl mx-auto">
+              <h3 className="text-3xl font-bold text-center mb-8 text-gray-900">Aperçu en Temps Réel</h3>
+              
+              <div className="bg-white rounded-2xl shadow-xl p-12 mb-8">
                 <div className="flex justify-center">
                   <div className="w-full">
                     <StampPreview
@@ -496,18 +548,24 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 </div>
               </div>
               
-              {/* Product info and add to cart */}
-              <div className="bg-gray-50 p-8 rounded-md">
+              {/* Enhanced Product info and add to cart */}
+              <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-100 rounded-2xl p-8 shadow-lg">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-medium text-xl">{product.name}</h3>
-                  <span className="font-bold text-2xl text-brand-red">{product.price} DHS TTC</span>
+                  <div>
+                    <h3 className="font-bold text-2xl text-gray-900 mb-1">{product.name}</h3>
+                    <p className="text-gray-600">Taille: {product.size} • Couleur: {design.inkColor}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-3xl text-red-600">{product.price} DHS</span>
+                    <p className="text-sm text-gray-600">TTC</p>
+                  </div>
                 </div>
                 <Button
                   onClick={handleAddToCart}
-                  className={`w-full py-5 bg-brand-red text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-3 ${largeControls ? "text-xl py-6" : "text-lg"}`}
+                  className={`w-full py-6 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-4 ${largeControls ? "text-xl py-8" : "text-lg"}`}
                 >
-                  <ShoppingCart size={largeControls ? 28 : 24} />
-                  Add to Cart
+                  <ShoppingCart size={largeControls ? 32 : 28} />
+                  Ajouter au Panier
                 </Button>
               </div>
             </div>
