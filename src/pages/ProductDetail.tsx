@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../data/products";
@@ -59,6 +58,21 @@ const ProductDetail = () => {
     navigate(`/design?productId=${product.id}`);
   };
 
+  // Debug: log the value resolved by i18n
+  const resolvedDescription = t(`productDescriptions.${product.id}`, product.description);
+  console.log(
+    "[i18n DEBUG]",
+    {
+      productId: product.id,
+      lang: navigator.language,
+      tKey: `productDescriptions.${product.id}`,
+      resolved: resolvedDescription,
+      tRaw: t(`productDescriptions.${product.id}`),
+      tFallback: t(`productDescriptions.${product.id}`, "!!!FALLBACK!!!"),
+      resources: (window as any).i18next?.store?.data?.fr?.translation?.productDescriptions,
+    }
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -103,7 +117,12 @@ const ProductDetail = () => {
             <div className="w-full md:w-1/2 flex flex-col justify-center">
               {/* Description */}
               <h2 className="text-lg text-brand-blue font-semibold mb-1">{t("products.details.about", "About this product")}</h2>
-              <p className="text-gray-700 mb-6 italic">{t(`productDescriptions.${product.id}`, product.description)}</p>
+              <p className="text-gray-700 mb-6 italic">
+                {/* DEBUG: If the translation is missing, show fallback visually too */}
+                {resolvedDescription} {resolvedDescription === product.description ? (
+                  <span className="text-red-500 ml-2 font-bold">[MISSING FR TRANSLATION]</span>
+                ) : null}
+              </p>
               {/* Available ink colors */}
               <div className="mb-4 flex items-center gap-2 flex-wrap">
                 <span className="font-medium text-sm text-gray-600">{t("products.details.inkColors", "Ink Colors")}:</span>
@@ -157,4 +176,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-
