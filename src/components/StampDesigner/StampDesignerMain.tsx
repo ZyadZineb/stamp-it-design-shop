@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
@@ -365,10 +366,10 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   <p className="text-gray-600">{getStepInfo(currentStep).description}</p>
                 </div>
 
-                {/* Two column layout for better use of space */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100%-80px)]">
-                  {/* Left column: Controls */}
-                  <div className="space-y-4 overflow-y-auto">
+                {/* Two column layout for better use of space - made wider */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100%-80px)]">
+                  {/* Left column: Controls - expanded to take more space */}
+                  <div className="xl:col-span-2 space-y-4 overflow-y-auto">
                     {/* Show design step based on current step */}
                     {currentStep === 'templates' && design.shape === 'circle' && (
                       <ProfessionalCircularTemplates onApplyTemplate={applyTemplate} />
@@ -427,8 +428,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     )}
                   </div>
 
-                  {/* Right column: Large Preview */}
-                  <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
+                  {/* Right column: Preview - reduced to 1 column */}
+                  <div className="xl:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl border overflow-hidden">
                     <h4 className="text-lg font-semibold mb-3 text-gray-900">Aperçu en Temps Réel</h4>
                     <div className="h-[calc(100%-40px)]">
                       <StampPreview
