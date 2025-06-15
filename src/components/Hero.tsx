@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,35 +19,37 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-r from-white via-blue-50 to-blue-100 pt-24 pb-16 overflow-hidden">
+    <section className="relative bg-gradient-to-r from-white via-blue-50 to-blue-100 pt-14 md:pt-24 pb-6 md:pb-16 overflow-hidden">
       <div className="container-custom relative z-10">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
           <div>
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3 md:mb-6 leading-tight">
               {heroContent.title}
             </h1>
-            <h2 className="text-2xl md:text-3xl font-medium text-brand-blue mb-6">
+            <h2 className="text-lg md:text-2xl font-medium text-brand-blue mb-4 md:mb-6">
               {heroContent.subtitle}
             </h2>
-            <p className="text-xl text-gray-600 mb-10 max-w-xl font-light">
+            <p className="text-base md:text-xl text-gray-600 mb-5 md:mb-10 max-w-xl font-light">
               {heroContent.description}
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/products" className="btn-primary text-base px-8 py-3 rounded-lg shadow hover:shadow-lg">
+            <div className="flex flex-wrap gap-3 md:gap-4">
+              <Link to="/products" className="btn-primary text-sm md:text-base px-4 md:px-8 py-2 md:py-3 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11">
                 {heroContent.ctaProducts}
               </Link>
-              <Link to="/design" className="btn-secondary text-base px-8 py-3 rounded-lg shadow hover:shadow-lg">
+              <Link to="/design" className="btn-secondary text-sm md:text-base px-4 md:px-8 py-2 md:py-3 rounded-lg shadow hover:shadow-lg min-w-11 min-h-11">
                 {heroContent.ctaDesign}
               </Link>
             </div>
           </div>
           <div className="flex justify-center md:justify-end">
-            <HeroCarousel />
+            <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl">
+              <HeroCarousel />
+            </div>
           </div>
         </div>
       </div>
       {/* Minimalist Large Blue Shape */}
-      <div className="absolute -top-64 -right-72 w-[800px] h-[800px] rounded-full bg-blue-100 opacity-50 blur-3xl z-0" />
+      <div className="absolute -top-40 -right-40 w-[400px] h-[400px] md:w-[800px] md:h-[800px] rounded-full bg-blue-100 opacity-50 blur-3xl z-0" />
     </section>
   );
 };

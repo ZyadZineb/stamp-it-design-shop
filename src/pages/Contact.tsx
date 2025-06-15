@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -30,18 +29,18 @@ const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
-      <main className="flex-grow py-8">
+      <main className="flex-grow py-4 md:py-8">
         <div className="container-custom">
-          <div className="mb-10 text-center">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">{t('title', { ns: 'contact' })}</h1>
-            <p className="text-gray-600 max-w-xl mx-auto">{t('description', { ns: 'contact' })}</p>
+          <div className="mb-6 md:mb-10 text-center">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 md:mb-3">{t('title', { ns: 'contact' })}</h1>
+            <p className="text-gray-600 max-w-xl mx-auto text-sm md:text-base">{t('description', { ns: 'contact' })}</p>
           </div>
-          <div className="flex flex-col lg:flex-row gap-8 relative">
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-8 relative">
             {/* Left: Contact Info */}
             <div className="lg:w-1/2 flex flex-col items-center justify-center">
-              <div className="bg-white border border-gray-100 shadow-xl rounded-2xl p-8 w-full max-w-md mx-auto mb-8 lg:mb-0">
-                <h2 className="text-xl font-semibold text-brand-blue mb-6 text-center">{t('getInTouch', { ns: 'contact' })}</h2>
-                <div className="flex flex-col gap-6">
+              <div className="bg-white border border-gray-100 shadow-xl rounded-2xl p-4 md:p-8 w-full max-w-md mx-auto mb-4 md:mb-8 lg:mb-0">
+                <h2 className="text-lg md:text-xl font-semibold text-brand-blue mb-4 md:mb-6 text-center">{t('getInTouch', { ns: 'contact' })}</h2>
+                <div className="flex flex-col gap-4 md:gap-6">
                   <div className="flex items-center gap-4">
                     <span className="flex-shrink-0 w-12 h-12 bg-brand-red/10 rounded-full flex items-center justify-center shadow">
                       <Phone className="text-brand-red w-6 h-6" />
@@ -70,21 +69,21 @@ const Contact = () => {
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                  <h3 className="font-medium mb-4 text-brand-blue">{t('hoursTitle', { ns: 'contact' })}</h3>
-                  <table className="w-full text-[15px]">
+                <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-100">
+                  <h3 className="font-medium mb-2 md:mb-4 text-brand-blue">{t('hoursTitle', { ns: 'contact' })}</h3>
+                  <table className="w-full text-xs md:text-[15px] table-fixed">
                     <tbody>
-                      <tr>
-                        <td className="py-1">{t('weekdays', { ns: 'contact' })}</td>
-                        <td className="py-1 text-right">{t('weekdaysHours', { ns: 'contact' })}</td>
+                      <tr className="flex flex-col md:table-row">
+                        <td className="py-1 md:py-1">{t('weekdays', { ns: 'contact' })}</td>
+                        <td className="py-1 md:py-1 text-right md:text-right">{t('weekdaysHours', { ns: 'contact' })}</td>
                       </tr>
-                      <tr>
-                        <td className="py-1">{t('saturday', { ns: 'contact' })}</td>
-                        <td className="py-1 text-right">{t('saturdayHours', { ns: 'contact' })}</td>
+                      <tr className="flex flex-col md:table-row">
+                        <td className="py-1 md:py-1">{t('saturday', { ns: 'contact' })}</td>
+                        <td className="py-1 md:py-1 text-right md:text-right">{t('saturdayHours', { ns: 'contact' })}</td>
                       </tr>
-                      <tr>
-                        <td className="py-1">{t('sunday', { ns: 'contact' })}</td>
-                        <td className="py-1 text-right">{t('sundayHours', { ns: 'contact' })}</td>
+                      <tr className="flex flex-col md:table-row">
+                        <td className="py-1 md:py-1">{t('sunday', { ns: 'contact' })}</td>
+                        <td className="py-1 md:py-1 text-right md:text-right">{t('sundayHours', { ns: 'contact' })}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -93,9 +92,9 @@ const Contact = () => {
             </div>
             {/* Right: Contact Form */}
             <div className="lg:w-1/2 flex items-center justify-center">
-              <div className="bg-white border border-gray-100 shadow-2xl rounded-2xl p-8 w-full max-w-lg mx-auto">
-                <h2 className="text-xl font-semibold mb-6 text-brand-blue text-center">{t('formTitle', { ns: 'contact' })}</h2>
-                <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="bg-white border border-gray-100 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-lg mx-auto">
+                <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-brand-blue text-center">{t('formTitle', { ns: 'contact' })}</h2>
+                <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">

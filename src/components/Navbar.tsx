@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
@@ -77,8 +76,8 @@ const Navbar = () => {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container-custom mx-auto px-2 sm:px-4 py-2 md:py-3">
-        <nav className="flex justify-between items-center min-h-[56px]">
+      <div className="container-custom mx-auto px-1 sm:px-2 py-1 md:py-3">
+        <nav className="flex justify-between items-center min-h-[48px] md:min-h-[56px]">
           {/* Logo */}
           <Link
             to="/"
@@ -89,29 +88,29 @@ const Navbar = () => {
             <img
               src="/lovable-uploads/36d86151-4951-4ebe-a585-8d2d9aebb963.png"
               alt={t('common.brand')}
-              className="h-10 w-auto md:h-16 md:max-h-16 max-w-[130px] sm:max-w-[170px] object-contain"
+              className="h-8 w-auto md:h-16 md:max-h-16 max-w-[100px] sm:max-w-[160px] object-contain"
               draggable="false"
-              style={{ maxHeight: 56 }}
+              style={{ maxHeight: 48 }}
             />
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-gray-600 hover:text-brand-blue transition-colors px-2 py-1 rounded ${isActive(link.path) ? 'text-brand-blue font-medium' : ''}`}
+                className={`text-gray-600 hover:text-brand-blue transition-colors px-1 py-0.5 rounded text-sm ${isActive(link.path) ? 'text-brand-blue font-medium' : ''}`}
                 aria-current={isActive(link.path) ? 'page' : undefined}
               >
                 {link.name}
               </Link>
             ))}
-            <span className="ml-2">
+            <span className="ml-1">
               <LanguageSwitcher />
             </span>
-            <Link to="/cart" className="relative ml-3" aria-label={t('navigation.cart')}>
-              <ShoppingCart className="h-7 w-7 text-gray-600 hover:text-brand-blue transition-colors" />
+            <Link to="/cart" className="relative ml-2" aria-label={t('navigation.cart')}>
+              <ShoppingCart className="h-7 w-7 text-gray-600 hover:text-brand-blue transition-colors min-h-11 min-w-11" />
               {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-brand-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {cartItems.length}
@@ -124,11 +123,11 @@ const Navbar = () => {
           <div className="md:hidden flex items-center">
             <Link
               to="/cart"
-              className="relative mr-2 md:mr-3 p-1 rounded focus:outline-none focus:ring-2 focus:ring-brand-blue"
+              className="relative mr-1 md:mr-2 p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-brand-blue min-w-11 min-h-11"
               aria-label={t('navigation.cart')}
               tabIndex={0}
             >
-              <ShoppingCart className="h-9 w-9 text-gray-700 hover:text-brand-blue" />
+              <ShoppingCart className="h-9 w-9 text-gray-700 hover:text-brand-blue min-w-11 min-h-11" />
               {cartItems.length > 0 && (
                 <span className="absolute -top-1.5 -right-1 bg-brand-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {cartItems.length}
@@ -137,7 +136,7 @@ const Navbar = () => {
             </Link>
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="text-gray-700 hover:text-brand-blue focus:outline-none p-2 md:p-2 rounded-full active:bg-gray-100 transition"
+              className="text-gray-700 hover:text-brand-blue focus:outline-none p-2 rounded-full active:bg-gray-100 transition min-w-11 min-h-11"
               aria-label={t('navigation.openMenu', 'Open menu')}
               tabIndex={0}
               style={{ fontSize: 0 }}
