@@ -16,6 +16,8 @@ import StepNavigationControls from './StepNavigationControls';
 import TextEditor from './TextEditor';
 import BorderSelector from './BorderSelector';
 import TemplateSelector from './TemplateSelector';
+import LogoUploader from './LogoUploader';
+import ColorSelector from './ColorSelector';
 import { useRef, useState } from 'react';
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
 
