@@ -59,34 +59,6 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   const widthPx = mmToPx(widthMm);
   const heightPx = mmToPx(heightMm);
 
-  // Debug overlays: center and bounding box visual
-  const DebugGuides = (
-    <>
-      {/* Center Point */}
-      <circle
-        cx={widthPx / 2}
-        cy={heightPx / 2}
-        r={6}
-        fill="#06f5"
-        stroke="#3af"
-        strokeWidth={2}
-        className="pointer-events-none"
-      />
-      {/* Bounding Rectangle */}
-      <rect
-        x={0}
-        y={0}
-        width={widthPx}
-        height={heightPx}
-        fill="none"
-        stroke="#fa3"
-        strokeDasharray="4,2"
-        strokeWidth={2}
-        className="pointer-events-none"
-      />
-    </>
-  );
-
   // Logging for debug: preview size and center
   React.useEffect(() => {
     console.log(
@@ -103,41 +75,6 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
     if (activeLineIndex !== null || includeLogo) return "grab";
     return "default";
   };
-
-  // Render grid/ruler if needed
-  // (for simplicity, always show light guides for foundation)
-  const Ruler = (
-    <svg
-      width={widthPx}
-      height={heightPx}
-      className="absolute inset-0 pointer-events-none z-10"
-      style={{ opacity: 0.4 }}
-    >
-      {/* grid every 5mm, bold every 10mm */}
-      {Array.from({ length: Math.floor(widthMm / 5) + 1 }).map((_, i) => (
-        <line
-          key={`vx-${i}`}
-          x1={i * mmToPx(5)}
-          y1={0}
-          x2={i * mmToPx(5)}
-          y2={heightPx}
-          stroke={i % 2 === 0 ? "#aaa" : "#eee"}
-          strokeWidth={i % 2 === 0 ? 1 : 0.5}
-        />
-      ))}
-      {Array.from({ length: Math.floor(heightMm / 5) + 1 }).map((_, i) => (
-        <line
-          key={`hy-${i}`}
-          x1={0}
-          y1={i * mmToPx(5)}
-          x2={widthPx}
-          y2={i * mmToPx(5)}
-          stroke={i % 2 === 0 ? "#aaa" : "#eee"}
-          strokeWidth={i % 2 === 0 ? 1 : 0.5}
-        />
-      ))}
-    </svg>
-  );
 
   return (
     <div className={`relative mx-auto rounded-lg shadow-inner bg-white ${highContrast ? "border-2 border-black" : ""}`}>
@@ -188,10 +125,9 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onTouchEnd={onCanvasTouchEnd}
         tabIndex={0}
       >
+        {/* Clean SVG overlay (no grid/rulers/center point) */}
         <svg width={widthPx} height={heightPx} className="absolute z-20 inset-0 pointer-events-none">
-          {DebugGuides}
-          {/* The ruler guides */}
-          {Ruler.props.children}
+          {/* No overlays */}
         </svg>
         <div className="relative w-full h-full z-30" style={{
           transform: `scale(${zoomLevel?.toFixed(3)})`,
