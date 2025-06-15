@@ -33,10 +33,11 @@ const Navbar = () => {
         <nav className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center" aria-label={t('common.brand')}>
+            {/* Increased logo size */}
             <img 
               src="/lovable-uploads/36d86151-4951-4ebe-a585-8d2d9aebb963.png"
               alt={t('common.brand')}
-              className="h-16 w-auto"  {/* <-- Increased logo size */}
+              className="h-16 w-auto"
             />
           </Link>
           
@@ -124,4 +125,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
