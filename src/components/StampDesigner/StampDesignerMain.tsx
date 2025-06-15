@@ -46,6 +46,9 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   
+  // Use the unified hook (which does logging, debouncing, etc)
+  const designer = useStampDesigner(product);
+
   const {
     design,
     updateLine,
@@ -72,7 +75,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     updateMultipleLines,
     enhancedAutoArrange,
     setGlobalAlignment
-  } = useStampDesigner(product);
+  } = designer;
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!previewRef.current) return;

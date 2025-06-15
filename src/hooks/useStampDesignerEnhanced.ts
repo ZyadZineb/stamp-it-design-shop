@@ -825,7 +825,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          // Allow user yPosition [-100,100] to vary radius ±25% 
+          // Allow yPosition to adjust the ellipse path radii ±20%
           const baseRadius = radius * 0.7;
           const maxDelta = radius * 0.25;
           const textRadius = baseRadius + (line.yPosition / 100) * maxDelta;
