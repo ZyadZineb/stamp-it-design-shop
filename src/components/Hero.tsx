@@ -16,7 +16,7 @@ const Hero = () => {
     imagePath: i18n.language.startsWith('en') ? "/lovable-uploads/28a683e8-de59-487e-b2ab-af1930ed01d6.png" : "/lovable-uploads/96fba4bf-cc54-4b59-8b27-7e5776d0b544.png"
   };
   return <section className="relative bg-gradient-to-r from-white via-blue-50 to-blue-100 pt-16 md:pt-44 pb-10 md:pb-32 overflow-hidden">
-      <div className="container-custom relative z-10">
+      <div className="container-custom relative border-zinc-100 ">
         <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight md:text-7xl md:mb-10 md:leading-tight py-0 lg:text-5xl my-[14px] mx-[37px] px-[35px] text-center">

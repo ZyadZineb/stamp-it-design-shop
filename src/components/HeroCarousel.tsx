@@ -31,12 +31,7 @@ const HeroCarousel: React.FC = () => {
       height: "auto"
     }}>
         <div className="flex">
-          {carouselProducts.map(product => <div key={product.id} className="
-                min-w-0 shrink-0 grow-0 basis-full px-3
-                flex items-center justify-center
-                h-96
-                md:h-[384px] lg:h-[420px] xl:h-[480px]
-              ">
+          {carouselProducts.map(product => <div key={product.id} className="min-w-0 shrink-0 grow-0 basis-full px-3\n                flex items-center justify-center\n                h-96\n                md:h-[384px] lg:h-[420px] xl:h-[480px]\n              ">
               <Link to={`/products/${product.id}`} aria-label={product.name} className="w-full h-full flex items-center justify-center -mx-0 ">
                 <img src={product.images[0]} alt={product.name} width="880" height="440" loading="lazy" style={{
               objectFit: "contain",
