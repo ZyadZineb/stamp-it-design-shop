@@ -310,46 +310,15 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                 isDragging={isDragging}
                 activeLineIndex={activeLineIndex}
                 includeLogo={design.includeLogo}
-                onMouseDown={(e) => {
-                  setIsDragging(true);
-                  handlePreviewClick(e);
-                }}
-                onMouseMove={(e) => {
-                  if (!isDragging || !previewRef.current) return;
-                  const rect = previewRef.current.getBoundingClientRect();
-                  handleDrag(e, rect);
-                }}
-                onMouseUp={() => {
-                  setIsDragging(false);
-                  stopDragging();
-                }}
-                onTouchStart={(e) => {
-                  setIsDragging(true);
-                  if (!previewRef.current || e.touches.length === 0) return;
-    
-                  const rect = previewRef.current.getBoundingClientRect();
-                  const touch = e.touches[0];
-                  
-                  const relativeX = ((touch.clientX - rect.left) / rect.width * 2 - 1) * 100;
-                  const relativeY = ((touch.clientY - rect.top) / rect.height * 2 - 1) * 100;
-                  
-                  if (activeLineIndex !== null) {
-                    updateTextPosition(activeLineIndex, relativeX, relativeY);
-                    startTextDrag(activeLineIndex);
-                  } else if (design.includeLogo) {
-                    updateLogoPosition(relativeX, relativeY);
-                    startLogoDrag();
-                  }
-                }}
-                onTouchMove={(e) => {
-                  if (!isDragging || !previewRef.current) return;
-                  const rect = previewRef.current.getBoundingClientRect();
-                  handleDrag(e, rect);
-                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
                 downloadAsPng={downloadAsPng}
-                zoomIn={zoomIn}
-                zoomOut={zoomOut}
                 zoomLevel={zoomLevel}
+                onZoomIn={zoomIn}
+                onZoomOut={zoomOut}
                 background="paper"
                 highContrast={highContrast}
                 largeControls={largeControls}
