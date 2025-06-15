@@ -13,6 +13,9 @@ import SampleDesigns from './SampleDesigns';
 import ProfessionalCircularTemplates from './ProfessionalCircularTemplates';
 import AutoArrange from './AutoArrange';
 import StampPreviewAccessible from './StampPreviewAccessible';
+import StepNavigationHeader from './StepNavigationHeader';
+import StepNavigationControls from './StepNavigationControls';
+import SummaryBar from './SummaryBar';
 
 interface StampDesignerMainProps {
   product: Product | null;
@@ -22,6 +25,8 @@ interface StampDesignerMainProps {
 }
 
 type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
+
+const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
 
 const StampDesignerMain: React.FC<StampDesignerMainProps> = ({ 
   product, 
@@ -174,23 +179,17 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   }, [isDragging, stopDragging]);
 
   const goToNextStep = () => {
-    if (currentStep === 'templates') setCurrentStep('logo');
-    else if (currentStep === 'logo') setCurrentStep('text');
-    else if (currentStep === 'text') setCurrentStep('border');
-    else if (currentStep === 'border') setCurrentStep('color');
-    else if (currentStep === 'color') setCurrentStep('preview');
+    const idx = steps.indexOf(currentStep);
+    if (idx < steps.length - 1) setCurrentStep(steps[idx + 1]);
   };
 
   const goToPrevStep = () => {
-    if (currentStep === 'preview') setCurrentStep('color');
-    else if (currentStep === 'color') setCurrentStep('border');
-    else if (currentStep === 'border') setCurrentStep('text');
-    else if (currentStep === 'text') setCurrentStep('logo');
-    else if (currentStep === 'logo') setCurrentStep('templates');
+    const idx = steps.indexOf(currentStep);
+    if (idx > 0) setCurrentStep(steps[idx - 1]);
   };
 
   const getStepInfo = (step: StepType) => {
-    const steps = {
+    const stepInfo = {
       templates: { title: 'Modèles', description: 'Choisissez un modèle professionnel', icon: '📋' },
       logo: { title: 'Logo', description: 'Ajoutez votre logo d\'entreprise', icon: '🖼️' },
       text: { title: 'Texte', description: 'Personnalisez votre contenu textuel', icon: '✏️' },
@@ -198,7 +197,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       color: { title: 'Couleur', description: 'Sélectionnez la couleur d\'encre', icon: '🎨' },
       preview: { title: 'Aperçu', description: 'Vérifiez le rendu final', icon: '👁️' }
     };
-    return steps[step];
+    return stepInfo[step];
   };
 
   if (!product) {
@@ -217,54 +216,12 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
   return (
     <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
-      <div className="flex-shrink-0 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">Créateur de Tampon Professionnel</h2>
-            <p className="text-blue-700 font-medium">
-              <span className="bg-blue-100 px-2 py-1 rounded-full text-sm">
-                {product.name} • {product.size}
-              </span>
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">{product.price} DHS</div>
-            <div className="text-sm text-gray-600">TTC</div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            {(['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).map((step, index) => {
-              const stepInfo = getStepInfo(step);
-              const isActive = currentStep === step;
-              const isCompleted = (['templates', 'logo', 'text', 'border', 'color', 'preview'] as StepType[]).indexOf(currentStep) > index;
-              
-              return (
-                <div 
-                  key={step}
-                  className={`flex-1 text-center cursor-pointer transition-all duration-200 ${isActive ? 'transform scale-105' : ''}`}
-                  onClick={() => setCurrentStep(step)}
-                >
-                  <div className={`w-8 h-8 mx-auto mb-1 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 ${
-                    isCompleted 
-                      ? 'bg-green-500 text-white shadow-lg' 
-                      : isActive 
-                      ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-200' 
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  }`}>
-                    {isCompleted ? '✓' : stepInfo.icon}
-                  </div>
-                  <div className={`text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
-                    {stepInfo.title}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      
+      <StepNavigationHeader 
+        product={product}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        getStepInfo={getStepInfo}
+      />
       {currentStep === 'preview' ? (
         <div className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-white overflow-auto">
           <div className="h-full flex flex-col">
@@ -418,64 +375,20 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="outline"
-                  onClick={goToPrevStep}
-                  disabled={currentStep === 'templates'}
-                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl border-2 transition-all duration-200 ${
-                    currentStep === 'templates' ? 'opacity-50' : 'hover:bg-gray-50 hover:border-gray-300'
-                  }`}
-                >
-                  ← Précédent
-                </Button>
-                
-                <div className="text-center">
-                  <div className="text-sm text-gray-500 mb-1">
-                    Étape {(['templates', 'logo', 'text', 'border', 'color', 'preview']).indexOf(currentStep) + 1} sur 6
-                  </div>
-                  <div className="w-48 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${(((['templates', 'logo', 'text', 'border', 'color', 'preview']).indexOf(currentStep) + 1) / 6) * 100}%` 
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <Button
-                  variant="default"
-                  onClick={goToNextStep}
-                  disabled={currentStep === 'preview'}
-                  className={`${largeControls ? "text-lg py-4 px-8" : "py-3 px-6"} rounded-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 ${
-                    currentStep === 'preview' ? 'opacity-50' : 'hover:scale-[1.02] shadow-lg'
-                  }`}
-                >
-                  {currentStep === 'color' ? 'Aperçu' : 'Suivant'} →
-                </Button>
-              </div>
+              <StepNavigationControls
+                currentStep={currentStep}
+                onPrev={goToPrevStep}
+                onNext={goToNextStep}
+                largeControls={largeControls}
+              />
             </div>
           </div>
-          <div className="flex-shrink-0 bg-gradient-to-r from-red-50 to-pink-50 border-t border-red-100 p-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-bold text-lg text-gray-900">{product.name}</h3>
-                <p className="text-gray-600 text-sm">Taille: {product.size} • Couleur: {design.inkColor}</p>
-              </div>
-              <div className="text-right mr-4">
-                <span className="font-bold text-2xl text-red-600">{product.price} DHS</span>
-                <p className="text-sm text-gray-600">TTC</p>
-              </div>
-              <Button
-                onClick={handleAddToCart}
-                className="py-3 px-6 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center gap-2"
-              >
-                <ShoppingCart size={20} />
-                Ajouter au Panier
-              </Button>
-            </div>
-          </div>
+          <SummaryBar
+            product={product}
+            inkColor={design.inkColor}
+            price={product.price}
+            onAddToCart={handleAddToCart}
+          />
         </div>
       )}
     </div>
