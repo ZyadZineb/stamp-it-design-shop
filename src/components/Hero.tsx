@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,27 +19,27 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-r from-white via-blue-50 to-blue-100 pt-8 md:pt-24 pb-2 md:pb-16 overflow-hidden">
+    <section className="relative bg-gradient-to-r from-white via-blue-50 to-blue-100 pt-16 md:pt-44 pb-10 md:pb-32 overflow-hidden">
       <div className="container-custom relative z-10">
         <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center">
           <div>
             <h1 className="
-              text-2xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight
-              md:text-6xl md:mb-8 md:leading-tight
-              lg:text-7xl
+              text-3xl font-extrabold tracking-tight text-gray-900 mb-2 leading-tight
+              md:text-7xl md:mb-10 md:leading-tight
+              lg:text-8xl
             ">
               {heroContent.title}
             </h1>
             <h2 className="
-              text-base font-medium text-brand-blue mb-2
-              md:text-3xl md:mb-8
-              lg:text-4xl
+              text-lg font-medium text-brand-blue mb-2
+              md:text-4xl md:mb-10
+              lg:text-5xl
             ">
               {heroContent.subtitle}
             </h2>
             <p className="
-              text-sm text-gray-600 mb-3 max-w-xl font-light
-              md:text-2xl md:mb-12
+              text-base text-gray-600 mb-3 max-w-xl font-light
+              md:text-2xl md:mb-16
               lg:text-2xl
             ">
               {heroContent.description}
@@ -77,3 +78,4 @@ const Hero = () => {
 };
 
 export default Hero;
+
