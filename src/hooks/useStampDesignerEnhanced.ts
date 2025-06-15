@@ -722,7 +722,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          const textRadius = Math.min(rx, ry) * 0.7;
+          // Allow user yPosition [-100,100] to vary radius ±25% 
+          const baseRadius = Math.min(rx, ry) * 0.7;
+          const maxDelta = Math.min(rx, ry) * 0.25;
+          const textRadius = baseRadius + (line.yPosition / 100) * maxDelta;
           const isBottom = line.textPosition === 'bottom';
           
           svgContent += `<defs><ellipse id="${pathId}" cx="${centerX}" cy="${centerY}" rx="${textRadius}" ry="${textRadius * (ry/rx)}" /></defs>`;
@@ -800,7 +803,10 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          const textRadius = radius * 0.7;
+          // Allow user yPosition [-100,100] to vary radius ±25% 
+          const baseRadius = radius * 0.7;
+          const maxDelta = radius * 0.25;
+          const textRadius = baseRadius + (line.yPosition / 100) * maxDelta;
           const isBottom = line.textPosition === 'bottom';
           
           svgContent += `<defs>`;
@@ -899,15 +905,20 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         if (line.curved) {
           const pathId = `textPath${index}-${Math.random().toString(36).substr(2, 6)}`;
-          const radiusX = (canvasWidth / 2) * 0.7;
-          const radiusY = (canvasHeight / 2) * 0.5;
+          // Allow yPosition to adjust the ellipse path radii ±20%
+          const baseRadiusX = (canvasWidth / 2) * 0.7;
+          const baseRadiusY = (canvasHeight / 2) * 0.5;
+          const maxDeltaX = (canvasWidth / 2) * 0.2;
+          const maxDeltaY = (canvasHeight / 2) * 0.12;
+          const adjRadiusX = baseRadiusX + (line.yPosition / 100) * maxDeltaX;
+          const adjRadiusY = baseRadiusY + (line.yPosition / 100) * maxDeltaY;
           const isBottom = line.textPosition === 'bottom';
           
           svgContent += `<defs>`;
           if (isBottom) {
-            svgContent += `<path id="${pathId}" d="M ${centerX + radiusX} ${centerY} a ${radiusX},${radiusY} 0 1,1 -${radiusX * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX + adjRadiusX} ${centerY} a ${adjRadiusX},${adjRadiusY} 0 1,1 -${adjRadiusX * 2},0" />`;
           } else {
-            svgContent += `<path id="${pathId}" d="M ${centerX - radiusX} ${centerY} a ${radiusX},${radiusY} 0 1,0 ${radiusX * 2},0" />`;
+            svgContent += `<path id="${pathId}" d="M ${centerX - adjRadiusX} ${centerY} a ${adjRadiusX},${adjRadiusY} 0 1,0 ${adjRadiusX * 2},0" />`;
           }
           svgContent += `</defs>`;
 
