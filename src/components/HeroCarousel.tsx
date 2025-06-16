@@ -1,8 +1,11 @@
+
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import { products } from "../data/products";
+
 const carouselProducts = products;
+
 const HeroCarousel: React.FC = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -10,39 +13,47 @@ const HeroCarousel: React.FC = () => {
     dragFree: true,
     align: "center"
   });
+
   useEffect(() => {
     if (!emblaApi) return;
+    
     const interval = setInterval(() => {
       emblaApi.scrollNext();
     }, 2000);
+    
     return () => clearInterval(interval);
   }, [emblaApi]);
-  return <div className="
-        relative
-        w-[370px] sm:w-[500px] 
-        md:w-[760px] lg:w-[840px] xl:w-[950px] 
-        mx-auto
-      ">
-      <div ref={emblaRef} className="
-          overflow-hidden rounded-2xl shadow-xl border-2 border-white bg-white
-          md:h-[384px] lg:h-[420px] xl:h-[480px]
-        " style={{
-      // Ensures the container always has the same height as the images, desktop only
-      height: "auto"
-    }}>
+
+  return (
+    <div className="relative w-full mx-auto">
+      <div 
+        ref={emblaRef} 
+        className="overflow-hidden rounded-2xl shadow-xl border-2 border-white bg-white"
+      >
         <div className="flex">
-          {carouselProducts.map(product => <div key={product.id} className="min-w-0 shrink-0 grow-0 basis-full px-3\n                flex items-center justify-center\n                h-96\n                md:h-[384px] lg:h-[420px] xl:h-[480px]\n              ">
-              <Link to={`/products/${product.id}`} aria-label={product.name} className="w-full h-full flex items-center justify-center -mx-0 ">
-                <img src={product.images[0]} alt={product.name} width="880" height="440" loading="lazy" style={{
-              objectFit: "contain",
-              // These ensure that on desktop, the image is always centered and same size
-              display: "block",
-              margin: "0 auto"
-            }} className="-bottom-0 -bottom-0 rounded-2xl transition-transform duration-300 bg-white shadow-lg max-w-full max-h-full md:h-[360px] md:w-[680px] lg:h-[390px] lg:w-[760px] xl:h-[440px] xl:rounded-2xl object-contain" />
+          {carouselProducts.map(product => (
+            <div 
+              key={product.id} 
+              className="min-w-0 shrink-0 grow-0 basis-full flex items-center justify-center p-4"
+            >
+              <Link 
+                to={`/products/${product.id}`} 
+                aria-label={product.name} 
+                className="w-full h-full flex items-center justify-center"
+              >
+                <img 
+                  src={product.images[0]} 
+                  alt={product.name} 
+                  className="max-w-full max-h-full h-64 md:h-80 lg:h-96 w-auto object-contain rounded-lg transition-transform duration-300 hover:scale-105" 
+                  loading="lazy"
+                />
               </Link>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default HeroCarousel;
