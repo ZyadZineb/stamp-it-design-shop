@@ -28,13 +28,13 @@ const HeroCarousel: React.FC = () => {
     <div className="relative w-full mx-auto">
       <div 
         ref={emblaRef} 
-        className="overflow-hidden rounded-2xl shadow-xl border-2 border-white bg-white"
+        className="overflow-hidden rounded-2xl bg-white"
       >
         <div className="flex">
           {carouselProducts.map(product => (
             <div 
               key={product.id} 
-              className="min-w-0 shrink-0 grow-0 basis-full flex items-center justify-center p-4"
+              className="min-w-0 shrink-0 grow-0 basis-full flex items-center justify-center p-4 bg-white"
             >
               <Link 
                 to={`/products/${product.id}`} 
@@ -44,8 +44,9 @@ const HeroCarousel: React.FC = () => {
                 <img 
                   src={product.images[0]} 
                   alt={product.name} 
-                  className="max-w-full max-h-full h-64 md:h-80 lg:h-96 w-auto object-contain rounded-lg transition-transform duration-300 hover:scale-105" 
+                  className="max-w-full max-h-full h-64 md:h-80 lg:h-96 w-auto object-contain rounded-lg transition-transform duration-300 hover:scale-105 filter-none opacity-100" 
                   loading="lazy"
+                  style={{ filter: 'none', opacity: 1 }}
                 />
               </Link>
             </div>
