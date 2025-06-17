@@ -533,10 +533,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           {currentStep === 'shape' && (
             <>
               <BorderStyleSelector 
-                borderStyle={design.borderStyle} 
-                borderThickness={design.borderThickness}
-                onBorderStyleChange={setBorderStyle}
-                onBorderThicknessChange={setBorderThickness}
+                selectedStyle={design.borderStyle} 
+                onStyleChange={setBorderStyle}
+                largeControls={largeControls}
               />
             </>
           )}

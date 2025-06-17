@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, Share, Play, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 import LoadingButton from './LoadingButton';
 
