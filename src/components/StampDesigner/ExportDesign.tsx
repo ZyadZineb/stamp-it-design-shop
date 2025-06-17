@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, Share, Play, Info } from 'lucide-react';
-import { Button } from "@/components/ui/button";
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
+import LoadingButton from './LoadingButton';
 
 interface ExportDesignProps {
   svgRef: string | null;
@@ -23,11 +22,15 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
   const { t } = useTranslation();
   const [showAnimation, setShowAnimation] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleShareDesign = async () => {
     if (navigator.share && previewImage) {
+      setIsSharing(true);
       try {
-        // Convert the data URL to a file
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing
+        
         const response = await fetch(previewImage);
         const blob = await response.blob();
         const file = new File([blob], `${productName.replace(/\s/g, '-')}-stamp-design.png`, { type: 'image/png' });
@@ -39,20 +42,30 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
         });
       } catch (error) {
         console.error('Error sharing design:', error);
-        // Fallback - open in new window
         if (previewImage) {
           const newWindow = window.open();
           if (newWindow) {
             newWindow.document.write(`<img src="${previewImage}" alt="Stamp Design" />`);
           }
         }
+      } finally {
+        setIsSharing(false);
       }
     } else if (previewImage) {
-      // Fallback for browsers that don't support the Web Share API
       const newWindow = window.open();
       if (newWindow) {
         newWindow.document.write(`<img src="${previewImage}" alt="Stamp Design" />`);
       }
+    }
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate processing
+      downloadAsPng();
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -66,7 +79,7 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <h3 className={`font-medium text-brand-blue ${largeControls ? "text-lg" : ""}`}>
           {t('export.title', 'Export Design')}
         </h3>
@@ -79,44 +92,50 @@ const ExportDesign: React.FC<ExportDesignProps> = ({
         {t('export.description', 'Download or share your professional stamp design')}
       </p>
       
-      <div className="flex flex-col sm:flex-row gap-3">
-        <HelpTooltip content={t('export.downloadTooltip', 'Download as high-quality PNG with transparent background')}>
-          <Button 
-            onClick={downloadAsPng} 
-            disabled={!previewImage}
-            variant="outline"
-            className={`flex items-center gap-2 min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue ${largeControls ? "text-lg py-6" : ""}`}
-          >
-            <Download size={largeControls ? 24 : 18} />
-            {t('export.downloadImage', 'Download PNG')}
-          </Button>
-        </HelpTooltip>
-        
-        {navigator.share && (
-          <HelpTooltip content={t('export.shareTooltip', 'Share your design with others')}>
-            <Button 
-              onClick={handleShareDesign} 
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <HelpTooltip content={t('export.downloadTooltip', 'Download as high-quality PNG with transparent background')}>
+            <LoadingButton 
+              onClick={handleDownload}
+              loading={isDownloading}
+              loadingText="Downloading..."
               disabled={!previewImage}
               variant="outline"
-              className={`flex items-center gap-2 min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue ${largeControls ? "text-lg py-6" : ""}`}
+              className={`flex items-center gap-2 min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue focus-visible:outline-2 focus-visible:outline-brand-blue ${largeControls ? "text-lg py-6" : ""}`}
             >
-              <Share size={largeControls ? 24 : 18} />
-              {t('export.shareDesign', 'Share Design')}
-            </Button>
+              <Download size={largeControls ? 24 : 18} />
+              {t('export.downloadImage', 'Download PNG')}
+            </LoadingButton>
           </HelpTooltip>
-        )}
+          
+          {navigator.share && (
+            <HelpTooltip content={t('export.shareTooltip', 'Share your design with others')}>
+              <LoadingButton 
+                onClick={handleShareDesign}
+                loading={isSharing}
+                loadingText="Sharing..."
+                disabled={!previewImage}
+                variant="outline"
+                className={`flex items-center gap-2 min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue focus-visible:outline-2 focus-visible:outline-brand-blue ${largeControls ? "text-lg py-6" : ""}`}
+              >
+                <Share size={largeControls ? 24 : 18} />
+                {t('export.shareDesign', 'Share Design')}
+              </LoadingButton>
+            </HelpTooltip>
+          )}
 
-        <HelpTooltip content={t('export.simulationTooltip', 'See how your stamp will look when pressed on paper')}>
-          <Button
-            onClick={handleVirtualStamping}
-            disabled={!previewImage}
-            variant="outline"
-            className={`flex items-center gap-2 min-h-[44px] hover:bg-green-600 hover:text-white border-green-600 text-green-600 ${largeControls ? "text-lg py-6" : ""}`}
-          >
-            <Play size={largeControls ? 24 : 18} />
-            {t('export.printSimulation', 'Print Simulation')}
-          </Button>
-        </HelpTooltip>
+          <HelpTooltip content={t('export.simulationTooltip', 'See how your stamp will look when pressed on paper')}>
+            <LoadingButton
+              onClick={handleVirtualStamping}
+              disabled={!previewImage}
+              variant="outline"
+              className={`flex items-center gap-2 min-h-[44px] hover:bg-green-600 hover:text-white border-green-600 text-green-600 focus-visible:outline-2 focus-visible:outline-green-600 ${largeControls ? "text-lg py-6" : ""}`}
+            >
+              <Play size={largeControls ? 24 : 18} />
+              {t('export.printSimulation', 'Print Simulation')}
+            </LoadingButton>
+          </HelpTooltip>
+        </div>
       </div>
       
       {previewImage && !showAnimation && (

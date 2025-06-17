@@ -1,12 +1,12 @@
-
 import React, { useState } from "react";
 import { mmToPx } from "@/utils/dimensions";
-import { Download, ZoomIn, ZoomOut, Grid } from "lucide-react";
+import { Download, ZoomIn, ZoomOut, Grid, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/tooltip-custom";
 import { useTranslation } from "react-i18next";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import LoadingButton from "./LoadingButton";
 
 /** NEW: Debug settings type */
 export interface DebugOverlaySettings {
@@ -92,6 +92,8 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
 }) => {
   const { t } = useTranslation();
   const [showGrid, setShowGrid] = useState(false);
+  const [showMeasurements, setShowMeasurements] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const widthPx = mmToPx(widthMm);
   const heightPx = mmToPx(heightMm);
 
@@ -102,157 +104,104 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
     else debugConfig = { ...defaultDebug, ...debug };
   }
 
-  // Helpers for overlay rendering
-  /** mm grid rendered as SVG lines every 10px (=1mm) */
-  const renderGrid = () => (
-    <svg width={widthPx} height={heightPx} className="absolute z-30 inset-0 pointer-events-none">
-      {/* Vertical lines */}
+  // Enhanced grid with measurement markers
+  const renderMeasurementGrid = () => (
+    <svg width={widthPx} height={heightPx} className="absolute z-20 inset-0 pointer-events-none">
+      {/* Major grid lines every 5mm (50px) */}
+      {Array.from({ length: Math.ceil(widthMm / 5) + 1 }, (_, i) => (
+        <line
+          key={`vmajor${i}`}
+          x1={i * 50}
+          x2={i * 50}
+          y1={0}
+          y2={heightPx}
+          stroke="#3b82f6"
+          strokeWidth={1}
+          opacity={0.3}
+          strokeDasharray="2 4"
+        />
+      ))}
+      {Array.from({ length: Math.ceil(heightMm / 5) + 1 }, (_, i) => (
+        <line
+          key={`hmajor${i}`}
+          y1={i * 50}
+          y2={i * 50}
+          x1={0}
+          x2={widthPx}
+          stroke="#3b82f6"
+          strokeWidth={1}
+          opacity={0.3}
+          strokeDasharray="2 4"
+        />
+      ))}
+      
+      {/* Minor grid lines every 1mm (10px) */}
       {Array.from({ length: Math.ceil(widthPx / 10) }, (_, i) => (
         <line
-          key={`v${i}`}
+          key={`vminor${i}`}
           x1={i * 10}
           x2={i * 10}
           y1={0}
           y2={heightPx}
           stroke="#e0f2fe"
-          strokeWidth={i % 5 === 0 ? 1 : 0.5}
-          opacity={i % 5 === 0 ? 0.4 : 0.2}
+          strokeWidth={0.5}
+          opacity={0.4}
         />
       ))}
-      {/* Horizontal lines */}
       {Array.from({ length: Math.ceil(heightPx / 10) }, (_, i) => (
         <line
-          key={`h${i}`}
+          key={`hminor${i}`}
           y1={i * 10}
           y2={i * 10}
           x1={0}
           x2={widthPx}
           stroke="#e0f2fe"
-          strokeWidth={i % 5 === 0 ? 1 : 0.5}
-          opacity={i % 5 === 0 ? 0.4 : 0.2}
+          strokeWidth={0.5}
+          opacity={0.4}
         />
       ))}
-    </svg>
-  );
-
-  /** mm rulers: SVG at top and left, with labels every 5mm */
-  const renderRulers = () => (
-    <svg
-      width={widthPx}
-      height={heightPx}
-      className="absolute z-40 inset-0 pointer-events-none"
-      style={{}}
-    >
-      {/* Top ruler */}
-      {Array.from({ length: Math.ceil(widthMm) + 1 }, (_, i) => (
-        <g key={`rx${i}`}>
-          <line
-            x1={i * 10}
-            y1={0}
-            x2={i * 10}
-            y2={10}
-            stroke="#3182ce"
-            strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
-          />
-          {i % 5 === 0 && (
-            <text
-              x={i * 10 + 2}
-              y={18}
-              fontSize={7}
-              fill="#1973aa"
-              fontFamily="monospace"
-            >
-              {i}
-            </text>
-          )}
-        </g>
+      
+      {/* Measurement labels */}
+      {showMeasurements && Array.from({ length: Math.ceil(widthMm / 5) + 1 }, (_, i) => (
+        <text
+          key={`xlabel${i}`}
+          x={i * 50 + 2}
+          y={12}
+          fontSize={8}
+          fill="#1e40af"
+          fontFamily="monospace"
+          className="select-none"
+        >
+          {i * 5}mm
+        </text>
       ))}
-      {/* Left ruler */}
-      {Array.from({ length: Math.ceil(heightMm) + 1 }, (_, i) => (
-        <g key={`ry${i}`}>
-          <line
-            x1={0}
-            y1={i * 10}
-            x2={10}
-            y2={i * 10}
-            stroke="#3182ce"
-            strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
-          />
-          {i % 5 === 0 && (
-            <text
-              x={13}
-              y={i * 10 + 8}
-              fontSize={7}
-              fill="#1973aa"
-              fontFamily="monospace"
-            >
-              {i}
-            </text>
-          )}
-        </g>
+      {showMeasurements && Array.from({ length: Math.ceil(heightMm / 5) + 1 }, (_, i) => (
+        <text
+          key={`ylabel${i}`}
+          x={2}
+          y={i * 50 + 12}
+          fontSize={8}
+          fill="#1e40af"
+          fontFamily="monospace"
+          className="select-none"
+        >
+          {i * 5}
+        </text>
       ))}
     </svg>
   );
 
-  /** Outline each text block: dashed box, label with key */
-  const renderBoundingBoxes = () => (
-    <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
-      {textBlocks.map(({ x, y, width, height, key }, i) => (
-        <g key={key ?? i}>
-          <rect
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            stroke="#ec4899"
-            strokeWidth={2}
-            fill="none"
-            strokeDasharray="5 4"
-            opacity={0.75}
-          />
-          <text
-            x={x + 3}
-            y={y + 11}
-            fontSize={11}
-            fill="#f63fa2"
-            fontWeight="bold"
-            fontFamily="monospace"
-          >
-            {key}
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
-
-  /** Baseline guides for text blocks (horizontal line per block baseline) */
-  const renderBaselines = () => (
-    <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
-      {textBlocks.map(({ x, baseline, width, key }, i) => (
-        <line
-          key={key + "-base"}
-          x1={x}
-          y1={baseline}
-          x2={x + width}
-          y2={baseline}
-          stroke="#3b82f6"
-          strokeWidth={1.4}
-          strokeDasharray="4 4"
-          opacity={0.8}
-        />
-      ))}
-    </svg>
-  );
-
-  // Logging for debug: preview size and center
-  React.useEffect(() => {
-    console.log(
-      "[PreviewCanvas] pxSize:",
-      { widthPx, heightPx },
-      "Center:",
-      { x: widthPx / 2, y: heightPx / 2 }
-    );
-  }, [widthPx, heightPx]);
+  const handleDownload = async () => {
+    if (!downloadAsPng || !previewImage) return;
+    
+    setIsDownloading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 600));
+      downloadAsPng();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Determine the cursor style based on state
   const getCursorStyle = () => {
@@ -264,38 +213,73 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   return (
     <div className={`relative mx-auto rounded-lg shadow-inner bg-white ${highContrast ? "border-2 border-black" : ""}`}>
       {/* Top controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 pt-4 gap-3">
-        <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"} text-lg`}>
-          {t("preview.title", "Preview")}
-        </h3>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Grid toggle */}
-          <div className="flex items-center gap-2 mr-4">
+      <div className="flex flex-col gap-3 px-4 pt-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"} text-lg`}>
+            {t("preview.title", "Preview")}
+          </h3>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Download button */}
+            <HelpTooltip content={t("preview.downloadHelp", "Download your stamp design as a high-quality PNG image")}>
+              <LoadingButton 
+                onClick={handleDownload}
+                loading={isDownloading}
+                loadingText="Downloading..."
+                disabled={!previewImage}
+                variant="outline"
+                size={largeControls ? "default" : "icon"}
+                className={`min-h-[44px] min-w-[44px] hover:bg-green-50 hover:text-green-600 focus-visible:outline-2 focus-visible:outline-green-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                aria-label={t("preview.download", "Download stamp design")}
+              >
+                <Download size={largeControls ? 20 : 16} />
+                {largeControls && !isDownloading && <span className="ml-2">Download</span>}
+              </LoadingButton>
+            </HelpTooltip>
+          </div>
+        </div>
+
+        {/* Enhanced grid and measurement controls */}
+        <div className="flex flex-wrap items-center gap-4 py-2 border-t border-gray-100">
+          <div className="flex items-center gap-2">
             <Switch
               id="grid-toggle"
               checked={showGrid}
               onCheckedChange={setShowGrid}
-              aria-describedby="grid-toggle-description"
+              className="focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
             />
-            <Label htmlFor="grid-toggle" className="text-sm flex items-center gap-1 cursor-pointer">
-              <Grid size={14} />
-              {t("preview.grid", "Grid")}
-            </Label>
-            <span id="grid-toggle-description" className="sr-only">
-              {t("preview.gridDescription", "Toggle measurement grid overlay")}
-            </span>
+            <HelpTooltip content="Show 1mm grid overlay for precise positioning">
+              <Label htmlFor="grid-toggle" className="text-sm flex items-center gap-1 cursor-pointer">
+                <Grid size={14} />
+                {t("preview.grid", "Grid")}
+              </Label>
+            </HelpTooltip>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Switch
+              id="measurements-toggle"
+              checked={showMeasurements}
+              onCheckedChange={setShowMeasurements}
+              className="focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+            />
+            <HelpTooltip content="Show measurement markers every 5mm for reference">
+              <Label htmlFor="measurements-toggle" className="text-sm flex items-center gap-1 cursor-pointer">
+                {showMeasurements ? <Eye size={14} /> : <EyeOff size={14} />}
+                Measurements
+              </Label>
+            </HelpTooltip>
           </div>
 
           {/* Zoom controls */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 ml-auto">
             <HelpTooltip content={t("preview.zoomHelp", "Zoom in or out to see more detail")}>
               <Button 
                 variant="outline" 
                 size={largeControls ? "default" : "icon"} 
                 onClick={onZoomOut} 
                 disabled={!onZoomOut || zoomLevel <= 1} 
-                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
                 aria-label={t("preview.zoomOut", "Zoom out")}
               >
                 <ZoomOut size={largeControls ? 20 : 16} />
@@ -312,27 +296,13 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
                 size={largeControls ? "default" : "icon"} 
                 onClick={onZoomIn} 
                 disabled={!onZoomIn || zoomLevel >= 3} 
-                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
                 aria-label={t("preview.zoomIn", "Zoom in")}
               >
                 <ZoomIn size={largeControls ? 20 : 16} />
               </Button>
             </HelpTooltip>
           </div>
-
-          {/* Download button */}
-          <HelpTooltip content={t("preview.downloadHelp", "Download your stamp design as a high-quality PNG image")}>
-            <Button 
-              variant="outline" 
-              size={largeControls ? "default" : "icon"} 
-              onClick={downloadAsPng} 
-              disabled={!downloadAsPng || !previewImage} 
-              className={`min-h-[44px] min-w-[44px] hover:bg-green-50 focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
-              aria-label={t("preview.download", "Download stamp design")}
-            >
-              <Download size={largeControls ? 20 : 16} />
-            </Button>
-          </HelpTooltip>
         </div>
       </div>
       {/* Preview canvas area */}
@@ -358,41 +328,11 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            // Handle keyboard interaction if needed
           }
         }}
       >
-        {/* Grid overlay */}
-        {(showGrid || debugConfig?.grid) && (
-          <svg width={widthPx} height={heightPx} className="absolute z-30 inset-0 pointer-events-none">
-            {/* Vertical lines */}
-            {Array.from({ length: Math.ceil(widthPx / 10) }, (_, i) => (
-              <line
-                key={`v${i}`}
-                x1={i * 10}
-                x2={i * 10}
-                y1={0}
-                y2={heightPx}
-                stroke="#e0f2fe"
-                strokeWidth={i % 5 === 0 ? 1 : 0.5}
-                opacity={i % 5 === 0 ? 0.4 : 0.2}
-              />
-            ))}
-            {/* Horizontal lines */}
-            {Array.from({ length: Math.ceil(heightPx / 10) }, (_, i) => (
-              <line
-                key={`h${i}`}
-                y1={i * 10}
-                y2={i * 10}
-                x1={0}
-                x2={widthPx}
-                stroke="#e0f2fe"
-                strokeWidth={i % 5 === 0 ? 1 : 0.5}
-                opacity={i % 5 === 0 ? 0.4 : 0.2}
-              />
-            ))}
-          </svg>
-        )}
+        {/* Enhanced measurement grid */}
+        {(showGrid || showMeasurements) && renderMeasurementGrid()}
         
         {/* Debug overlays */}
         {debugConfig?.rulers && (

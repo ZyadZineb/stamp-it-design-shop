@@ -97,30 +97,34 @@ const LineItem: React.FC<LineItemProps> = ({
         </div>
         
         <div className="flex gap-2 ml-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => { e.stopPropagation(); onRemove(index); }}
-            disabled={linesLength <= 1}
-            className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-red-50 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-red-500 transition-colors"
-            aria-label={t('textEditor.removeLineAriaLabel', 'Remove this text line')}
-          >
-            <Trash size={largeControls ? 20 : 16} />
-          </Button>
+          <HelpTooltip content="Remove this text line from your stamp">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); onRemove(index); }}
+              disabled={linesLength <= 1}
+              className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-red-500 focus-visible:outline-offset-2 transition-colors"
+              aria-label={t('textEditor.removeLineAriaLabel', 'Remove this text line')}
+            >
+              <Trash size={largeControls ? 20 : 16} />
+            </Button>
+          </HelpTooltip>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => { e.stopPropagation(); onToggleExpand(index); }}
-            className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-            aria-label={expanded ? t('textEditor.collapseAriaLabel', 'Collapse controls') : t('textEditor.expandAriaLabel', 'Expand controls')}
-          >
-            {expanded ? (
-              <ChevronUp size={largeControls ? 20 : 16} />
-            ) : (
-              <ChevronDown size={largeControls ? 20 : 16} />
-            )}
-          </Button>
+          <HelpTooltip content={expanded ? "Hide formatting options" : "Show formatting options"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); onToggleExpand(index); }}
+              className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+              aria-label={expanded ? t('textEditor.collapseAriaLabel', 'Collapse controls') : t('textEditor.expandAriaLabel', 'Expand controls')}
+            >
+              {expanded ? (
+                <ChevronUp size={largeControls ? 20 : 16} />
+              ) : (
+                <ChevronDown size={largeControls ? 20 : 16} />
+              )}
+            </Button>
+          </HelpTooltip>
         </div>
       </div>
       
@@ -158,11 +162,13 @@ const LineItem: React.FC<LineItemProps> = ({
             onFlipCurved={onFlipCurved}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <div>
-              <Label className="text-sm font-medium mb-2 block">
-                {t('textEditor.fontFamily', 'Font')}
-              </Label>
+              <HelpTooltip content="Choose the font family for this text line">
+                <Label className="text-sm font-medium mb-2 block">
+                  {t('textEditor.fontFamily', 'Font')}
+                </Label>
+              </HelpTooltip>
               <FontSelector
                 value={line.fontFamily}
                 onChange={(font) => onFontChange(index, font)}
@@ -178,27 +184,31 @@ const LineItem: React.FC<LineItemProps> = ({
                 </HelpTooltip>
               </Label>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onFontSizeChange(index, Math.max(8, line.fontSize - 1))}
-                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                  aria-label={t('textEditor.decreaseFontSize', 'Decrease font size')}
-                >
-                  <Minus size={largeControls ? 20 : 16} />
-                </Button>
+                <HelpTooltip content="Decrease font size">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onFontSizeChange(index, Math.max(8, line.fontSize - 1))}
+                    className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+                    aria-label={t('textEditor.decreaseFontSize', 'Decrease font size')}
+                  >
+                    <Minus size={largeControls ? 20 : 16} />
+                  </Button>
+                </HelpTooltip>
                 <div className="w-12 text-center font-mono text-sm bg-white border rounded px-2 py-1">
                   {line.fontSize}
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onFontSizeChange(index, Math.min(72, line.fontSize + 1))}
-                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                  aria-label={t('textEditor.increaseFontSize', 'Increase font size')}
-                >
-                  <Plus size={largeControls ? 20 : 16} />
-                </Button>
+                <HelpTooltip content="Increase font size">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onFontSizeChange(index, Math.min(72, line.fontSize + 1))}
+                    className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+                    aria-label={t('textEditor.increaseFontSize', 'Increase font size')}
+                  >
+                    <Plus size={largeControls ? 20 : 16} />
+                  </Button>
+                </HelpTooltip>
               </div>
             </div>
           </div>
@@ -210,44 +220,50 @@ const LineItem: React.FC<LineItemProps> = ({
                 <span className="sr-only">{t('textEditor.alignmentHelp', 'Text alignment help')}</span>
               </HelpTooltip>
             </Label>
-            <div className="flex gap-2">
-              <Button
-                variant={line.alignment === 'left' ? "default" : "outline"}
-                size="icon"
-                onClick={() => onAlignmentChange(index, 'left')}
-                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                aria-label={t('textEditor.alignLeft', 'Align left')}
-                aria-pressed={line.alignment === 'left'}
-              >
-                <AlignLeft size={largeControls ? 20 : 18} />
-              </Button>
-              <Button
-                variant={line.alignment === 'center' ? "default" : "outline"}
-                size="icon"
-                onClick={() => onAlignmentChange(index, 'center')}
-                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                aria-label={t('textEditor.alignCenter', 'Align center')}
-                aria-pressed={line.alignment === 'center'}
-              >
-                <AlignCenter size={largeControls ? 20 : 18} />
-              </Button>
-              <Button
-                variant={line.alignment === 'right' ? "default" : "outline"}
-                size="icon"
-                onClick={() => onAlignmentChange(index, 'right')}
-                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                aria-label={t('textEditor.alignRight', 'Align right')}
-                aria-pressed={line.alignment === 'right'}
-              >
-                <AlignRight size={largeControls ? 20 : 18} />
-              </Button>
+            <div className="flex flex-wrap gap-2">
+              <HelpTooltip content="Align text to the left">
+                <Button
+                  variant={line.alignment === 'left' ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onAlignmentChange(index, 'left')}
+                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+                  aria-label={t('textEditor.alignLeft', 'Align left')}
+                  aria-pressed={line.alignment === 'left'}
+                >
+                  <AlignLeft size={largeControls ? 20 : 18} />
+                </Button>
+              </HelpTooltip>
+              <HelpTooltip content="Center text horizontally">
+                <Button
+                  variant={line.alignment === 'center' ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onAlignmentChange(index, 'center')}
+                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+                  aria-label={t('textEditor.alignCenter', 'Align center')}
+                  aria-pressed={line.alignment === 'center'}
+                >
+                  <AlignCenter size={largeControls ? 20 : 18} />
+                </Button>
+              </HelpTooltip>
+              <HelpTooltip content="Align text to the right">
+                <Button
+                  variant={line.alignment === 'right' ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onAlignmentChange(index, 'right')}
+                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 transition-colors"
+                  aria-label={t('textEditor.alignRight', 'Align right')}
+                  aria-pressed={line.alignment === 'right'}
+                >
+                  <AlignRight size={largeControls ? 20 : 18} />
+                </Button>
+              </HelpTooltip>
             </div>
           </div>
           
-          {/* Position Controls */}
+          {/* Enhanced Position Controls with better mobile layout */}
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-medium mb-2 flex justify-between items-center">
+              <Label className="text-sm font-medium mb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                 <span className="flex items-center gap-1">
                   {line.curved 
                     ? t('textEditor.curvedHorizontalPosition', 'Arc Position') 
@@ -266,7 +282,7 @@ const LineItem: React.FC<LineItemProps> = ({
                   max={100}
                   step={1}
                   onValueChange={([value]) => onUpdateTextPosition(index, value, line.yPosition || 0)}
-                  className="w-full"
+                  className="w-full focus-visible:outline-2 focus-visible:outline-blue-500"
                   aria-label={t('textEditor.horizontalPositionSlider', 'Horizontal position slider')}
                 />
               </div>
@@ -277,7 +293,7 @@ const LineItem: React.FC<LineItemProps> = ({
             </div>
             
             <div>
-              <Label className="text-sm font-medium mb-2 flex justify-between items-center">
+              <Label className="text-sm font-medium mb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                 <span className="flex items-center gap-1">
                   {line.curved 
                     ? t('textEditor.curvedVerticalPosition', 'Radius Adjustment') 
@@ -296,7 +312,7 @@ const LineItem: React.FC<LineItemProps> = ({
                   max={100}
                   step={1}
                   onValueChange={([value]) => onUpdateTextPosition(index, line.xPosition || 0, value)}
-                  className="w-full"
+                  className="w-full focus-visible:outline-2 focus-visible:outline-blue-500"
                   aria-label={t('textEditor.verticalPositionSlider', 'Vertical position slider')}
                 />
               </div>
