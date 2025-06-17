@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { mmToPx } from "@/utils/dimensions";
 import { Download, ZoomIn, ZoomOut, Grid } from "lucide-react";
@@ -294,7 +295,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
                 size={largeControls ? "default" : "icon"} 
                 onClick={onZoomOut} 
                 disabled={!onZoomOut || zoomLevel <= 1} 
-                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
                 aria-label={t("preview.zoomOut", "Zoom out")}
               >
                 <ZoomOut size={largeControls ? 20 : 16} />
@@ -311,7 +312,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
                 size={largeControls ? "default" : "icon"} 
                 onClick={onZoomIn} 
                 disabled={!onZoomIn || zoomLevel >= 3} 
-                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
                 aria-label={t("preview.zoomIn", "Zoom in")}
               >
                 <ZoomIn size={largeControls ? 20 : 16} />
@@ -326,7 +327,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
               size={largeControls ? "default" : "icon"} 
               onClick={downloadAsPng} 
               disabled={!downloadAsPng || !previewImage} 
-              className={`min-h-[44px] min-w-[44px] hover:bg-green-50 focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+              className={`min-h-[44px] min-w-[44px] hover:bg-green-50 focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50 transition-colors ${largeControls ? "h-12 w-12 p-0" : ""}`}
               aria-label={t("preview.download", "Download stamp design")}
             >
               <Download size={largeControls ? 20 : 16} />
@@ -362,7 +363,36 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         }}
       >
         {/* Grid overlay */}
-        {(showGrid || debugConfig?.grid) && renderGrid()}
+        {(showGrid || debugConfig?.grid) && (
+          <svg width={widthPx} height={heightPx} className="absolute z-30 inset-0 pointer-events-none">
+            {/* Vertical lines */}
+            {Array.from({ length: Math.ceil(widthPx / 10) }, (_, i) => (
+              <line
+                key={`v${i}`}
+                x1={i * 10}
+                x2={i * 10}
+                y1={0}
+                y2={heightPx}
+                stroke="#e0f2fe"
+                strokeWidth={i % 5 === 0 ? 1 : 0.5}
+                opacity={i % 5 === 0 ? 0.4 : 0.2}
+              />
+            ))}
+            {/* Horizontal lines */}
+            {Array.from({ length: Math.ceil(heightPx / 10) }, (_, i) => (
+              <line
+                key={`h${i}`}
+                y1={i * 10}
+                y2={i * 10}
+                x1={0}
+                x2={widthPx}
+                stroke="#e0f2fe"
+                strokeWidth={i % 5 === 0 ? 1 : 0.5}
+                opacity={i % 5 === 0 ? 0.4 : 0.2}
+              />
+            ))}
+          </svg>
+        )}
         
         {/* Debug overlays */}
         {debugConfig?.rulers && (
@@ -506,7 +536,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         <span>{productSize && `${t("preview.size", "Size")}: ${productSize}`}</span>
         <span>
           {activeLineIndex !== null
-            ? t("preview.editingLine", { line: activeLineIndex + 1 }, "Editing line {{line}}")
+            ? t("preview.editingLine", "Editing line {{line}}", { line: activeLineIndex + 1 })
             : includeLogo
             ? t("preview.editingLogo", "Editing logo")
             : t("preview.clickToEdit", "Click elements to edit")}

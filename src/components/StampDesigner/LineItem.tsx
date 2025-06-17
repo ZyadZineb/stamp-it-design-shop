@@ -76,7 +76,7 @@ const LineItem: React.FC<LineItemProps> = ({
             onSetActive(index);
           }
         }}
-        aria-label={t('textEditor.lineAriaLabel', { line: index + 1 }, 'Line {{line}}') + (hasEmptyText ? ' - ' + t('textEditor.emptyText', 'Empty') : '')}
+        aria-label={t('textEditor.lineAriaLabel', 'Line {{line}}', { line: index + 1 }) + (hasEmptyText ? ' - ' + t('textEditor.emptyText', 'Empty') : '')}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ const LineItem: React.FC<LineItemProps> = ({
             size="icon"
             onClick={(e) => { e.stopPropagation(); onRemove(index); }}
             disabled={linesLength <= 1}
-            className="h-10 w-10 hover:bg-red-50 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-red-500"
+            className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-red-50 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-red-500 transition-colors"
             aria-label={t('textEditor.removeLineAriaLabel', 'Remove this text line')}
           >
             <Trash size={largeControls ? 20 : 16} />
@@ -112,7 +112,7 @@ const LineItem: React.FC<LineItemProps> = ({
             variant="ghost"
             size="icon"
             onClick={(e) => { e.stopPropagation(); onToggleExpand(index); }}
-            className="h-10 w-10 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
             aria-label={expanded ? t('textEditor.collapseAriaLabel', 'Collapse controls') : t('textEditor.expandAriaLabel', 'Expand controls')}
           >
             {expanded ? (
@@ -182,7 +182,7 @@ const LineItem: React.FC<LineItemProps> = ({
                   variant="outline"
                   size="icon"
                   onClick={() => onFontSizeChange(index, Math.max(8, line.fontSize - 1))}
-                  className="h-10 w-10 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                   aria-label={t('textEditor.decreaseFontSize', 'Decrease font size')}
                 >
                   <Minus size={largeControls ? 20 : 16} />
@@ -194,7 +194,7 @@ const LineItem: React.FC<LineItemProps> = ({
                   variant="outline"
                   size="icon"
                   onClick={() => onFontSizeChange(index, Math.min(72, line.fontSize + 1))}
-                  className="h-10 w-10 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                   aria-label={t('textEditor.increaseFontSize', 'Increase font size')}
                 >
                   <Plus size={largeControls ? 20 : 16} />
@@ -215,7 +215,7 @@ const LineItem: React.FC<LineItemProps> = ({
                 variant={line.alignment === 'left' ? "default" : "outline"}
                 size="icon"
                 onClick={() => onAlignmentChange(index, 'left')}
-                className="h-11 w-11 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                 aria-label={t('textEditor.alignLeft', 'Align left')}
                 aria-pressed={line.alignment === 'left'}
               >
@@ -225,7 +225,7 @@ const LineItem: React.FC<LineItemProps> = ({
                 variant={line.alignment === 'center' ? "default" : "outline"}
                 size="icon"
                 onClick={() => onAlignmentChange(index, 'center')}
-                className="h-11 w-11 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                 aria-label={t('textEditor.alignCenter', 'Align center')}
                 aria-pressed={line.alignment === 'center'}
               >
@@ -235,7 +235,7 @@ const LineItem: React.FC<LineItemProps> = ({
                 variant={line.alignment === 'right' ? "default" : "outline"}
                 size="icon"
                 onClick={() => onAlignmentChange(index, 'right')}
-                className="h-11 w-11 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                className="h-11 w-11 min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                 aria-label={t('textEditor.alignRight', 'Align right')}
                 aria-pressed={line.alignment === 'right'}
               >
