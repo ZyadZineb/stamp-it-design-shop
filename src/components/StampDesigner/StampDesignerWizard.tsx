@@ -1,560 +1,343 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Check, AlertCircle, ChevronLeft, ChevronRight, Undo, Redo, Save, ZoomIn, ZoomOut, Wand, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, ArrowRight, Check, Eye, ShoppingCart, Wand2, Type, Image as ImageIcon, Palette, Frame, MessageCircle } from 'lucide-react';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
 import { Product } from '@/types';
-import { useCart } from '@/contexts/CartContext';
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { useTranslation } from 'react-i18next';
-import WizardControls from './WizardControls';
-import EnhancedTextEditor from './EnhancedTextEditor';
-import StampPreviewAccessible from './StampPreviewAccessible';
-import ColorSelector from './ColorSelector';
+import TextLinesEditor from './TextLinesEditor';
 import LogoUploader from './LogoUploader';
+import ColorSelector from './ColorSelector';
 import BorderStyleSelector from './BorderStyleSelector';
-import ExportDesign from './ExportDesign';
-import PreviewBackgrounds from './PreviewBackgrounds';
-import PreviewOnPaper from './PreviewOnPaper';
+import StampPreviewEnhanced from './StampPreviewEnhanced';
+import DesignTemplates from './DesignTemplates';
 import AutoArrange from './AutoArrange';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { HelpTooltip } from '@/components/ui/tooltip-custom';
-
-// Define the wizard step type
-type WizardStepType = 'shape' | 'text' | 'color' | 'logo' | 'order';
+import WhatsAppOrderFlow from './WhatsAppOrderFlow';
 
 interface StampDesignerWizardProps {
   product: Product | null;
   onAddToCart?: () => void;
   onPreview?: () => void;
   currentStep?: 'customize' | 'preview' | 'order';
-  highContrast?: boolean;
-  largeControls?: boolean;
 }
 
-const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
-  product,
-  onAddToCart,
-  onPreview,
-  currentStep: parentStep = 'customize',
-  highContrast = false,
-  largeControls = false
-}) => {
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const { t } = useTranslation();
-  
-  // Use the standard stamp designer hook (which handles type mapping)
-  const { 
-    design, 
-    updateLine, 
-    addLine, 
-    removeLine, 
-    setInkColor,
-    toggleLogo, 
-    setLogoPosition,
-    setBorderStyle,
-    setBorderThickness,
-    toggleCurvedText,
-    updateTextPosition,
-    updateLogoPosition,
-    startTextDrag,
-    startLogoDrag,
-    stopDragging,
-    handleDrag,
-    previewImage,
-    downloadAsPng,
-    zoomIn,
-    zoomOut,
-    zoomLevel,
-    applyTemplate,
-    updateMultipleLines,
-    enhancedAutoArrange
-  } = useStampDesigner(product);
-  
-  const { addToCart } = useCart();
-  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
-  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentStep, setCurrentStep] = useState<WizardStepType>('shape');
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [previewBackground, setPreviewBackground] = useState<string>('none');
-  const [showAnimation, setShowAnimation] = useState(false);
+type WizardStep = 'templates' | 'text' | 'logo' | 'style' | 'preview' | 'checkout';
 
-  
-  // Steps configuration with enhanced tooltips
-  const steps = [
-    { 
-      id: 'shape' as WizardStepType, 
-      labelKey: 'wizard.steps.shape.label', 
-      label: t('wizard.steps.shape.label', 'Shape'), 
-      descriptionKey: 'wizard.steps.shape.description', 
-      description: t('wizard.steps.shape.description', 'Choose your stamp shape and border style'),
-      tooltip: t('wizard.tooltips.shape', 'Set up the basic appearance of your stamp')
+const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({ 
+  product, 
+  onAddToCart, 
+  onPreview,
+  currentStep = 'customize'
+}) => {
+  const { t } = useTranslation();
+  const [activeStep, setActiveStep] = useState<WizardStep>('templates');
+  const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(new Set());
+
+  const designer = useStampDesigner(product);
+
+  const wizardSteps: Array<{
+    id: WizardStep;
+    title: string;
+    icon: React.ComponentType<any>;
+    description: string;
+  }> = [
+    {
+      id: 'templates',
+      title: t('wizard.templates', 'Templates'),
+      icon: Wand2,
+      description: t('wizard.templatesDesc', 'Choose a starting template')
     },
-    { 
-      id: 'text' as WizardStepType, 
-      labelKey: 'wizard.steps.text.label', 
-      label: t('wizard.steps.text.label', 'Text'), 
-      descriptionKey: 'wizard.steps.text.description', 
-      description: t('wizard.steps.text.description', 'Add and position your text'),
-      tooltip: t('wizard.tooltips.text', 'Click to edit font size, drag text to reposition')
+    {
+      id: 'text',
+      title: t('wizard.text', 'Text'),
+      icon: Type,
+      description: t('wizard.textDesc', 'Add and customize text')
     },
-    { 
-      id: 'color' as WizardStepType, 
-      labelKey: 'wizard.steps.color.label', 
-      label: t('wizard.steps.color.label', 'Color'), 
-      descriptionKey: 'wizard.steps.color.description', 
-      description: t('wizard.steps.color.description', 'Select ink color'),
-      tooltip: t('wizard.tooltips.color', 'Choose from available ink colors')
+    {
+      id: 'logo',
+      title: t('wizard.logo', 'Logo'),
+      icon: ImageIcon,
+      description: t('wizard.logoDesc', 'Upload and position logo')
     },
-    { 
-      id: 'logo' as WizardStepType, 
-      labelKey: 'wizard.steps.logo.label', 
-      label: t('wizard.steps.logo.label', 'Logo'), 
-      descriptionKey: 'wizard.steps.logo.description', 
-      description: t('wizard.steps.logo.description', 'Add a logo if needed'),
-      tooltip: t('wizard.tooltips.logo', 'Upload and position your company logo')
+    {
+      id: 'style',
+      title: t('wizard.style', 'Style'),
+      icon: Palette,
+      description: t('wizard.styleDesc', 'Colors and borders')
     },
-    { 
-      id: 'order' as WizardStepType, 
-      labelKey: 'wizard.steps.order.label', 
-      label: t('wizard.steps.order.label', 'Order'), 
-      descriptionKey: 'wizard.steps.order.description', 
-      description: t('wizard.steps.order.description', 'Review and add your custom stamp to the cart'),
-      tooltip: t('wizard.tooltips.order', 'Final step: confirm details and order your stamp')
+    {
+      id: 'preview',
+      title: t('wizard.preview', 'Preview'),
+      icon: Eye,
+      description: t('wizard.previewDesc', 'Review your design')
+    },
+    {
+      id: 'checkout',
+      title: t('wizard.checkout', 'Order'),
+      icon: MessageCircle,
+      description: t('wizard.checkoutDesc', 'Order via WhatsApp')
     }
   ];
-  
-  // Get current step index
-  const currentStepIndex = steps.findIndex(step => step.id === currentStep);
-  const progress = ((currentStepIndex + 1) / steps.length) * 100;
-  
-  // Navigation functions
-  const goToNextStep = () => {
-    const errors: string[] = []; // Simple validation - replace with actual validateDesign if available
-    setValidationErrors(errors);
-    
-    if (errors.length === 0) {
+
+  const currentStepIndex = wizardSteps.findIndex(step => step.id === activeStep);
+  const progress = ((currentStepIndex + 1) / wizardSteps.length) * 100;
+
+  const markStepCompleted = (stepId: WizardStep) => {
+    setCompletedSteps(prev => new Set([...prev, stepId]));
+  };
+
+  const canProceedToNext = () => {
+    switch (activeStep) {
+      case 'text':
+        return designer.design.lines.some(line => line.text.trim().length > 0);
+      case 'logo':
+        return !designer.design.includeLogo || designer.design.logoImage;
+      default:
+        return true;
+    }
+  };
+
+  const handleNext = () => {
+    if (canProceedToNext()) {
+      markStepCompleted(activeStep);
       const nextIndex = currentStepIndex + 1;
-      if (nextIndex < steps.length) {
-        setCurrentStep(steps[nextIndex].id);
-      } else if (onPreview) {
-        onPreview();
+      if (nextIndex < wizardSteps.length) {
+        setActiveStep(wizardSteps[nextIndex].id);
       }
     }
   };
-  
-  const goToPrevStep = () => {
+
+  const handlePrevious = () => {
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
-      setCurrentStep(steps[prevIndex].id);
-    }
-  };
-  
-  const jumpToStep = (step: WizardStepType) => {
-    setCurrentStep(step);
-  };
-
-  // Handle logo upload
-  const handleLogoUpload = () => {
-    // For demo, we're using a sample logo
-    const logoUrl = '/lovable-uploads/3fa9a59f-f08d-4f59-9e2e-1a681dbd53eb.png';
-    setUploadedLogo(logoUrl);
-  };
-
-  // Watch for logo changes to update the design
-  useEffect(() => {
-    if (uploadedLogo) {
-      design.logoImage = uploadedLogo;
-    }
-  }, [uploadedLogo]);
-
-  // Click handler for interactive preview text positioning
-  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    const element = event.currentTarget;
-    const rect = element.getBoundingClientRect();
-    
-    let clientX: number, clientY: number;
-    
-    if ('nativeEvent' in event && 'clientX' in event.nativeEvent) {
-      // Mouse event
-      clientX = event.nativeEvent.clientX;
-      clientY = event.nativeEvent.clientY;
-    } else if ('touches' in event && event.touches.length > 0) {
-      // Touch event
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else {
-      return; // Exit if we can't get coordinates
-    }
-    
-    const clickX = clientX - rect.left;
-    const clickY = clientY - rect.top;
-    
-    // Calculate relative position (-100 to 100 range)
-    const relativeX = ((clickX / rect.width) * 2 - 1) * 100;
-    const relativeY = ((clickY / rect.height) * 2 - 1) * 100;
-    
-    // If a line is active, update its position
-    if (activeLineIndex !== null) {
-      updateTextPosition(activeLineIndex, relativeX, relativeY);
-      startTextDrag(activeLineIndex);
-    }
-    // If no line is active but logo is included, update logo position
-    else if (design.includeLogo) {
-      updateLogoPosition(relativeX, relativeY);
-      startLogoDrag();
+      setActiveStep(wizardSteps[prevIndex].id);
     }
   };
 
-  // Start dragging
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    handlePreviewClick(event);
+  const handleStepClick = (stepId: WizardStep) => {
+    setActiveStep(stepId);
   };
 
-  // Start dragging (touch)
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    
-    if (event.touches.length === 0) return;
-    handlePreviewClick(event);
+  const handleTemplateSelect = (template: any) => {
+    designer.applyTemplate(template);
+    markStepCompleted('templates');
+    // Auto-advance to text step
+    setActiveStep('text');
   };
 
-  // Mouse move handler for dragging
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    event.preventDefault();
-    
-    const rect = event.currentTarget.getBoundingClientRect();
-    handleDrag(event, rect);
-  };
+  const renderStepContent = () => {
+    switch (activeStep) {
+      case 'templates':
+        return (
+          <div className="space-y-6">
+            <DesignTemplates
+              onSelectTemplate={handleTemplateSelect}
+              productShape={designer.design.shape}
+            />
+          </div>
+        );
 
-  // Touch move handler for mobile drag support
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || event.touches.length === 0) return;
-    
-    const rect = event.currentTarget.getBoundingClientRect();
-    handleDrag(event, rect);
-  };
+      case 'text':
+        return (
+          <div className="space-y-6">
+            <TextLinesEditor 
+              lines={designer.design.lines}
+              onUpdateLine={designer.updateLine}
+              onAddLine={designer.addLine}
+              onRemoveLine={designer.removeLine}
+              productShape={designer.design.shape}
+              maxLines={product?.lines || 5}
+            />
+            <AutoArrange onAutoArrange={designer.enhancedAutoArrange} />
+          </div>
+        );
 
-  // Stop dragging
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    stopDragging();
-  };
+      case 'logo':
+        return (
+          <div className="space-y-6">
+            <LogoUploader
+              includeLogo={designer.design.includeLogo}
+              logoImage={designer.design.logoImage}
+              logoPosition={designer.design.logoPosition}
+              onToggleLogo={designer.toggleLogo}
+              onLogoUpload={(url) => designer.applyTemplate({ logoImage: url })}
+              onPositionChange={designer.setLogoPosition}
+            />
+          </div>
+        );
 
-  // Add to cart with validation
-  const handleAddToCart = () => {
-    if (!product) return;
-    
-    const errors: string[] = []; // Simple validation
-    setValidationErrors(errors);
-    
-    if (errors.length === 0) {
-      // Add the product to cart with the custom text and preview
-      const customText = design.lines.map(line => line.text).filter(Boolean).join(' | ');
-      addToCart(product, 1, customText, design.inkColor, previewImage || undefined);
-      
-      toast({
-        title: t('cart.added', "Added to cart"),
-        description: t('cart.addedDescription', "Your custom stamp has been added to your cart"),
-      });
-      
-      // Call the optional callback
-      if (onAddToCart) onAddToCart();
+      case 'style':
+        return (
+          <div className="space-y-6">
+            <ColorSelector
+              selectedColor={designer.design.inkColor}
+              availableColors={product?.inkColors || ['blue', 'black', 'red']}
+              onColorSelect={designer.setInkColor}
+            />
+            <BorderStyleSelector
+              borderStyle={designer.design.borderStyle}
+              borderThickness={designer.design.borderThickness || 1}
+              onStyleChange={designer.setBorderStyle}
+              onThicknessChange={designer.setBorderThickness}
+            />
+          </div>
+        );
+
+      case 'preview':
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">
+                {t('wizard.finalPreview', 'Final Preview')}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {t('wizard.previewInstructions', 'Review your stamp design before ordering')}
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'checkout':
+        return (
+          <WhatsAppOrderFlow
+            product={product}
+            previewImage={designer.previewImage}
+          />
+        );
+
+      default:
+        return null;
     }
   };
-  
-  // Handle auto-arrange
-  const handleAutoArrange = (updatedLines: any[]) => {
-    updateMultipleLines(updatedLines);
-    
-    toast({
-      title: t('design.autoArranged', "Layout Auto-Arranged"),
-      description: t('design.autoArrangedDesc', "Text has been automatically arranged for optimal layout"),
-    });
-  };
-
-  // Cleanup event listeners
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        stopDragging();
-      }
-    };
-    
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    document.addEventListener('touchend', handleGlobalMouseUp);
-    
-    return () => {
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-      document.removeEventListener('touchend', handleGlobalMouseUp);
-    };
-  }, [isDragging, stopDragging]);
 
   if (!product) {
     return (
-      <div className={`p-6 sm:p-8 text-center bg-white rounded-lg ${highContrast ? 'border-2 border-gray-800' : ''}`}>
-        <p className={`text-base sm:text-lg ${highContrast ? 'text-black' : 'text-gray-500'}`}>
-          {t('design.selectProduct', "Please select a product to start designing your stamp.")}
-        </p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">{t('wizard.selectProduct', 'Please select a product to start designing.')}</p>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md overflow-hidden ${highContrast ? 'border-2 border-gray-800' : ''}`}>
-      <div className={`border-b ${highContrast ? 'border-gray-800 bg-gray-100' : 'border-gray-200 bg-gradient-to-r from-brand-blue to-blue-600'} p-4 sm:p-6`}>
-        <div className="flex justify-between items-center">
-          <h2 className={`text-lg sm:text-xl font-semibold ${highContrast ? 'text-black' : 'text-white'}`}>
-            {t('design.title', "Custom stamp designer")}
-          </h2>
-          <HelpTooltip content={t('design.productInfo', `Designing a ${product.name} stamp (${product.size}). You can add up to ${product.lines} lines of text and choose from ${product.inkColors.length} ink colors.`)}>
-            <span className={`text-xs sm:text-sm ${highContrast ? 'text-black' : 'text-white/90'} flex items-center gap-1`}>
-              <HelpCircle size={16} />
-              {product.name} ({product.size})
-            </span>
-          </HelpTooltip>
-        </div>
-        {/* Progress indicator */}
-        <div className="mt-4">
-          <Progress 
-            value={progress} 
-            className={`h-2 ${highContrast ? 'bg-gray-300' : 'bg-white/20'}`} 
-          />
-          <div className="flex justify-between mt-2">
-            {steps.map((step, index) => (
-              <HelpTooltip key={step.id} content={step.tooltip}>
-                <div 
-                  className={`text-xs cursor-help ${isMobile ? 'hidden sm:block' : ''} ${
-                    index <= currentStepIndex 
-                      ? (highContrast ? 'text-black font-bold' : 'text-white font-medium') 
-                      : (highContrast ? 'text-gray-600' : 'text-white/60')
+    <div className="min-h-screen bg-gray-50">
+      {/* Progress Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-4">
+            <Progress value={progress} className="h-2" />
+          </div>
+          
+          {/* Step Navigation */}
+          <div className="flex flex-wrap justify-center gap-2 lg:gap-4">
+            {wizardSteps.map((step, index) => {
+              const isActive = step.id === activeStep;
+              const isCompleted = completedSteps.has(step.id);
+              const IconComponent = step.icon;
+              
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => handleStepClick(step.id)}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-brand-blue text-white shadow-md' 
+                      : isCompleted
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {step.labelKey ? t(step.labelKey) : step.label}
-                </div>
-              </HelpTooltip>
-            ))}
-          </div>
-          <p className="text-xs sm:text-sm text-center mt-1 text-white/80">
-            {t('wizard.stepOf', 'Step {{current}} of {{total}}', { current: currentStepIndex + 1, total: steps.length })}:
-            {' '}
-            <strong>{t(steps[currentStepIndex].labelKey || '', steps[currentStepIndex].label)}</strong>
-          </p>
-        </div>
-      </div>
-      
-      {/* Validation errors */}
-      {validationErrors.length > 0 && (
-        <div className={`${highContrast ? 'bg-red-100' : 'bg-red-50'} border-l-4 border-red-500 p-4 m-4`}>
-          <div className="flex items-start">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-red-800">
-                {t('validation.fixIssues', "Please fix the following issues:")}
-              </h3>
-              <ul className="mt-1 text-sm text-red-700 list-disc list-inside">
-                {validationErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Undo/Redo controls with tooltips */}
-      <div className={`p-4 border-b ${highContrast ? 'border-gray-800' : 'border-gray-200'} flex justify-between items-center flex-wrap gap-2`}>
-        <div className="flex space-x-2">
-          <Button 
-            variant={highContrast ? "default" : "outline"} 
-            size={largeControls ? "default" : "sm"} 
-            disabled={true}
-            title={t('actions.undo', "Undo")}
-            className={`${largeControls ? "h-12 w-12 p-0" : "min-h-[44px]"} opacity-50`}
-          >
-            <Undo size={largeControls ? 20 : 16} />
-          </Button>
-          <Button 
-            variant={highContrast ? "default" : "outline"} 
-            size={largeControls ? "default" : "sm"} 
-            disabled={true}
-            title={t('actions.redo', "Redo")}
-            className={`${largeControls ? "h-12 w-12 p-0" : "min-h-[44px]"} opacity-50`}
-          >
-            <Redo size={largeControls ? 20 : 16} />
-          </Button>
-        </div>
-        
-        <div className="flex space-x-2 flex-wrap">
-          <Button 
-            variant={highContrast ? "default" : "outline"} 
-            size={largeControls ? "default" : "sm"} 
-            onClick={() => {}}
-            title={t('design.saveDesignForLater', "Save design for later")}
-            className="min-h-[44px] hover:bg-brand-blue hover:text-white border-brand-blue text-brand-blue"
-          >
-            <Save size={largeControls ? 20 : 16} className="mr-1" />
-            {t('design.saveDesign', "Save design")}
-          </Button>
-        </div>
-      </div>
-      
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 ${isMobile ? 'flex flex-col-reverse' : ''}`}>
-        {/* Left panel: Design options based on current step */}
-        <div className={`space-y-4 sm:space-y-6 overflow-y-auto max-h-[70vh] ${largeControls ? 'text-lg' : ''}`}>
-          {/* Auto-arrange button - Show on text step */}
-          {currentStep === 'text' && (
-            <AutoArrange 
-              design={design} 
-              onEnhancedAutoArrange={enhancedAutoArrange}
-              shape={design.shape === "ellipse" ? "rectangle" : design.shape}
-            />
-          )}
-          
-          {currentStep === 'shape' && (
-            <>
-              <BorderStyleSelector 
-                selectedStyle={design.borderStyle}
-                onStyleChange={setBorderStyle}
-                borderThickness={design.borderThickness}
-                onThicknessChange={setBorderThickness}
-                largeControls={largeControls}
-              />
-            </>
-          )}
-          
-          {currentStep === 'text' && (
-            <>
-              <EnhancedTextEditor
-                lines={design.lines}
-                maxLines={product.lines}
-                shape={design.shape === "ellipse" ? "rectangle" : design.shape}
-                activeLineIndex={activeLineIndex}
-                setActiveLineIndex={setActiveLineIndex}
-                updateLine={updateLine}
-                addLine={addLine}
-                removeLine={removeLine}
-                toggleCurvedText={toggleCurvedText}
-                updateTextPosition={updateTextPosition}
-                largeControls={largeControls}
-              />
-            </>
-          )}
-          
-          {currentStep === 'color' && (
-            <>
-              <ColorSelector 
-                inkColors={product.inkColors} 
-                selectedColor={design.inkColor} 
-                onColorSelect={setInkColor}
-              />
-            </>
-          )}
-          
-          {currentStep === 'logo' && (
-            <>
-              <LogoUploader
-                includeLogo={design.includeLogo}
-                toggleLogo={toggleLogo}
-                logoX={design.logoX}
-                logoY={design.logoY}
-                uploadedLogo={uploadedLogo}
-                onLogoUpload={handleLogoUpload}
-                updateLogoPosition={updateLogoPosition}
-                largeControls={largeControls}
-              />
-            </>
-          )}
-          
-          {/* New 'order' step replaces preview */}
-          {currentStep === 'order' && (
-            <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-md border border-green-200">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-brand-blue text-lg">
-                    {product.name}
-                  </h3>
-                  <span className="font-bold text-2xl text-red-600">
-                    {product.price} {t('common.currency', 'DHS')} TTC
+                  {isCompleted ? (
+                    <Check size={16} />
+                  ) : (
+                    <IconComponent size={16} />
+                  )}
+                  <span className="text-sm font-medium hidden sm:inline">
+                    {step.title}
                   </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Controls */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      {wizardSteps[currentStepIndex]?.title}
+                    </h2>
+                    <Badge variant="outline">
+                      {currentStepIndex + 1} / {wizardSteps.length}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {wizardSteps[currentStepIndex]?.description}
+                  </p>
                 </div>
-                <ul className="mb-2 text-gray-700 text-base">
-                  <li>
-                    <span className="font-semibold">
-                      {t('design.summary.inkColor', 'Ink color')}
-                    </span>
-                    {': '}
-                    <span>
-                      {t(`inkColors.${design.inkColor}`, design.inkColor)}
-                    </span>
-                  </li>
-                  <li>
-                    <span className="font-semibold">
-                      {t('design.summary.shape', 'Shape')}
-                    </span>
-                    {': '}
-                    <span>
-                      {t(`shapes.${design.shape}`, design.shape)}
-                    </span>
-                  </li>
-                  <li>
-                    <span className="font-semibold">
-                      {t('design.summary.border', 'Border')}
-                    </span>
-                    {': '}
-                    {design.borderStyle !== "none"
-                      ? `${t(`borderStyle.${design.borderStyle}`, design.borderStyle)} (${design.borderThickness})`
-                      : t('design.summary.noBorder', "No border")}
-                  </li>
-                </ul>
+
+                <Separator className="mb-6" />
+
+                {renderStepContent()}
+              </CardContent>
+            </Card>
+
+            {/* Navigation Buttons */}
+            {activeStep !== 'checkout' && (
+              <div className="flex justify-between">
                 <Button
-                  onClick={handleAddToCart}
-                  className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors text-lg font-semibold min-h-[48px]"
-                  data-testid="add-to-cart-btn"
+                  onClick={handlePrevious}
+                  disabled={currentStepIndex === 0}
+                  variant="outline"
+                  size="lg"
                 >
-                  {t('cart.addToCart', "Ajouter au panier")}
+                  <ArrowLeft size={16} className="mr-2" />
+                  {t('wizard.previous', 'Previous')}
+                </Button>
+
+                <Button
+                  onClick={handleNext}
+                  disabled={!canProceedToNext() || currentStepIndex === wizardSteps.length - 1}
+                  size="lg"
+                >
+                  {t('wizard.next', 'Next')}
+                  <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 text-center">
-                {t('design.summary.editAnyStep', "You can edit your design in any previous step before adding to cart.")}
-              </p>
-            </div>
-          )}
-        </div>
-        
-        {/* Right panel: Preview and navigation controls */}
-        <div className="space-y-4 sm:space-y-6">
-          <StampPreviewAccessible
-            previewImage={previewImage}
-            productSize={product.size}
-            isDragging={isDragging}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            downloadAsPng={downloadAsPng}
-            zoomIn={zoomIn}
-            zoomOut={zoomOut}
-            zoomLevel={zoomLevel}
-            background={previewBackground}
-            highContrast={highContrast}
-            largeControls={largeControls}
-            isAnimating={showAnimation}
-          />
-          <WizardControls 
-            currentStep={currentStep} 
-            steps={steps as any}
-            onNext={goToNextStep}
-            onPrev={goToPrevStep}
-            onJump={jumpToStep}
-            largeControls={largeControls}
-          />
+            )}
+          </div>
+
+          {/* Right Column - Preview */}
+          <div className="lg:sticky lg:top-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 text-center">
+                  {t('wizard.livePreview', 'Live Preview')}
+                </h3>
+                <StampPreviewEnhanced
+                  design={designer.design}
+                  product={product}
+                  zoomLevel={designer.zoomLevel}
+                  onZoomIn={designer.zoomIn}
+                  onZoomOut={designer.zoomOut}
+                  onTextDrag={designer.startTextDrag}
+                  onLogoDrag={designer.startLogoDrag}
+                  onDrag={designer.handleDrag}
+                  onStopDragging={designer.stopDragging}
+                  showControls={activeStep === 'preview'}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

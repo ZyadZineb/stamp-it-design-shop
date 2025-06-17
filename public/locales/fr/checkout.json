@@ -1,0 +1,27 @@
+
+{
+  "customerInfo": "Informations Client",
+  "fullName": "Nom Complet",
+  "fullNamePlaceholder": "Entrez votre nom complet",
+  "phoneNumber": "Numéro de Téléphone",
+  "phoneNumberPlaceholder": "+212 6XX XXX XXX",
+  "deliveryAddress": "Adresse de Livraison",
+  "deliveryAddressPlaceholder": "Entrez votre adresse de livraison complète",
+  "title": "Finaliser Votre Commande",
+  "subtitle": "Remplissez vos informations et commandez via WhatsApp",
+  "orderViaWhatsApp": "📩 Commander via WhatsApp",
+  "copyMessage": "Copier le Message",
+  "processing": "Traitement...",
+  "whatsappInstructions": "Cliquez sur le bouton pour ouvrir WhatsApp avec les détails de votre commande pré-remplis.",
+  "whatsappOpened": "WhatsApp Ouvert",
+  "whatsappOpenedDesc": "WhatsApp ouvert — envoyez le message pour passer votre commande.",
+  "whatsappError": "Erreur WhatsApp",
+  "whatsappErrorDesc": "Impossible d'ouvrir WhatsApp. Veuillez essayer de copier le message à la place.",
+  "messageCopied": "Message Copié",
+  "messageCopiedDesc": "Détails de la commande copiés dans le presse-papiers",
+  "copyError": "Échec de la Copie",
+  "copyErrorDesc": "Impossible de copier le message dans le presse-papiers",
+  "errors": {
+    "fullNameRequired": "Le nom complet est requis"
+  }
+}

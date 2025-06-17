@@ -1,0 +1,27 @@
+
+{
+  "customerInfo": "Customer Information",
+  "fullName": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "phoneNumber": "Phone Number",
+  "phoneNumberPlaceholder": "+212 6XX XXX XXX",
+  "deliveryAddress": "Delivery Address",
+  "deliveryAddressPlaceholder": "Enter your complete delivery address",
+  "title": "Complete Your Order",
+  "subtitle": "Fill in your details and order via WhatsApp",
+  "orderViaWhatsApp": "📩 Order via WhatsApp",
+  "copyMessage": "Copy Message",
+  "processing": "Processing...",
+  "whatsappInstructions": "Click the button to open WhatsApp with your order details pre-filled.",
+  "whatsappOpened": "WhatsApp Opened",
+  "whatsappOpenedDesc": "WhatsApp opened — send the message to place your order.",
+  "whatsappError": "WhatsApp Error",
+  "whatsappErrorDesc": "Could not open WhatsApp. Please try copying the message instead.",
+  "messageCopied": "Message Copied",
+  "messageCopiedDesc": "Order details copied to clipboard",
+  "copyError": "Copy Failed",
+  "copyErrorDesc": "Could not copy message to clipboard",
+  "errors": {
+    "fullNameRequired": "Full name is required"
+  }
+}
