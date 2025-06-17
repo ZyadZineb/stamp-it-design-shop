@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
@@ -104,7 +103,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Clean professional address stamp layout',
       category: 'business',
       template: {
-        borderStyle: 'single' as const,
+        borderStyle: 'solid' as const,
         lines: [
           {
             text: '* BUSINESS NAME * ESTABLISHED 2024 *',
@@ -380,7 +379,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Professional stamp for witnessing signatures',
       category: 'legal',
       template: {
-        borderStyle: 'single' as const,
+        borderStyle: 'solid' as const,
         lines: [
           {
             text: '* WITNESSED * AUTHENTIC SIGNATURE *',
@@ -518,7 +517,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Professional stamp for pharmacy use',
       category: 'medical',
       template: {
-        borderStyle: 'single' as const,
+        borderStyle: 'solid' as const,
         lines: [
           {
             text: '* PHARMACY * PRESCRIPTION VERIFIED *',
@@ -656,7 +655,7 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       description: 'Professional stamp for student documents',
       category: 'education',
       template: {
-        borderStyle: 'single' as const,
+        borderStyle: 'solid' as const,
         lines: [
           {
             text: '* STUDENT RECORDS * CONFIDENTIAL *',

@@ -48,7 +48,7 @@ const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, pro
       category: 'business',
       forShapes: ['rectangle', 'square'],
       template: {
-        borderStyle: 'single',
+        borderStyle: 'solid',
         lines: [
           {
             text: 'COMPANY NAME',
@@ -306,7 +306,7 @@ const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, pro
       category: 'education',
       forShapes: ['rectangle'],
       template: {
-        borderStyle: 'single',
+        borderStyle: 'solid',
         lines: [
           {
             text: 'SCHOOL LIBRARY',
@@ -348,7 +348,7 @@ const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, pro
       category: 'healthcare',
       forShapes: ['rectangle', 'square'],
       template: {
-        borderStyle: 'single',
+        borderStyle: 'solid',
         lines: [
           {
             text: 'DR. JANE SMITH, MD',
