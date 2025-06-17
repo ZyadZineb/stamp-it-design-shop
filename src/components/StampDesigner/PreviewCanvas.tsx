@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { mmToPx } from "@/utils/dimensions";
-import { Download, ZoomIn, ZoomOut } from "lucide-react";
+import { Download, ZoomIn, ZoomOut, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/tooltip-custom";
 import { useTranslation } from "react-i18next";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 /** NEW: Debug settings type */
 export interface DebugOverlaySettings {
@@ -88,6 +90,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   lines = [],
 }) => {
   const { t } = useTranslation();
+  const [showGrid, setShowGrid] = useState(false);
   const widthPx = mmToPx(widthMm);
   const heightPx = mmToPx(heightMm);
 
@@ -110,9 +113,9 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
           x2={i * 10}
           y1={0}
           y2={heightPx}
-          stroke="#b3e1ff"
-          strokeWidth={i % 5 === 0 ? 1.5 : 0.5}
-          opacity={i % 5 === 0 ? 0.32 : 0.17}
+          stroke="#e0f2fe"
+          strokeWidth={i % 5 === 0 ? 1 : 0.5}
+          opacity={i % 5 === 0 ? 0.4 : 0.2}
         />
       ))}
       {/* Horizontal lines */}
@@ -123,9 +126,9 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
           y2={i * 10}
           x1={0}
           x2={widthPx}
-          stroke="#b3e1ff"
-          strokeWidth={i % 5 === 0 ? 1.5 : 0.5}
-          opacity={i % 5 === 0 ? 0.32 : 0.17}
+          stroke="#e0f2fe"
+          strokeWidth={i % 5 === 0 ? 1 : 0.5}
+          opacity={i % 5 === 0 ? 0.4 : 0.2}
         />
       ))}
     </svg>
@@ -260,26 +263,72 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
   return (
     <div className={`relative mx-auto rounded-lg shadow-inner bg-white ${highContrast ? "border-2 border-black" : ""}`}>
       {/* Top controls */}
-      <div className="flex justify-between items-center px-2 pt-2">
-        <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"} text-sm`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 pt-4 gap-3">
+        <h3 className={`font-medium ${highContrast ? "text-black" : "text-gray-800"} text-lg`}>
           {t("preview.title", "Preview")}
         </h3>
-        <div className="flex items-center gap-2">
-          <HelpTooltip content={t("preview.zoomHelp", "Zoom in or out to see more detail")}>
-            <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={onZoomOut} disabled={!onZoomOut || zoomLevel <= 1} className={largeControls ? "h-10 w-10 p-0" : ""}>
-              <ZoomOut size={largeControls ? 20 : 16} />
-            </Button>
-          </HelpTooltip>
-          <span className="text-sm w-12 text-center">
-            {`${Math.round((zoomLevel || 1) * 100)}%`}
-          </span>
-          <HelpTooltip content={t("preview.zoomHelp", "Zoom in or out to see more detail")}>
-            <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={onZoomIn} disabled={!onZoomIn || zoomLevel >= 3} className={largeControls ? "h-10 w-10 p-0" : ""}>
-              <ZoomIn size={largeControls ? 20 : 16} />
-            </Button>
-          </HelpTooltip>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Grid toggle */}
+          <div className="flex items-center gap-2 mr-4">
+            <Switch
+              id="grid-toggle"
+              checked={showGrid}
+              onCheckedChange={setShowGrid}
+              aria-describedby="grid-toggle-description"
+            />
+            <Label htmlFor="grid-toggle" className="text-sm flex items-center gap-1 cursor-pointer">
+              <Grid size={14} />
+              {t("preview.grid", "Grid")}
+            </Label>
+            <span id="grid-toggle-description" className="sr-only">
+              {t("preview.gridDescription", "Toggle measurement grid overlay")}
+            </span>
+          </div>
+
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1">
+            <HelpTooltip content={t("preview.zoomHelp", "Zoom in or out to see more detail")}>
+              <Button 
+                variant="outline" 
+                size={largeControls ? "default" : "icon"} 
+                onClick={onZoomOut} 
+                disabled={!onZoomOut || zoomLevel <= 1} 
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                aria-label={t("preview.zoomOut", "Zoom out")}
+              >
+                <ZoomOut size={largeControls ? 20 : 16} />
+              </Button>
+            </HelpTooltip>
+            
+            <span className="text-sm w-16 text-center font-mono bg-gray-50 rounded px-2 py-1">
+              {`${Math.round((zoomLevel || 1) * 100)}%`}
+            </span>
+            
+            <HelpTooltip content={t("preview.zoomHelp", "Zoom in or out to see more detail")}>
+              <Button 
+                variant="outline" 
+                size={largeControls ? "default" : "icon"} 
+                onClick={onZoomIn} 
+                disabled={!onZoomIn || zoomLevel >= 3} 
+                className={`min-h-[44px] min-w-[44px] hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+                aria-label={t("preview.zoomIn", "Zoom in")}
+              >
+                <ZoomIn size={largeControls ? 20 : 16} />
+              </Button>
+            </HelpTooltip>
+          </div>
+
+          {/* Download button */}
           <HelpTooltip content={t("preview.downloadHelp", "Download your stamp design as a high-quality PNG image")}>
-            <Button variant="outline" size={largeControls ? "default" : "icon"} onClick={downloadAsPng} disabled={!downloadAsPng || !previewImage} title={t("preview.download", "Download")} className={largeControls ? "h-10 w-10 p-0" : ""}>
+            <Button 
+              variant="outline" 
+              size={largeControls ? "default" : "icon"} 
+              onClick={downloadAsPng} 
+              disabled={!downloadAsPng || !previewImage} 
+              className={`min-h-[44px] min-w-[44px] hover:bg-green-50 focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50 ${largeControls ? "h-12 w-12 p-0" : ""}`}
+              aria-label={t("preview.download", "Download stamp design")}
+            >
               <Download size={largeControls ? 20 : 16} />
             </Button>
           </HelpTooltip>
@@ -287,17 +336,17 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
       </div>
       {/* Preview canvas area */}
       <div
-        className="relative select-none mt-2 mx-auto"
+        className="relative select-none mt-4 mx-auto"
         style={{
           width: widthPx,
           height: heightPx,
           background: background === 'paper' ? "#faf8f2" : "#fff",
           touchAction: "none",
           cursor: getCursorStyle(),
-          boxShadow: "0 2px 8px #0001"
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
         }}
         role="button"
-        aria-label={t("preview.ariaLabel", "Stamp preview area")}
+        aria-label={t("preview.ariaLabel", "Stamp preview area - click and drag to position elements")}
         onMouseDown={onCanvasMouseDown}
         onMouseMove={onCanvasMouseMove}
         onMouseUp={onCanvasMouseUp}
@@ -305,17 +354,120 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
         onTouchMove={onCanvasTouchMove}
         onTouchEnd={onCanvasTouchEnd}
         tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            // Handle keyboard interaction if needed
+          }
+        }}
       >
+        {/* Grid overlay */}
+        {(showGrid || debugConfig?.grid) && renderGrid()}
+        
         {/* Debug overlays */}
-        {debugConfig?.grid && renderGrid()}
-        {debugConfig?.rulers && renderRulers()}
-        {debugConfig?.boundingBoxes && renderBoundingBoxes()}
-        {debugConfig?.baseline && renderBaselines()}
+        {debugConfig?.rulers && (
+          <svg
+            width={widthPx}
+            height={heightPx}
+            className="absolute z-40 inset-0 pointer-events-none"
+          >
+            {/* Top ruler */}
+            {Array.from({ length: Math.ceil(widthMm) + 1 }, (_, i) => (
+              <g key={`rx${i}`}>
+                <line
+                  x1={i * 10}
+                  y1={0}
+                  x2={i * 10}
+                  y2={10}
+                  stroke="#3182ce"
+                  strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
+                />
+                {i % 5 === 0 && (
+                  <text
+                    x={i * 10 + 2}
+                    y={18}
+                    fontSize={7}
+                    fill="#1973aa"
+                    fontFamily="monospace"
+                  >
+                    {i}
+                  </text>
+                )}
+              </g>
+            ))}
+            {/* Left ruler */}
+            {Array.from({ length: Math.ceil(heightMm) + 1 }, (_, i) => (
+              <g key={`ry${i}`}>
+                <line
+                  x1={0}
+                  y1={i * 10}
+                  x2={10}
+                  y2={i * 10}
+                  stroke="#3182ce"
+                  strokeWidth={i % 5 === 0 ? 1.1 : 0.75}
+                />
+                {i % 5 === 0 && (
+                  <text
+                    x={13}
+                    y={i * 10 + 8}
+                    fontSize={7}
+                    fill="#1973aa"
+                    fontFamily="monospace"
+                  >
+                    {i}
+                  </text>
+                )}
+              </g>
+            ))}
+          </svg>
+        )}
+        {debugConfig?.boundingBoxes && (
+          <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
+            {textBlocks.map(({ x, y, width, height, key }, i) => (
+              <g key={key ?? i}>
+                <rect
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  stroke="#ec4899"
+                  strokeWidth={2}
+                  fill="none"
+                  strokeDasharray="5 4"
+                  opacity={0.75}
+                />
+                <text
+                  x={x + 3}
+                  y={y + 11}
+                  fontSize={11}
+                  fill="#f63fa2"
+                  fontWeight="bold"
+                  fontFamily="monospace"
+                >
+                  {key}
+                </text>
+              </g>
+            ))}
+          </svg>
+        )}
+        {debugConfig?.baseline && (
+          <svg width={widthPx} height={heightPx} className="absolute z-50 inset-0 pointer-events-none">
+            {textBlocks.map(({ x, baseline, width, key }, i) => (
+              <line
+                key={key + "-base"}
+                x1={x}
+                y1={baseline}
+                x2={x + width}
+                y2={baseline}
+                stroke="#3b82f6"
+                strokeWidth={1.4}
+                strokeDasharray="4 4"
+                opacity={0.8}
+              />
+            ))}
+          </svg>
+        )}
 
-        {/* Clean SVG overlay (no grid/rulers/center point) */}
-        <svg width={widthPx} height={heightPx} className="absolute z-20 inset-0 pointer-events-none">
-          {/* No overlays */}
-        </svg>
         <div className="relative w-full h-full z-30" style={{
           transform: `scale(${zoomLevel?.toFixed(3)})`,
           transformOrigin: "center center",
@@ -331,27 +483,33 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
               }}
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full">
-              <span className="text-gray-400 text-center">
-                {t("preview.noPreview", "No preview available")}
-              </span>
+            <div className="flex flex-col items-center justify-center w-full h-full p-8 text-center bg-gray-50/50 rounded">
+              <div className="text-6xl mb-4 text-gray-300">📄</div>
+              <h4 className="text-lg font-medium text-gray-600 mb-2">
+                {t("preview.yourStampHere", "Your stamp will appear here")}
+              </h4>
+              <p className="text-sm text-gray-500 max-w-xs">
+                {t("preview.addTextHelp", "Add text and customize your design to see the preview")}
+              </p>
             </div>
           )}
         </div>
+        
         {/* Focus/Drop guides */}
         {isDragging && (
-          <div className="absolute inset-0 pointer-events-none bg-blue-200/10 border-2 border-dashed border-blue-400 z-50" />
+          <div className="absolute inset-0 pointer-events-none bg-blue-200/10 border-2 border-dashed border-blue-400 z-50 animate-pulse" />
         )}
       </div>
+      
       {/* Footer info */}
-      <div className="text-xs text-gray-500 flex justify-between mt-1">
-        <span>{productSize && `${t("preview.size", "Size")}: ${productSize}mm`}</span>
+      <div className="text-xs text-gray-500 flex flex-col sm:flex-row justify-between mt-3 px-4 pb-4 gap-1">
+        <span>{productSize && `${t("preview.size", "Size")}: ${productSize}`}</span>
         <span>
           {activeLineIndex !== null
-            ? t("preview.editingLine", { line: activeLineIndex + 1 })
+            ? t("preview.editingLine", { line: activeLineIndex + 1 }, "Editing line {{line}}")
             : includeLogo
             ? t("preview.editingLogo", "Editing logo")
-            : ""}
+            : t("preview.clickToEdit", "Click elements to edit")}
         </span>
       </div>
     </div>

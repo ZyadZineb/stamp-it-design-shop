@@ -18,36 +18,42 @@ const AlignmentControls: React.FC<AlignmentControlsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-md">
+    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
       <Button
-        variant={alignment === 'left' ? 'default' : 'ghost'}
+        variant={alignment === 'left' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onAlignmentChange('left')}
         disabled={disabled}
-        className="h-8 w-8 p-0"
+        className="h-11 w-11 p-0 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
         title={t('alignment.left', 'Align Left')}
+        aria-label={t('alignment.left', 'Align Left')}
+        aria-pressed={alignment === 'left'}
       >
-        <AlignLeft size={16} />
+        <AlignLeft size={18} />
       </Button>
       <Button
-        variant={alignment === 'center' ? 'default' : 'ghost'}
+        variant={alignment === 'center' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onAlignmentChange('center')}
         disabled={disabled}
-        className="h-8 w-8 p-0"
+        className="h-11 w-11 p-0 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
         title={t('alignment.center', 'Center')}
+        aria-label={t('alignment.center', 'Center')}
+        aria-pressed={alignment === 'center'}
       >
-        <AlignCenter size={16} />
+        <AlignCenter size={18} />
       </Button>
       <Button
-        variant={alignment === 'right' ? 'default' : 'ghost'}
+        variant={alignment === 'right' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onAlignmentChange('right')}
         disabled={disabled}
-        className="h-8 w-8 p-0"
+        className="h-11 w-11 p-0 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
         title={t('alignment.right', 'Align Right')}
+        aria-label={t('alignment.right', 'Align Right')}
+        aria-pressed={alignment === 'right'}
       >
-        <AlignRight size={16} />
+        <AlignRight size={18} />
       </Button>
     </div>
   );
