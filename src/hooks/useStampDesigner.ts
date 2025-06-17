@@ -65,35 +65,8 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     }
   };
 
-  // Enhanced design state to track the actual border style
-  const [currentBorderStyle, setCurrentBorderStyle] = useState<'none' | 'solid' | 'dashed' | 'dotted' | 'double'>('none');
-
-  // Map the new border style types to the enhanced hook's expected types
-  const handleSetBorderStyle = (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => {
-    logAction("setBorderStyle", style);
-    setCurrentBorderStyle(style);
-    
-    // Map new styles to old styles for compatibility
-    const styleMap: Record<string, 'none' | 'single' | 'double' | 'wavy'> = {
-      'none': 'none',
-      'solid': 'single',
-      'dashed': 'wavy', // Use wavy as closest approximation for dashed
-      'dotted': 'wavy', // Use wavy as closest approximation for dotted
-      'double': 'double'
-    };
-    const mappedStyle = styleMap[style] || 'single';
-    enhancedDesigner.setBorderStyle(mappedStyle);
-  };
-
-  // Override the design to use our tracked border style
-  const designWithCorrectBorderStyle = {
-    ...enhancedDesigner.design,
-    borderStyle: currentBorderStyle
-  };
-
   return {
     ...enhancedDesigner,
-    design: designWithCorrectBorderStyle,
     updateLine: (i, upd) => { logAction("updateLine", i, upd); enhancedDesigner.updateLine(i, upd); },
     addLine: () => { logAction("addLine"); enhancedDesigner.addLine(); },
     removeLine: (i) => { logAction("removeLine", i); enhancedDesigner.removeLine(i); },
@@ -101,7 +74,7 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     toggleLogo: () => { logAction("toggleLogo"); enhancedDesigner.toggleLogo(); },
     setLogoPosition: (pos) => { logAction("setLogoPosition", pos); enhancedDesigner.setLogoPosition(pos); },
     updateLogoPosition: (x, y) => { logAction("updateLogoPosition", x, y); enhancedDesigner.updateLogoPosition(x, y); },
-    setBorderStyle: handleSetBorderStyle,
+    setBorderStyle: (style) => { logAction("setBorderStyle", style); enhancedDesigner.setBorderStyle(style); },
     setBorderThickness: (t) => { logAction("setBorderThickness", t); enhancedDesigner.setBorderThickness(t); },
     toggleCurvedText: (index, pos) => { logAction("toggleCurvedText", index, pos); enhancedDesigner.toggleCurvedText(index, pos); },
     updateTextPosition: (index, x, y) => { logAction("updateTextPosition", index, x, y); enhancedDesigner.updateTextPosition(index, x, y); },
@@ -118,5 +91,6 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     setGlobalAlignment: (a) => { logAction("setGlobalAlignment", a); enhancedDesigner.setGlobalAlignment(a); },
     previewImage: enhancedDesigner.previewImage,
     zoomLevel: enhancedDesigner.zoomLevel,
+    design: enhancedDesigner.design,
   };
 };

@@ -56,7 +56,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     logoY: 0,
     logoDragging: false,
     shape: detectShape(product),
-    borderStyle: 'single',
+    borderStyle: 'none',
     borderThickness: 1,
     elements: [],
     globalAlignment: 'center' // Add global alignment setting
@@ -249,8 +249,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     updateHistory(updatedDesign);
   };
 
-  // Set border style with history tracking
-  const setBorderStyle = (style: 'single' | 'double' | 'wavy' | 'none') => {
+  // Set border style with history tracking - now handles the new border style types
+  const setBorderStyle = (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => {
     console.log('[StampDesigner] setBorderStyle', style);
     const updatedDesign = { ...design, borderStyle: style };
     updateHistory(updatedDesign);
@@ -741,8 +741,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       const ry = (canvasHeight / 2) - 10;
       const ratio = ry / rx;
 
-      // Add borders
-      if (design.borderStyle === 'single') {
+      // Add borders based on new border style types
+      if (design.borderStyle === 'solid') {
         const strokeWidth = design.borderThickness || 2;
         svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
@@ -751,6 +751,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
           <ellipse cx="${centerX}" cy="${centerY}" rx="${rx-8}" ry="${ry-8}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
+      } else if (design.borderStyle === 'dashed') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="5,3" fill="none"/>`;
+      } else if (design.borderStyle === 'dotted') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<ellipse cx="${centerX}" cy="${centerY}" rx="${rx}" ry="${ry}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="2,2" fill="none"/>`;
       }
 
       // Add logo with precise centering
@@ -837,8 +843,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     } else if (design.shape === 'circle') {
       const radius = Math.min(centerX, centerY) - 10;
 
-      // Add borders
-      if (design.borderStyle === 'single') {
+      // Add borders based on new border style types
+      if (design.borderStyle === 'solid') {
         const strokeWidth = design.borderThickness || 2;
         svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
@@ -847,6 +853,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
           <circle cx="${centerX}" cy="${centerY}" r="${radius - 8}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
+      } else if (design.borderStyle === 'dashed') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="5,3" fill="none"/>`;
+      } else if (design.borderStyle === 'dotted') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="2,2" fill="none"/>`;
       }
 
       // Add logo with precise centering
@@ -937,8 +949,8 @@ const useStampDesignerEnhanced = (product: Product | null) => {
       // Rectangular stamps with precise centering
       const padding = 10;
       
-      // Add borders
-      if (design.borderStyle === 'single') {
+      // Add borders based on new border style types
+      if (design.borderStyle === 'solid') {
         const strokeWidth = design.borderThickness || 2;
         svgContent += `<rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>`;
       } else if (design.borderStyle === 'double') {
@@ -947,6 +959,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
           <rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
           <rect x="${padding + 8}" y="${padding + 8}" width="${canvasWidth - (padding + 8)*2}" height="${canvasHeight - (padding + 8)*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" fill="none"/>
         `;
+      } else if (design.borderStyle === 'dashed') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="8,4" fill="none"/>`;
+      } else if (design.borderStyle === 'dotted') {
+        const strokeWidth = design.borderThickness || 2;
+        svgContent += `<rect x="${padding}" y="${padding}" width="${canvasWidth - padding*2}" height="${canvasHeight - padding*2}" stroke="${design.inkColor}" stroke-width="${strokeWidth}" stroke-dasharray="3,3" fill="none"/>`;
       }
 
       // Add logo with precise centering
@@ -1124,16 +1142,173 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     setLogoPosition,
     setBorderStyle,
     setBorderThickness,
-    toggleCurvedText,
-    updateTextPosition,
-    updateLogoPosition,
-    startTextDrag,
-    startLogoDrag,
-    stopDragging,
-    handleDrag,
+    toggleCurvedText: (index: number, textPosition: 'top' | 'bottom' | 'left' | 'right' = 'top') => {
+      console.log('[StampDesigner] toggleCurvedText', { index, textPosition });
+      const current = design.lines[index];
+      updateLine(index, {
+        curved: !current.curved,
+        textPosition: textPosition
+      });
+    },
+    updateTextPosition: (index: number, x: number, y: number) => {
+      console.log('[StampDesigner] updateTextPosition', { index, x, y });
+      // Constrain the movement within -100 to 100 range
+      const constrainedX = Math.max(-100, Math.min(100, x));
+      const constrainedY = Math.max(-100, Math.min(100, y));
+
+      const newLines = [...design.lines];
+      newLines[index] = {
+        ...newLines[index],
+        xPosition: constrainedX,
+        yPosition: constrainedY
+      };
+
+      const updatedDesign = { ...design, lines: newLines };
+      setHistory(prev => ({
+        ...prev,
+        present: updatedDesign
+      }));
+    },
+    updateLogoPosition: (x: number, y: number) => {
+      console.log('[StampDesigner] updateLogoPosition', { x, y });
+      // Constrain the movement within -100 to 100 range
+      const constrainedX = Math.max(-100, Math.min(100, x));
+      const constrainedY = Math.max(-100, Math.min(100, y));
+
+      const updatedDesign = {
+        ...design,
+        logoX: constrainedX,
+        logoY: constrainedY
+      };
+
+      setHistory(prev => ({
+        ...prev,
+        present: updatedDesign
+      }));
+    },
+    startTextDrag: (index: number) => {
+      console.log('[StampDesigner] startTextDrag', index);
+      const newLines = [...design.lines];
+      newLines.forEach((line, i) => {
+        line.isDragging = i === index;
+      });
+
+      setHistory(prev => ({
+        ...prev,
+        present: { ...design, lines: newLines, logoDragging: false }
+      }));
+    },
+    startLogoDrag: () => {
+      console.log('[StampDesigner] startLogoDrag');
+      const newLines = [...design.lines];
+      newLines.forEach(line => {
+        line.isDragging = false;
+      });
+
+      setHistory(prev => ({
+        ...prev,
+        present: { ...design, lines: newLines, logoDragging: true }
+      }));
+    },
+    stopDragging: () => {
+      console.log('[StampDesigner] stopDragging');
+      const newLines = [...design.lines];
+      newLines.forEach(line => {
+        line.isDragging = false;
+      });
+
+      const updatedDesign = { ...design, lines: newLines, logoDragging: false };
+      updateHistory(updatedDesign);
+    },
+    handleDrag: (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, previewRect: DOMRect) => {
+      // Get mouse/touch position relative to preview area
+      let clientX: number, clientY: number;
+
+      if ('touches' in e) {
+        // Touch event
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        // Mouse event
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+
+      const centerX = previewRect.left + previewRect.width / 2;
+      const centerY = previewRect.top + previewRect.height / 2;
+
+      // Calculate position as percentage from center (-100 to 100)
+      const relativeX = ((clientX - centerX) / (previewRect.width / 2)) * 100;
+      const relativeY = ((clientY - centerY) / (previewRect.height / 2)) * 100;
+
+      // Update the position of the dragging element
+      const draggingLineIndex = design.lines.findIndex(line => line.isDragging);
+
+      if (draggingLineIndex !== -1) {
+        // Update text position
+        console.log('[StampDesigner] handleDrag - text line', draggingLineIndex, { relativeX, relativeY });
+        const newLines = [...design.lines];
+        newLines[draggingLineIndex] = {
+          ...newLines[draggingLineIndex],
+          xPosition: relativeX,
+          yPosition: relativeY
+        };
+
+        setHistory(prev => ({
+          ...prev,
+          present: { ...design, lines: newLines }
+        }));
+      } else if (design.logoDragging && design.includeLogo) {
+        // Update logo position
+        console.log('[StampDesigner] handleDrag - logo', { relativeX, relativeY });
+        setHistory(prev => ({
+          ...prev,
+          present: {
+            ...design,
+            logoX: relativeX,
+            logoY: relativeY
+          }
+        }));
+      }
+    },
     previewImage,
     generatePreview,
-    validateDesign,
+    validateDesign: (step: string): string[] => {
+      const errors: string[] = [];
+
+      if (step === 'text') {
+        // Check if at least one line has text
+        const hasText = design.lines.some(line => line.text.trim().length > 0);
+        if (!hasText) {
+          errors.push('Add at least one line of text to your stamp');
+        }
+
+        // Check for lines that are too long
+        design.lines.forEach((line, index) => {
+          if (line.text.length > 30) {
+            errors.push(`Line ${index + 1} is too long. Keep it under 30 characters for better readability.`);
+          }
+        });
+      }
+
+      if (step === 'logo' && design.includeLogo && !design.logoImage) {
+        errors.push('Please upload a logo image or disable the logo option');
+      }
+
+      if (step === 'preview') {
+        // Final validation before adding to cart
+        const hasText = design.lines.some(line => line.text.trim().length > 0);
+        if (!hasText) {
+          errors.push('Your stamp needs at least one line of text');
+        }
+
+        if (design.includeLogo && !design.logoImage) {
+          errors.push('Logo option is enabled but no logo has been uploaded');
+        }
+      }
+
+      return errors;
+    },
     undo,
     redo,
     canUndo,
