@@ -65,23 +65,35 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     }
   };
 
+  // Enhanced design state to track the actual border style
+  const [currentBorderStyle, setCurrentBorderStyle] = useState<'none' | 'solid' | 'dashed' | 'dotted' | 'double'>('none');
+
   // Map the new border style types to the enhanced hook's expected types
   const handleSetBorderStyle = (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => {
     logAction("setBorderStyle", style);
+    setCurrentBorderStyle(style);
+    
     // Map new styles to old styles for compatibility
     const styleMap: Record<string, 'none' | 'single' | 'double' | 'wavy'> = {
       'none': 'none',
       'solid': 'single',
-      'dashed': 'wavy',
-      'dotted': 'wavy',
+      'dashed': 'wavy', // Use wavy as closest approximation for dashed
+      'dotted': 'wavy', // Use wavy as closest approximation for dotted
       'double': 'double'
     };
     const mappedStyle = styleMap[style] || 'single';
     enhancedDesigner.setBorderStyle(mappedStyle);
   };
 
+  // Override the design to use our tracked border style
+  const designWithCorrectBorderStyle = {
+    ...enhancedDesigner.design,
+    borderStyle: currentBorderStyle
+  };
+
   return {
     ...enhancedDesigner,
+    design: designWithCorrectBorderStyle,
     updateLine: (i, upd) => { logAction("updateLine", i, upd); enhancedDesigner.updateLine(i, upd); },
     addLine: () => { logAction("addLine"); enhancedDesigner.addLine(); },
     removeLine: (i) => { logAction("removeLine", i); enhancedDesigner.removeLine(i); },
@@ -105,7 +117,6 @@ export const useStampDesigner = (product: Product | null): UseStampDesignerRetur
     enhancedAutoArrange: () => { logAction("enhancedAutoArrange"); enhancedDesigner.enhancedAutoArrange(); },
     setGlobalAlignment: (a) => { logAction("setGlobalAlignment", a); enhancedDesigner.setGlobalAlignment(a); },
     previewImage: enhancedDesigner.previewImage,
-    design: enhancedDesigner.design,
     zoomLevel: enhancedDesigner.zoomLevel,
   };
 };

@@ -1,18 +1,23 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
 import { useTranslation } from 'react-i18next';
 
 interface BorderStyleSelectorProps {
   selectedStyle: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
   onStyleChange: (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => void;
+  borderThickness: number;
+  onThicknessChange: (thickness: number) => void;
   largeControls?: boolean;
 }
 
 const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
   selectedStyle,
   onStyleChange,
+  borderThickness,
+  onThicknessChange,
   largeControls = false
 }) => {
   const { t } = useTranslation();
@@ -51,7 +56,7 @@ const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
   ] as const;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <h3 className={`font-medium text-gray-800 ${largeControls ? "text-lg" : ""}`}>
         {t('borderStyle.title', 'Border Style')}
       </h3>
@@ -82,6 +87,22 @@ const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
           </HelpTooltip>
         ))}
       </div>
+      
+      {selectedStyle !== 'none' && (
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium text-gray-700 ${largeControls ? "text-base" : ""}`}>
+            {t('borderStyle.thickness', 'Border Thickness')}: {borderThickness}px
+          </label>
+          <Slider
+            value={[borderThickness]}
+            onValueChange={(value) => onThicknessChange(value[0])}
+            min={1}
+            max={10}
+            step={1}
+            className="w-full"
+          />
+        </div>
+      )}
       
       <p className="text-xs text-gray-500 mt-2">
         {t('borderStyle.help', 'Select a border style to frame your stamp design')}

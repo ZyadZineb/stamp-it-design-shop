@@ -170,8 +170,6 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     }
   }, [uploadedLogo]);
 
-  
-
   // Click handler for interactive preview text positioning
   const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
@@ -421,8 +419,10 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           {currentStep === 'shape' && (
             <>
               <BorderStyleSelector 
-                selectedStyle={design.borderStyle as 'none' | 'solid' | 'dashed' | 'dotted' | 'double'} 
+                selectedStyle={design.borderStyle}
                 onStyleChange={setBorderStyle}
+                borderThickness={design.borderThickness}
+                onThicknessChange={setBorderThickness}
                 largeControls={largeControls}
               />
             </>
