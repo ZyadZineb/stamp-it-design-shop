@@ -12,7 +12,7 @@ export interface UseStampDesignerReturn {
   toggleLogo: () => void;
   setLogoPosition: (position: 'top' | 'bottom' | 'left' | 'right' | 'center') => void;
   updateLogoPosition: (x: number, y: number) => void;
-  setBorderStyle: (style: 'single' | 'double' | 'wavy' | 'none') => void;
+  setBorderStyle: (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => void;
   setBorderThickness: (thickness: number) => void;
   toggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
   updateTextPosition: (index: number, x: number, y: number) => void;
