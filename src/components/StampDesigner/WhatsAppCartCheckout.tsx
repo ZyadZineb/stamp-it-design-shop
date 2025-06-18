@@ -80,7 +80,10 @@ const WhatsAppCartCheckout: React.FC = () => {
 
     try {
       const message = generateWhatsAppMessage();
+      console.log('Generated WhatsApp message:', message); // Debug log
+      
       const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      console.log('WhatsApp URL:', whatsappURL); // Debug log
 
       // Open WhatsApp in new tab
       window.open(whatsappURL, '_blank');

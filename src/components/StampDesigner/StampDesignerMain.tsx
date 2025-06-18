@@ -1,12 +1,14 @@
+
 import React, { Suspense, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
+import { useStampCart } from '@/contexts/StampCartContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Check } from 'lucide-react';
+import { MessageCircle, Check, ShoppingCart } from 'lucide-react';
 import StampPreview from './StampPreview';
 import StampPreviewEnhanced from './StampPreviewEnhanced';
 import StampPreviewAccessible from './StampPreviewAccessible';
@@ -19,6 +21,7 @@ import TemplateSelector from './TemplateSelector';
 import LogoUploader from './LogoUploader';
 import ColorSelector from './ColorSelector';
 import WhatsAppOrderFlow from './WhatsAppOrderFlow';
+import CartModal from './CartModal';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { toast } from "@/hooks/use-toast";
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
@@ -46,7 +49,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState<StepType>(initialStep);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+  
+  // Cart context
+  const { addStampToCart, getItemCount } = useStampCart();
   
   // Use the unified hook (which does logging, debouncing, etc)
   const designer = useStampDesigner(product);
@@ -80,6 +87,46 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   } = designer;
 
   const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
+
+  const handleAddToCart = () => {
+    if (!product) {
+      toast({
+        title: "Error",
+        description: "Please select a product first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate that we have at least some text
+    const hasText = design.lines.some(line => line.text.trim().length > 0);
+    if (!hasText) {
+      toast({
+        title: "Add Text Required",
+        description: "Please add at least one line of text to your stamp",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add to cart with current design
+    addStampToCart({
+      product,
+      customText: design.lines,
+      inkColor: design.inkColor,
+      logoImage: design.logoImage,
+      logoPosition: design.logoPosition,
+      includeLogo: design.includeLogo,
+      borderStyle: design.borderStyle,
+      borderThickness: design.borderThickness,
+      shape: design.shape,
+      previewImage,
+      quantity: 1
+    });
+
+    // Show cart modal
+    setShowCartModal(true);
+  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!previewRef.current) return;
@@ -342,7 +389,18 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             <div className="lg:col-span-1">
               <Card className="sticky top-4">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold mb-4">{t('preview.livePreview', "Live Preview")}</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold">{t('preview.livePreview', "Live Preview")}</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowCartModal(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <ShoppingCart size={16} />
+                      Cart ({getItemCount()})
+                    </Button>
+                  </div>
                   
                   {currentStep === 'preview' ? (
                     <StampPreviewAccessible
@@ -382,11 +440,20 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       onLogoDrag={startLogoDrag}
                       onDrag={handleDrag}
                       onStopDragging={stopDragging}
-                      showControls={currentStep === 'preview'}
+                      showControls={false}
                     />
                   )}
                   
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-3">
+                    <Button 
+                      onClick={handleAddToCart}
+                      className={`w-full min-h-[44px] ${largeControls ? "text-lg py-4" : ""} bg-blue-600 hover:bg-blue-700`}
+                      variant="default"
+                    >
+                      <ShoppingCart className="mr-2" size={largeControls ? 20 : 16} />
+                      Add to Cart
+                    </Button>
+                    
                     <Button 
                       onClick={currentStep === 'preview' ? handleWhatsAppOrder : handleNextStep}
                       className={`w-full min-h-[44px] ${largeControls ? "text-lg py-4" : ""} ${currentStep === 'preview' ? 'bg-green-600 hover:bg-green-700' : ''}`}
@@ -420,6 +487,15 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           largeControls={largeControls}
         />
       </div>
+
+      <CartModal
+        isOpen={showCartModal}
+        onClose={() => setShowCartModal(false)}
+        onProceedToCheckout={() => {
+          setShowCartModal(false);
+          setCurrentStep('preview');
+        }}
+      />
     </div>
   );
 };
