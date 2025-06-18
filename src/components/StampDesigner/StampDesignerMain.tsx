@@ -1,3 +1,4 @@
+
 import React, { Suspense, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
@@ -270,7 +271,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <h2 className="text-2xl font-bold mb-4">{t('color.title', "Choose Ink Color")}</h2>
                     <p className="text-gray-600 mb-6">{t('color.description', "Select the ink color for your stamp.")}</p>
                     <ColorSelector 
-                      inkColors={product?.inkColors || []}
+                      availableColors={product?.inkColors || []}
                       selectedColor={design.inkColor}
                       onColorSelect={setInkColor}
                       highContrast={highContrast}
@@ -342,20 +343,23 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     />
                   ) : (
                     <StampPreviewEnhanced
-                      previewImage={previewImage}
-                      productSize={product?.size || ''}
-                      isDragging={isDragging}
-                      activeLineIndex={activeLineIndex}
+                      lines={design.lines}
+                      inkColor={design.inkColor}
                       includeLogo={design.includeLogo}
-                      onMouseDown={handleMouseDown}
-                      onMouseMove={handleMouseMove}
-                      onMouseUp={stopDragging}
-                      onTouchStart={handleTouchStart}
-                      onTouchMove={handleTouchMove}
-                      downloadAsPng={downloadAsPng}
-                      zoomIn={zoomIn}
-                      zoomOut={zoomOut}
+                      logoPosition={design.logoPosition}
+                      logoImage={design.logoImage}
+                      shape={design.shape}
+                      borderStyle={design.borderStyle}
+                      borderThickness={design.borderThickness}
+                      product={product}
                       zoomLevel={zoomLevel}
+                      onZoomIn={zoomIn}
+                      onZoomOut={zoomOut}
+                      onTextDrag={startTextDrag}
+                      onLogoDrag={startLogoDrag}
+                      onDrag={handleDrag}
+                      onStopDragging={stopDragging}
+                      showControls={currentStep === 'preview'}
                     />
                   )}
                   

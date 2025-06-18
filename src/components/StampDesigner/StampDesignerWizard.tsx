@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
@@ -150,6 +151,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               onRemoveLine={designer.removeLine}
               productShape={designer.design.shape}
               maxLines={product?.lines || 5}
+              onToggleCurvedText={designer.toggleCurvedText}
+              globalAlignment={designer.design.globalAlignment}
+              onGlobalAlignmentChange={designer.setGlobalAlignment}
             />
             <AutoArrange onAutoArrange={designer.enhancedAutoArrange} />
           </div>

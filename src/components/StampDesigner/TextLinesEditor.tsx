@@ -14,7 +14,7 @@ interface TextLinesEditorProps {
   lines: StampTextLine[];
   onUpdateLine: (index: number, updates: Partial<StampTextLine>) => void;
   onAddLine: () => void;
-  onRemoveLine: () => void;
+  onRemoveLine: (index: number) => void;
   productShape: 'rectangle' | 'circle' | 'square' | 'ellipse';
   maxLines: number;
   onToggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
