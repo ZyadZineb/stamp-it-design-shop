@@ -179,8 +179,14 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const activeLineIndex = design.lines.findIndex(line => line.isDragging);
   const isDragging = design.lines.some(line => line.isDragging) || design.logoDragging;
 
-  // Convert shape for TemplateSelector - handle ellipse -> oval conversion
-  const convertShapeForTemplate = (shape: string): 'rectangle' | 'circle' | 'oval' => {
+  // Convert shape for TemplateSelector - handle ellipse -> square, oval -> circle conversion  
+  const convertShapeForTemplateSelector = (shape: string): 'rectangle' | 'circle' | 'ellipse' | 'square' => {
+    if (shape === 'oval') return 'ellipse';
+    return shape as 'rectangle' | 'circle' | 'ellipse' | 'square';
+  };
+
+  // Convert shape for StampPreviewEnhanced - handle ellipse -> oval conversion
+  const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
     if (shape === 'ellipse') return 'oval';
     if (shape === 'square') return 'rectangle';
     return shape as 'rectangle' | 'circle' | 'oval';
@@ -221,7 +227,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
                     <TemplateSelector 
                       onSelectTemplate={applyTemplate} 
-                      productShape={convertShapeForTemplate(design.shape)}
+                      productShape={convertShapeForTemplateSelector(design.shape)}
                       highContrast={highContrast}
                       largeControls={largeControls}
                     />
@@ -365,7 +371,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       includeLogo={design.includeLogo}
                       logoPosition={design.logoPosition}
                       logoImage={design.logoImage}
-                      shape={design.shape === 'ellipse' ? 'oval' : design.shape === 'square' ? 'rectangle' : design.shape as 'rectangle' | 'circle' | 'oval'}
+                      shape={convertShapeForPreview(design.shape)}
                       borderStyle={design.borderStyle}
                       borderThickness={design.borderThickness}
                       product={product}

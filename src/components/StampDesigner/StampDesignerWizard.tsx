@@ -128,8 +128,15 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     setActiveStep('text');
   };
 
-  // Convert shape for DesignTemplates - handle ellipse -> oval conversion
-  const convertShapeForTemplate = (shape: string): 'rectangle' | 'circle' | 'oval' => {
+  // Convert shape for DesignTemplates - handle ellipse -> square conversion
+  const convertShapeForDesignTemplates = (shape: string): 'rectangle' | 'circle' | 'square' => {
+    if (shape === 'ellipse') return 'square';
+    if (shape === 'oval') return 'circle';
+    return shape as 'rectangle' | 'circle' | 'square';
+  };
+
+  // Convert shape for StampPreviewEnhanced - handle ellipse -> oval conversion
+  const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
     if (shape === 'ellipse') return 'oval';
     if (shape === 'square') return 'rectangle';
     return shape as 'rectangle' | 'circle' | 'oval';
@@ -142,7 +149,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           <div className="space-y-6">
             <DesignTemplates
               onSelectTemplate={handleTemplateSelect}
-              productShape={convertShapeForTemplate(designer.design.shape)}
+              productShape={convertShapeForDesignTemplates(designer.design.shape)}
             />
           </div>
         );
@@ -339,7 +346,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   includeLogo={designer.design.includeLogo}
                   logoPosition={designer.design.logoPosition}
                   logoImage={designer.design.logoImage}
-                  shape={designer.design.shape}
+                  shape={convertShapeForPreview(designer.design.shape)}
                   borderStyle={designer.design.borderStyle}
                   borderThickness={designer.design.borderThickness}
                   product={product}
