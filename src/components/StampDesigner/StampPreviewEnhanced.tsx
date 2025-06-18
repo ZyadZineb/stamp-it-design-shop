@@ -44,18 +44,35 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasKey, setCanvasKey] = useState(0);
 
-  // Force re-render whenever any prop changes
+  // Force re-render and redraw whenever any prop changes - CRITICAL FIX for live preview
   useEffect(() => {
+    console.log('[StampPreview] Props changed, re-rendering canvas');
     setCanvasKey(prev => prev + 1);
-    redrawCanvas();
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      redrawCanvas();
+    });
   }, [lines, inkColor, includeLogo, logoPosition, logoImage, shape, borderStyle, borderThickness, zoomLevel]);
 
   const redrawCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.log('[StampPreview] Canvas ref not available');
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.log('[StampPreview] Canvas context not available');
+      return;
+    }
+
+    console.log('[StampPreview] Redrawing canvas with:', { 
+      linesCount: lines.length, 
+      inkColor, 
+      shape, 
+      borderStyle 
+    });
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -162,6 +179,8 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
 
       ctx.fillText(line.text, x, y);
     });
+
+    console.log('[StampPreview] Canvas redraw complete');
   };
 
   return (
@@ -183,18 +202,20 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         <div className="flex gap-2">
           <button
             onClick={onZoomOut}
-            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={zoomLevel <= 0.5}
+            aria-label="Zoom out preview"
           >
             Zoom Out
           </button>
-          <span className="px-3 py-1">
+          <span className="px-3 py-1 flex items-center">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button
             onClick={onZoomIn}
-            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={zoomLevel >= 2}
+            aria-label="Zoom in preview"
           >
             Zoom In
           </button>

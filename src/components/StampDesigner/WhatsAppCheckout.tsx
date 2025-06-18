@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
@@ -27,8 +26,8 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
 
-  // WhatsApp business number (replace with actual number)
-  const WHATSAPP_NUMBER = '212600000000'; // Replace with real business WhatsApp number
+  // Updated WhatsApp business number
+  const WHATSAPP_NUMBER = '212699118028';
 
   const validateCustomerInfo = () => {
     const errors: { [key: string]: string } = {};
