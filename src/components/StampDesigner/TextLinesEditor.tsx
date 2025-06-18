@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,10 +12,11 @@ import AlignmentControls from './AlignmentControls';
 
 interface TextLinesEditorProps {
   lines: StampTextLine[];
-  product: Product | null;
   onUpdateLine: (index: number, updates: Partial<StampTextLine>) => void;
   onAddLine: () => void;
-  onRemoveLine: (index: number) => void;
+  onRemoveLine: () => void;
+  productShape: 'rectangle' | 'circle' | 'square' | 'ellipse';
+  maxLines: number;
   onToggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
   globalAlignment?: 'left' | 'center' | 'right';
   onGlobalAlignmentChange?: (alignment: 'left' | 'center' | 'right') => void;
@@ -24,10 +24,11 @@ interface TextLinesEditorProps {
 
 const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
   lines,
-  product,
   onUpdateLine,
   onAddLine,
   onRemoveLine,
+  productShape,
+  maxLines,
   onToggleCurvedText,
   globalAlignment = 'center',
   onGlobalAlignmentChange
@@ -232,7 +233,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
         ))}
 
         {/* Add Line Button */}
-        {product && lines.length < (product.lines || 5) && (
+        {productShape && lines.length < maxLines && (
           <Button
             onClick={onAddLine}
             variant="outline"

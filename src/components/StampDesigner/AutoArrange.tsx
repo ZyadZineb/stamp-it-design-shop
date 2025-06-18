@@ -4,23 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Wand } from 'lucide-react';
 import { HelpTooltip } from '@/components/ui/tooltip-custom';
-import { StampDesign, StampTextLine } from '@/types';
 
 interface AutoArrangeProps {
-  design: StampDesign;
-  onEnhancedAutoArrange: () => void;
-  shape: 'rectangle' | 'circle' | 'square';
+  onAutoArrange: () => void;
 }
 
-// Use correct prop name onEnhancedAutoArrange
-const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onEnhancedAutoArrange, shape }) => {
+const AutoArrange: React.FC<AutoArrangeProps> = ({ onAutoArrange }) => {
   const { t } = useTranslation();
 
   return (
     <div className="mb-4">
       <HelpTooltip content={t('design.autoArrangeTooltip', "Intelligently arrange text for optimal layout based on your stamp shape, maintaining proper orientation and spacing.")}>
         <Button 
-          onClick={onEnhancedAutoArrange} 
+          onClick={onAutoArrange} 
           variant="outline" 
           className="w-full flex items-center justify-center"
         >
@@ -33,4 +29,3 @@ const AutoArrange: React.FC<AutoArrangeProps> = ({ design, onEnhancedAutoArrange
 };
 
 export default AutoArrange;
-

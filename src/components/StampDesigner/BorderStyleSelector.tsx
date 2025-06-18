@@ -6,7 +6,7 @@ import { HelpTooltip } from '@/components/ui/tooltip-custom';
 import { useTranslation } from 'react-i18next';
 
 interface BorderStyleSelectorProps {
-  selectedStyle: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
+  borderStyle: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
   onStyleChange: (style: 'none' | 'solid' | 'dashed' | 'dotted' | 'double') => void;
   borderThickness: number;
   onThicknessChange: (thickness: number) => void;
@@ -14,7 +14,7 @@ interface BorderStyleSelectorProps {
 }
 
 const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
-  selectedStyle,
+  borderStyle,
   onStyleChange,
   borderThickness,
   onThicknessChange,
@@ -65,16 +65,16 @@ const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
         {borderStyles.map((style) => (
           <HelpTooltip key={style.id} content={style.tooltip}>
             <Button
-              variant={selectedStyle === style.id ? "default" : "outline"}
+              variant={borderStyle === style.id ? "default" : "outline"}
               onClick={() => onStyleChange(style.id)}
               className={`
                 h-auto min-h-[44px] p-3 flex flex-col items-center gap-1 text-center
                 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200
                 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2
                 ${largeControls ? "min-h-[52px] p-4" : ""}
-                ${selectedStyle === style.id ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
+                ${borderStyle === style.id ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
               `}
-              aria-pressed={selectedStyle === style.id}
+              aria-pressed={borderStyle === style.id}
               aria-label={`${style.label} - ${style.tooltip}`}
             >
               <span className={`font-mono text-xs ${largeControls ? "text-sm" : ""}`}>
@@ -88,7 +88,7 @@ const BorderStyleSelector: React.FC<BorderStyleSelectorProps> = ({
         ))}
       </div>
       
-      {selectedStyle !== 'none' && (
+      {borderStyle !== 'none' && (
         <div className="space-y-2">
           <label className={`block text-sm font-medium text-gray-700 ${largeControls ? "text-base" : ""}`}>
             {t('borderStyle.thickness', 'Border Thickness')}: {borderThickness}px

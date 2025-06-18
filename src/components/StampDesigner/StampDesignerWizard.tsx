@@ -135,7 +135,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           <div className="space-y-6">
             <DesignTemplates
               onSelectTemplate={handleTemplateSelect}
-              productShape={designer.design.shape}
+              productShape={designer.design.shape === 'ellipse' ? 'circle' : designer.design.shape}
             />
           </div>
         );
@@ -163,7 +163,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               logoImage={designer.design.logoImage}
               logoPosition={designer.design.logoPosition}
               onToggleLogo={designer.toggleLogo}
-              onLogoUpload={(url) => designer.applyTemplate({ logoImage: url })}
+              onLogoUpload={designer.applyTemplate}
               onPositionChange={designer.setLogoPosition}
             />
           </div>
@@ -324,7 +324,14 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   {t('wizard.livePreview', 'Live Preview')}
                 </h3>
                 <StampPreviewEnhanced
-                  design={designer.design}
+                  lines={designer.design.lines}
+                  inkColor={designer.design.inkColor}
+                  includeLogo={designer.design.includeLogo}
+                  logoPosition={designer.design.logoPosition}
+                  logoImage={designer.design.logoImage}
+                  shape={designer.design.shape}
+                  borderStyle={designer.design.borderStyle}
+                  borderThickness={designer.design.borderThickness}
                   product={product}
                   zoomLevel={designer.zoomLevel}
                   onZoomIn={designer.zoomIn}
