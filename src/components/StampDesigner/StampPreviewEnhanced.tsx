@@ -173,7 +173,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={zoomOut}
+          onClick={onZoomOut}
           disabled={zoomLevel <= 1}
           className="p-1 h-8 w-8"
         >
@@ -197,7 +197,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={zoomIn}
+          onClick={onZoomIn}
           disabled={zoomLevel >= 3}
           className="p-1 h-8 w-8"
         >
