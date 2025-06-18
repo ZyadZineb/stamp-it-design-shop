@@ -77,6 +77,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     setGlobalAlignment
   } = designer;
 
+  const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
+
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
@@ -128,7 +130,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   };
 
   const handleNextStep = () => {
-    const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
     const currentIndex = steps.indexOf(currentStep);
     
     if (currentIndex < steps.length - 1) {
@@ -137,7 +138,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   };
 
   const handlePrevStep = () => {
-    const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
     const currentIndex = steps.indexOf(currentStep);
     
     if (currentIndex > 0) {
