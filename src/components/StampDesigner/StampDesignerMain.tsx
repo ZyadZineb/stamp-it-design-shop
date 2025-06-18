@@ -179,6 +179,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const activeLineIndex = design.lines.findIndex(line => line.isDragging);
   const isDragging = design.lines.some(line => line.isDragging) || design.logoDragging;
 
+  // Convert shape for TemplateSelector - handle ellipse -> oval conversion
+  const convertShapeForTemplate = (shape: string): 'rectangle' | 'circle' | 'oval' => {
+    if (shape === 'ellipse') return 'oval';
+    if (shape === 'square') return 'rectangle';
+    return shape as 'rectangle' | 'circle' | 'oval';
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow overflow-y-auto">
@@ -214,7 +221,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
                     <TemplateSelector 
                       onSelectTemplate={applyTemplate} 
-                      productShape={design.shape}
+                      productShape={convertShapeForTemplate(design.shape)}
                       highContrast={highContrast}
                       largeControls={largeControls}
                     />
@@ -358,7 +365,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                       includeLogo={design.includeLogo}
                       logoPosition={design.logoPosition}
                       logoImage={design.logoImage}
-                      shape={design.shape}
+                      shape={design.shape === 'ellipse' ? 'oval' : design.shape === 'square' ? 'rectangle' : design.shape as 'rectangle' | 'circle' | 'oval'}
                       borderStyle={design.borderStyle}
                       borderThickness={design.borderThickness}
                       product={product}

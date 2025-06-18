@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
@@ -129,6 +128,13 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     setActiveStep('text');
   };
 
+  // Convert shape for DesignTemplates - handle ellipse -> oval conversion
+  const convertShapeForTemplate = (shape: string): 'rectangle' | 'circle' | 'oval' => {
+    if (shape === 'ellipse') return 'oval';
+    if (shape === 'square') return 'rectangle';
+    return shape as 'rectangle' | 'circle' | 'oval';
+  };
+
   const renderStepContent = () => {
     switch (activeStep) {
       case 'templates':
@@ -136,7 +142,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           <div className="space-y-6">
             <DesignTemplates
               onSelectTemplate={handleTemplateSelect}
-              productShape={designer.design.shape === 'ellipse' ? 'circle' : designer.design.shape}
+              productShape={convertShapeForTemplate(designer.design.shape)}
             />
           </div>
         );
