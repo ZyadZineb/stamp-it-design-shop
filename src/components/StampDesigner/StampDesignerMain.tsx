@@ -130,7 +130,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       handleDrag(e, rect);
     }
   };
-
+  
   const handleNextStep = () => {
     const currentIndex = steps.indexOf(currentStep);
     
@@ -197,29 +197,29 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       <div className="flex-grow overflow-y-auto">
         <Tabs defaultValue={currentStep} value={currentStep} onValueChange={(value) => setCurrentStep(value as StepType)}>
           <TabsList className="w-full justify-start mb-4 overflow-x-auto">
-            <TabsTrigger value="templates" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="templates" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.templates', "Templates")}
             </TabsTrigger>
-            <TabsTrigger value="logo" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="logo" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.logo', "Logo")}
             </TabsTrigger>
-            <TabsTrigger value="text" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="text" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.text', "Text")}
             </TabsTrigger>
-            <TabsTrigger value="border" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="border" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.border', "Border")}
             </TabsTrigger>
-            <TabsTrigger value="color" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="color" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.color', "Color")}
             </TabsTrigger>
-            <TabsTrigger value="preview" className={largeControls ? "text-lg py-3 px-5" : ""}>
+            <TabsTrigger value="preview" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
               {t('steps.preview', "Order")}
             </TabsTrigger>
           </TabsList>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Editor */}
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
               <TabsContent value="templates">
                 <Card>
                   <CardContent className="p-6">
@@ -339,7 +339,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             </div>
 
             {/* Right Column - Preview */}
-            <div className="md:col-span-1">
+            <div className="lg:col-span-1">
               <Card className="sticky top-4">
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-4">{t('preview.livePreview', "Live Preview")}</h3>
@@ -389,13 +389,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   <div className="mt-6">
                     <Button 
                       onClick={currentStep === 'preview' ? handleWhatsAppOrder : handleNextStep}
-                      className={`w-full ${largeControls ? "text-lg py-4" : ""} ${currentStep === 'preview' ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                      className={`w-full min-h-[44px] ${largeControls ? "text-lg py-4" : ""} ${currentStep === 'preview' ? 'bg-green-600 hover:bg-green-700' : ''}`}
                       variant={currentStep === 'preview' ? "default" : "outline"}
                     >
                       {currentStep === 'preview' ? (
                         <>
                           <MessageCircle className="mr-2" size={largeControls ? 20 : 16} />
-                          {t('preview.orderWhatsApp', "Order via WhatsApp")}
+                          📩 Order via WhatsApp
                         </>
                       ) : (
                         <>

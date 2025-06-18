@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Copy, CheckCircle } from 'lucide-react';
+import { MessageCircle, Copy, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { Product } from '@/types';
 
@@ -25,6 +25,7 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   // WhatsApp business number (replace with actual number)
   const WHATSAPP_NUMBER = '212600000000'; // Replace with real business WhatsApp number
@@ -66,7 +67,11 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
     }
 
     orderDetails.push('');
-    orderDetails.push('🎨 Design Preview: Please see attached image');
+    if (previewImage) {
+      orderDetails.push('🎨 Design Preview: Please see attached image');
+    } else {
+      orderDetails.push('🎨 Design: Custom stamp design (attach preview image if needed)');
+    }
     orderDetails.push('');
     orderDetails.push('Please confirm this order and let me know the delivery timeline. Thank you!');
 
@@ -74,6 +79,7 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
   };
 
   const copyMessageToClipboard = async () => {
+    setIsCopying(true);
     try {
       const message = generateWhatsAppMessage();
       await navigator.clipboard.writeText(message);
@@ -88,6 +94,8 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
         description: t('checkout.copyErrorDesc', 'Could not copy message to clipboard'),
         variant: 'destructive'
       });
+    } finally {
+      setIsCopying(false);
     }
   };
 
@@ -136,24 +144,42 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
       <Button
         onClick={handleWhatsAppOrder}
         disabled={isProcessing}
-        className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-medium"
+        className="w-full bg-green-600 hover:bg-green-700 text-white min-h-[44px] text-lg font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         size="lg"
+        aria-label={isProcessing ? t('checkout.processing', 'Processing...') : t('checkout.orderViaWhatsApp', '📩 Order via WhatsApp')}
       >
-        <MessageCircle className="w-5 h-5 mr-2" />
-        {isProcessing 
-          ? t('checkout.processing', 'Processing...') 
-          : t('checkout.orderViaWhatsApp', '📩 Order via WhatsApp')
-        }
+        {isProcessing ? (
+          <>
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            {t('checkout.processing', 'Processing...')}
+          </>
+        ) : (
+          <>
+            <MessageCircle className="w-5 h-5 mr-2" />
+            📩 {t('checkout.orderViaWhatsApp', 'Order via WhatsApp')}
+          </>
+        )}
       </Button>
 
       <Button
         onClick={copyMessageToClipboard}
+        disabled={isCopying}
         variant="outline"
-        className="w-full"
+        className="w-full min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         size="sm"
+        aria-label={isCopying ? 'Copying message...' : t('checkout.copyMessage', 'Copy Message')}
       >
-        <Copy className="w-4 h-4 mr-2" />
-        {t('checkout.copyMessage', 'Copy Message')}
+        {isCopying ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Copying...
+          </>
+        ) : (
+          <>
+            <Copy className="w-4 h-4 mr-2" />
+            {t('checkout.copyMessage', 'Copy Message')}
+          </>
+        )}
       </Button>
 
       <p className="text-sm text-gray-600 text-center">

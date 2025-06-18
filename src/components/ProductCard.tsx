@@ -11,7 +11,7 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div className="bg-white border border-gray-100 shadow rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col h-full animate-fade-in p-2.5 md:p-5">
-      <Link to={`/products/${product.id}`}>
+      <Link to={`/products/${product.id}`} className="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
         <img
           src={product.images[0]}
           alt={product.name}
@@ -37,7 +37,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <span className="text-gray-700 font-semibold text-sm md:text-lg">{product.price} DHS</span>
           <Link
             to={`/products/${product.id}`}
-            className="btn-primary text-xs md:text-sm px-2.5 md:px-4 py-1.5 md:py-2 rounded-md min-w-11 min-h-11"
+            className="btn-primary text-xs md:text-sm px-2.5 md:px-4 py-1.5 md:py-2 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label={`View details for ${product.name}`}
           >
             <TranslatedText i18nKey="products.detailsLabel" ns="products">
               Plus de détails
