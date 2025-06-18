@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../data/products";
 import Navbar from "../components/Navbar";
@@ -6,6 +7,9 @@ import Footer from "../components/Footer";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCart } from "../contexts/CartContext";
+import { MessageCircle } from 'lucide-react';
+import WhatsAppCheckout from '../components/StampDesigner/WhatsAppCheckout';
+import { Separator } from "@/components/ui/separator";
 
 const infoTagClass =
   "inline-block rounded-full bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 mr-2 mb-2 border border-blue-200";
@@ -19,6 +23,25 @@ const ProductDetail = () => {
   const { t } = useTranslation(['products', 'translation']);
   const navigate = useNavigate();
   const { addToCart } = useCart();
+
+  const [customerInfo, setCustomerInfo] = useState({
+    fullName: '',
+    phoneNumber: '',
+    deliveryAddress: ''
+  });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const handleCustomerInfoChange = (field: string, value: string) => {
+    setCustomerInfo(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleValidationError = (validationErrors: { [key: string]: string }) => {
+    setErrors(validationErrors);
+  };
 
   if (!id) {
     return (
@@ -50,28 +73,11 @@ const ProductDetail = () => {
     );
   }
 
-  // Handlers
-  const handleAddToCart = () => {
-    addToCart(product);
-  };
   const goToStampDesigner = () => {
     navigate(`/design?productId=${product.id}`);
   };
 
-  // Debug: log the value resolved by i18n
   const resolvedDescription = t(`productDescriptions.${product?.id}`, { ns: 'products', defaultValue: product?.description });
-  console.log(
-    "[i18n DEBUG]",
-    {
-      productId: product.id,
-      lang: navigator.language,
-      tKey: `productDescriptions.${product.id}`,
-      resolved: resolvedDescription,
-      tRaw: t(`productDescriptions.${product.id}`),
-      tFallback: t(`productDescriptions.${product.id}`, "!!!FALLBACK!!!"),
-      resources: (window as any).i18next?.store?.data?.fr?.translation?.productDescriptions,
-    }
-  );
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -93,19 +99,16 @@ const ProductDetail = () => {
                   className="w-auto h-64 object-contain transition-transform duration-300 hover:scale-105"
                   style={{ maxWidth: "100%" }}
                 />
-                {/* Bordered ribbon */}
                 <div className="absolute left-0 top-0">
                   <span className={infoTagRedClass}>{t(`brands.${product.brand}`, product.brand)}</span>
                 </div>
               </div>
-              {/* Product Title & Price */}
               <h1 className="text-2xl md:text-3xl font-extrabold text-brand-blue mb-2 text-center md:text-left">
                 {t(`productNames.${product.id}`, { ns: 'products', defaultValue: product.name })}
               </h1>
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="text-lg md:text-xl font-bold text-green-600 bg-green-50 rounded-md px-4 py-1">{product.price} DHS</span>
               </div>
-              {/* Quick details */}
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className={infoTagClass}>{product.model}</span>
                 <span className={infoTagGrayClass}>{t("products.details.shape", "Shape")}: {t("shapes." + product.shape, product.shape)}</span>
@@ -113,16 +116,14 @@ const ProductDetail = () => {
                 <span className={infoTagGrayClass}>{t("products.details.lines", "Lines")}: {product.lines}</span>
               </div>
             </div>
+            
             {/* Right: Description & Actions */}
             <div className="w-full md:w-1/2 flex flex-col justify-center">
-              {/* Description */}
               <h2 className="text-lg text-brand-blue font-semibold mb-1">{t("products.details.about", "About this product")}</h2>
               <p className="text-gray-700 mb-6 italic">
-                {resolvedDescription} {resolvedDescription === product.description ? (
-                  <span className="text-red-500 ml-2 font-bold">[MISSING FR TRANSLATION]</span>
-                ) : null}
+                {resolvedDescription}
               </p>
-              {/* Available ink colors */}
+              
               <div className="mb-4 flex items-center gap-2 flex-wrap">
                 <span className="font-medium text-sm text-gray-600">{t("products.details.inkColors", "Ink Colors")}:</span>
                 {product.inkColors.map((color) => (
@@ -145,25 +146,77 @@ const ProductDetail = () => {
                   ></span>
                 ))}
               </div>
-              {/* Full details as chips */}
-              <div className="mb-6 flex flex-wrap gap-2">
-                {/* Brand as a tag (already in left ribbon, but show here for consistency on mobile) */}
-                <span className="md:hidden">{t(`brands.${product.brand}`, product.brand)}</span>
-                {/* Model, Shape, Size, Lines, etc. */}
-                {/* Already shown above; repeat only if you want extra details */}
-              </div>
-              {/* Action buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <Button onClick={handleAddToCart} className="w-full sm:w-auto shadow hover-scale">
-                  {t("cart.addToCart", "Add to cart")}
-                </Button>
+              
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-8">
                 <Button
                   onClick={goToStampDesigner}
-                  variant="outline"
-                  className="w-full sm:w-auto border-brand-blue text-brand-blue font-semibold hover:bg-brand-blue/10 hover:border-brand-blue hover:scale-105 transition"
+                  className="w-full sm:w-auto border-brand-blue text-white bg-brand-blue font-semibold hover:bg-brand-blue/90 hover:scale-105 transition"
                 >
                   {t("design.productDetail", "Design and Personalize")}
                 </Button>
+              </div>
+
+              <Separator className="my-6" />
+
+              {/* Quick Order Section */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <MessageCircle className="mr-2 text-green-600" size={20} />
+                  Quick Order via WhatsApp
+                </h3>
+                
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={customerInfo.fullName}
+                      onChange={(e) => handleCustomerInfoChange('fullName', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue ${
+                        errors.fullName ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Enter your full name"
+                    />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={customerInfo.phoneNumber}
+                      onChange={(e) => handleCustomerInfoChange('phoneNumber', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Delivery Address
+                    </label>
+                    <textarea
+                      value={customerInfo.deliveryAddress}
+                      onChange={(e) => handleCustomerInfoChange('deliveryAddress', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                      placeholder="Enter your delivery address"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <WhatsAppCheckout
+                  product={product}
+                  customerInfo={customerInfo}
+                  previewImage={null}
+                  onValidationError={handleValidationError}
+                />
               </div>
             </div>
           </div>

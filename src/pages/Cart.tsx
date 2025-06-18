@@ -4,20 +4,32 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useCart } from '../contexts/CartContext';
-import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
-import { toast } from "sonner";
+import { Trash2, Plus, Minus, ShoppingCart, MessageCircle } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
+import WhatsAppCheckout from '../components/StampDesigner/WhatsAppCheckout';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   
-  const handleProceedToCheckout = () => {
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty. Add some items first.");
-      return;
+  const [customerInfo, setCustomerInfo] = useState({
+    fullName: '',
+    phoneNumber: '',
+    deliveryAddress: ''
+  });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const handleCustomerInfoChange = (field: string, value: string) => {
+    setCustomerInfo(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
-    navigate('/checkout');
+  };
+
+  const handleValidationError = (validationErrors: { [key: string]: string }) => {
+    setErrors(validationErrors);
   };
 
   return (
@@ -132,7 +144,54 @@ const Cart = () => {
               
               <div>
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+                  <h2 className="text-lg font-semibold mb-4">Order via WhatsApp</h2>
+                  
+                  <div className="space-y-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={customerInfo.fullName}
+                        onChange={(e) => handleCustomerInfoChange('fullName', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter your full name"
+                      />
+                      {errors.fullName && (
+                        <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        value={customerInfo.phoneNumber}
+                        onChange={(e) => handleCustomerInfoChange('phoneNumber', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Delivery Address
+                      </label>
+                      <textarea
+                        value={customerInfo.deliveryAddress}
+                        onChange={(e) => handleCustomerInfoChange('deliveryAddress', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                        placeholder="Enter your delivery address"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
@@ -140,25 +199,20 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping</span>
-                      <span className="text-green-600">Calculated at checkout</span>
+                      <span className="text-green-600">Contact us for rates</span>
                     </div>
                   </div>
-                  <div className="border-t pt-2 flex justify-between font-semibold">
-                    <span>Estimated Total</span>
+                  <div className="border-t pt-2 flex justify-between font-semibold mb-6">
+                    <span>Total</span>
                     <span>{cartTotal} DHS</span>
                   </div>
                   
-                  <div className="mt-6">
-                    <Button 
-                      className="w-full py-6 text-base font-medium"
-                      onClick={handleProceedToCheckout}
-                    >
-                      Proceed to Checkout
-                    </Button>
-                    <p className="text-center text-sm text-gray-500 mt-4">
-                      Secure checkout powered by our payment partner
-                    </p>
-                  </div>
+                  <WhatsAppCheckout
+                    product={cartItems[0]?.product || null}
+                    customerInfo={customerInfo}
+                    previewImage={cartItems[0]?.previewImage || null}
+                    onValidationError={handleValidationError}
+                  />
                 </div>
               </div>
             </div>

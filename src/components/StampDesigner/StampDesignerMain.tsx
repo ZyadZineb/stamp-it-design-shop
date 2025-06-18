@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Check } from 'lucide-react';
+import { MessageCircle, Check } from 'lucide-react';
 import StampPreview from './StampPreview';
 import StampPreviewEnhanced from './StampPreviewEnhanced';
 import StampPreviewAccessible from './StampPreviewAccessible';
@@ -18,7 +18,9 @@ import BorderSelector from './BorderSelector';
 import TemplateSelector from './TemplateSelector';
 import LogoUploader from './LogoUploader';
 import ColorSelector from './ColorSelector';
+import WhatsAppOrderFlow from './WhatsAppOrderFlow';
 import { ErrorBoundary } from '../common/ErrorBoundary';
+import { toast } from "@/hooks/use-toast";
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
 const BarcodeGenerator = React.lazy(() => import("./BarcodeGenerator"));
 
@@ -145,9 +147,21 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     }
   };
 
-  const handleAddToCart = () => {
-    if (onAddToCart) {
-      onAddToCart();
+  const handleWhatsAppOrder = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 1000);
+    
+    // Show confirmation toast
+    toast({
+      title: "✅ WhatsApp Opened",
+      description: "WhatsApp launched — send your message to complete your order.",
+      duration: 5000,
+    });
+    
+    if (onPreview) {
+      onPreview();
     }
   };
 
@@ -186,7 +200,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               {t('steps.color', "Color")}
             </TabsTrigger>
             <TabsTrigger value="preview" className={largeControls ? "text-lg py-3 px-5" : ""}>
-              {t('steps.preview', "Preview")}
+              {t('steps.preview', "Order")}
             </TabsTrigger>
           </TabsList>
 
@@ -287,15 +301,14 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               <TabsContent value="preview">
                 <Card>
                   <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('preview.title', "Preview Your Stamp")}</h2>
-                    <p className="text-gray-600 mb-6">{t('preview.description', "Review your stamp design before adding to cart.")}</p>
-                    <PreviewOnPaper 
+                    <h2 className="text-2xl font-bold mb-4">{t('preview.title', "Order Your Stamp")}</h2>
+                    <p className="text-gray-600 mb-6">{t('preview.description', "Review your stamp design and order via WhatsApp.")}</p>
+                    
+                    <WhatsAppOrderFlow 
+                      product={product}
                       previewImage={previewImage}
-                      productName={product?.name || ''}
-                      onAnimate={handlePreview}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
                     />
+                    
                     <Separator className="my-6" />
                     <ErrorBoundary>
                       <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
@@ -305,12 +318,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                           productName={product?.name || ''}
                           downloadAsPng={downloadAsPng}
                         />
-                      </Suspense>
-                    </ErrorBoundary>
-                    <Separator className="my-6" />
-                    <ErrorBoundary>
-                      <Suspense fallback={<div className="p-4 text-gray-400">Loading barcode generator…</div>}>
-                        <BarcodeGenerator onGenerate={() => {}} />
                       </Suspense>
                     </ErrorBoundary>
                   </CardContent>
@@ -368,14 +375,14 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                   
                   <div className="mt-6">
                     <Button 
-                      onClick={currentStep === 'preview' ? handleAddToCart : handleNextStep}
-                      className={`w-full ${largeControls ? "text-lg py-4" : ""}`}
+                      onClick={currentStep === 'preview' ? handleWhatsAppOrder : handleNextStep}
+                      className={`w-full ${largeControls ? "text-lg py-4" : ""} ${currentStep === 'preview' ? 'bg-green-600 hover:bg-green-700' : ''}`}
                       variant={currentStep === 'preview' ? "default" : "outline"}
                     >
                       {currentStep === 'preview' ? (
                         <>
-                          <ShoppingCart className="mr-2" size={largeControls ? 20 : 16} />
-                          {t('preview.addToCart', "Add to Cart")}
+                          <MessageCircle className="mr-2" size={largeControls ? 20 : 16} />
+                          {t('preview.orderWhatsApp', "Order via WhatsApp")}
                         </>
                       ) : (
                         <>
@@ -398,30 +405,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
           onPrev={handlePrevStep}
           onNext={handleNextStep}
           largeControls={largeControls}
-        />
-      </div>
-
-      <div className="mt-6">
-        <SummaryBar
-          product={
-            product || {
-              id: '',
-              name: '',
-              price: 0,
-              size: '',
-              lines: 0,
-              inkColors: [],
-              shape: 'rectangle',
-              brand: '',
-              model: '',
-              colors: [],
-              images: [],
-              description: ''
-            }
-          }
-          inkColor={design.inkColor}
-          price={product?.price || 0}
-          onAddToCart={handleAddToCart}
         />
       </div>
     </div>

@@ -1,9 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Download, ZoomIn, ZoomOut } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import BaseStampRenderer from "./BaseStampRenderer";
-import { calcAlignedX, calcCenteredY } from "@/lib/previewEngine";
+
+import React, { useEffect, useRef, useState } from 'react';
 import { StampTextLine, Product } from '@/types';
 
 interface StampPreviewEnhancedProps {
@@ -11,8 +7,8 @@ interface StampPreviewEnhancedProps {
   inkColor: string;
   includeLogo: boolean;
   logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  logoImage?: string;
-  shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
+  logoImage: string | null;
+  shape: 'rectangle' | 'circle' | 'oval';
   borderStyle: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
   borderThickness: number;
   product: Product | null;
@@ -23,7 +19,7 @@ interface StampPreviewEnhancedProps {
   onLogoDrag: () => void;
   onDrag: (e: any, rect: DOMRect) => void;
   onStopDragging: () => void;
-  showControls: boolean;
+  showControls?: boolean;
 }
 
 const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
@@ -43,252 +39,167 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
   onLogoDrag,
   onDrag,
   onStopDragging,
-  showControls
+  showControls = false
 }) => {
-  const previewRef = useRef<HTMLDivElement>(null);
-  const [isPanning, setIsPanning] = useState(false);
-  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
-  const [startPanPos, setStartPanPos] = useState({ x: 0, y: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvasKey, setCanvasKey] = useState(0);
 
-  const handlePanStart = (clientX: number, clientY: number) => {
-    if (zoomLevel <= 1) return; // Only allow panning when zoomed in
-    
-    setIsPanning(true);
-    setStartPanPos({
-      x: clientX - panPosition.x,
-      y: clientY - panPosition.y
+  // Force re-render whenever any prop changes
+  useEffect(() => {
+    setCanvasKey(prev => prev + 1);
+    redrawCanvas();
+  }, [lines, inkColor, includeLogo, logoPosition, logoImage, shape, borderStyle, borderThickness, zoomLevel]);
+
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Set canvas size based on product
+    const baseWidth = 200;
+    const baseHeight = shape === 'circle' ? 200 : shape === 'oval' ? 150 : 120;
+    canvas.width = baseWidth * zoomLevel;
+    canvas.height = baseHeight * zoomLevel;
+
+    // Scale context
+    ctx.scale(zoomLevel, zoomLevel);
+
+    // Draw background
+    ctx.fillStyle = '#ffffff';
+    if (shape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(baseWidth/2, baseHeight/2, Math.min(baseWidth, baseHeight)/2 - 10, 0, 2 * Math.PI);
+      ctx.fill();
+    } else if (shape === 'oval') {
+      ctx.beginPath();
+      ctx.ellipse(baseWidth/2, baseHeight/2, baseWidth/2 - 10, baseHeight/2 - 10, 0, 0, 2 * Math.PI);
+      ctx.fill();
+    } else {
+      ctx.fillRect(10, 10, baseWidth - 20, baseHeight - 20);
+    }
+
+    // Draw border
+    if (borderStyle !== 'none') {
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = borderThickness;
+      
+      if (borderStyle === 'dashed') {
+        ctx.setLineDash([5, 5]);
+      } else if (borderStyle === 'dotted') {
+        ctx.setLineDash([2, 2]);
+      } else {
+        ctx.setLineDash([]);
+      }
+
+      if (shape === 'circle') {
+        ctx.beginPath();
+        ctx.arc(baseWidth/2, baseHeight/2, Math.min(baseWidth, baseHeight)/2 - 10, 0, 2 * Math.PI);
+        ctx.stroke();
+      } else if (shape === 'oval') {
+        ctx.beginPath();
+        ctx.ellipse(baseWidth/2, baseHeight/2, baseWidth/2 - 10, baseHeight/2 - 10, 0, 0, 2 * Math.PI);
+        ctx.stroke();
+      } else {
+        ctx.strokeRect(10, 10, baseWidth - 20, baseHeight - 20);
+      }
+    }
+
+    // Draw logo if included
+    if (includeLogo && logoImage) {
+      const img = new Image();
+      img.onload = () => {
+        const logoSize = 30;
+        let logoX = baseWidth/2 - logoSize/2;
+        let logoY = baseHeight/2 - logoSize/2;
+
+        switch (logoPosition) {
+          case 'top':
+            logoY = 20;
+            break;
+          case 'bottom':
+            logoY = baseHeight - logoSize - 20;
+            break;
+          case 'left':
+            logoX = 20;
+            break;
+          case 'right':
+            logoX = baseWidth - logoSize - 20;
+            break;
+        }
+
+        ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
+      };
+      img.src = logoImage;
+    }
+
+    // Draw text lines
+    lines.forEach((line, index) => {
+      if (!line.text.trim()) return;
+
+      ctx.fillStyle = inkColor;
+      ctx.font = `${line.bold ? 'bold ' : ''}${line.italic ? 'italic ' : ''}${line.fontSize}px ${line.fontFamily}`;
+      ctx.textAlign = line.alignment as CanvasTextAlign;
+
+      let x = baseWidth / 2;
+      if (line.alignment === 'left') x = 20;
+      if (line.alignment === 'right') x = baseWidth - 20;
+
+      const lineHeight = 25;
+      const totalTextHeight = lines.length * lineHeight;
+      const startY = (baseHeight - totalTextHeight) / 2 + lineHeight;
+      let y = startY + index * lineHeight;
+
+      // Apply custom positioning if set
+      if (line.xPosition !== 0 || line.yPosition !== 0) {
+        x += line.xPosition;
+        y += line.yPosition;
+      }
+
+      ctx.fillText(line.text, x, y);
     });
   };
 
-  const handlePanMove = (clientX: number, clientY: number) => {
-    if (!isPanning || zoomLevel <= 1) return;
-    
-    const maxPan = (zoomLevel - 1) * 100; // Maximum pan distance based on zoom level
-    
-    let newX = clientX - startPanPos.x;
-    let newY = clientY - startPanPos.y;
-    
-    // Constrain pan within bounds
-    newX = Math.max(Math.min(newX, maxPan), -maxPan);
-    newY = Math.max(Math.min(newY, maxPan), -maxPan);
-    
-    setPanPosition({ x: newX, y: newY });
-  };
-
-  const handlePanEnd = () => {
-    setIsPanning(false);
-  };
-
-  const handleMouseDownForPan = (e: React.MouseEvent<HTMLDivElement>) => {
-    // If we're in dragging mode for text/logo positioning, don't start panning
-    if (false) {
-      
-    } else {
-      handlePanStart(e.clientX, e.clientY);
-    }
-  };
-
-  const handleMouseMoveForPan = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (false) {
-      
-    } else if (isPanning) {
-      handlePanMove(e.clientX, e.clientY);
-    }
-  };
-
-  const handleMouseUpForPan = () => {
-    if (false) {
-      
-    } else if (isPanning) {
-      handlePanEnd();
-    }
-  };
-
-  const handleTouchStartForPan = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 0) return;
-    
-    if (false) {
-      
-    } else {
-      handlePanStart(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchMoveForPan = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 0) return;
-    
-    if (false) {
-      
-    } else if (isPanning) {
-      handlePanMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchEndForPan = () => {
-    if (false) {
-      
-    } else if (isPanning) {
-      handlePanEnd();
-    }
-  };
-
-  const resetZoomAndPan = () => {
-    // Reset to default zoom and pan position
-    setPanPosition({ x: 0, y: 0 });
-  };
-
-  // parse size to mm
-  let widthMm = 38, heightMm = 14;
-  if (product?.size) {
-    const parts = product?.size.replace("mm", "").split("x");
-    if (parts.length === 2) {
-      widthMm = parseFloat(parts[0]);
-      heightMm = parseFloat(parts[1]);
-    }
-  }
-
   return (
-    <div className="border rounded-md p-4 bg-gray-50">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-medium text-gray-800">Live Preview</h3>
-        <div className="flex gap-2">
-          <p className="text-xs text-gray-600 self-center">
-            {product?.size} mm
-          </p>
-          <Button 
-            onClick={() => {}}
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            disabled={!logoImage}
-          >
-            <Download size={16} />
-            Download PNG
-          </Button>
-        </div>
-      </div>
-      
-      {/* Zoom controls */}
-      <div className="flex items-center justify-between mb-3 px-2">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onZoomOut}
-          disabled={zoomLevel <= 1}
-          className="p-1 h-8 w-8"
-        >
-          <ZoomOut size={16} />
-        </Button>
-        
-        <Slider
-          value={[zoomLevel * 100]}
-          min={100}
-          max={300}
-          step={25}
-          className="w-[calc(100%-5rem)] mx-2"
-          onValueChange={(value) => {
-            // Reset pan position when zoom level changes
-            if (value[0] / 100 <= 1) {
-              setPanPosition({ x: 0, y: 0 });
-            }
+    <div className="flex flex-col items-center space-y-4">
+      <div className="border rounded-lg p-4 bg-white shadow-sm">
+        <canvas
+          key={canvasKey}
+          ref={canvasRef}
+          className="border border-gray-300 rounded cursor-pointer"
+          onMouseDown={(e) => {
+            const rect = canvasRef.current?.getBoundingClientRect();
+            if (rect) onDrag(e, rect);
           }}
+          onMouseUp={onStopDragging}
         />
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onZoomIn}
-          disabled={zoomLevel >= 3}
-          className="p-1 h-8 w-8"
-        >
-          <ZoomIn size={16} />
-        </Button>
       </div>
-      
-      <div className="overflow-hidden rounded-md">
-        <BaseStampRenderer
-          widthMm={widthMm}
-          heightMm={heightMm}
-          zoomLevel={zoomLevel}
-          className={`flex justify-center items-center bg-white border min-h-60 relative touch-none ${isPanning || (zoomLevel > 1) ? "cursor-grab" : "cursor-pointer"} ${isPanning ? "cursor-grabbing" : ""}`}
-          ariaLabel="Live Stamp Preview"
-          style={{
-            overflow: "hidden",
-            height: "300px",
-          }}
-        >
-          {logoImage ? (
-            <div
-              style={{
-                transform: `translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                transition: isPanning ? "none" : "transform 0.2s ease-out",
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center"
-              }}
-            >
-              <img 
-                src={logoImage} 
-                alt="Stamp Preview" 
-                className="max-w-full max-h-48 pointer-events-none"
-                draggable="false"
-              />
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center">
-              Start designing to see a preview
-            </p>
-          )}
-          
-          {false && (
-            <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
-              <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
-                Drag to position Line {0 + 1}
-              </p>
-            </div>
-          )}
-          
-          {false && false && (
-            <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
-              <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
-                Drag to position Logo
-              </p>
-            </div>
-          )}
-          
-          {zoomLevel > 1 && false && !isPanning && (
-            <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
-              <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
-                Click and drag to pan
-              </p>
-            </div>
-          )}
-        </BaseStampRenderer>
-      </div>
-      
-      {zoomLevel > 1 && (
-        <div className="mt-2">
-          <Button variant="ghost" size="sm" onClick={resetZoomAndPan} className="text-xs w-full">
-            Reset View
-          </Button>
+
+      {showControls && (
+        <div className="flex gap-2">
+          <button
+            onClick={onZoomOut}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            disabled={zoomLevel <= 0.5}
+          >
+            Zoom Out
+          </button>
+          <span className="px-3 py-1">
+            {Math.round(zoomLevel * 100)}%
+          </span>
+          <button
+            onClick={onZoomIn}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            disabled={zoomLevel >= 2}
+          >
+            Zoom In
+          </button>
         </div>
       )}
-      
-      {false ? (
-        <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
-          <p>Release to set position</p>
-        </div>
-      ) : false ? (
-        <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
-          <p>Click and drag in the preview area to position Line {0 + 1}</p>
-        </div>
-      ) : false && false ? (
-        <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
-          <p>Click and drag in the preview area to position your logo</p>
-        </div>
-      ) : null}
     </div>
   );
 };
