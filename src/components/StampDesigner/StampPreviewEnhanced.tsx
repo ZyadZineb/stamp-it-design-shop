@@ -4,39 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import BaseStampRenderer from "./BaseStampRenderer";
 import { calcAlignedX, calcCenteredY } from "@/lib/previewEngine";
+import { StampTextLine, Product } from '@/types';
 
-interface StampPreviewProps {
-  previewImage: string | null;
-  productSize: string;
-  isDragging: boolean;
-  activeLineIndex: number | null;
+interface StampPreviewEnhancedProps {
+  lines: StampTextLine[];
+  inkColor: string;
   includeLogo: boolean;
-  onMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseUp: () => void;
-  onTouchStart: (event: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchMove: (event: React.TouchEvent<HTMLDivElement>) => void;
-  downloadAsPng: () => void;
-  zoomIn: () => void;
-  zoomOut: () => void;
+  logoPosition: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  logoImage?: string;
+  shape: 'rectangle' | 'circle' | 'square' | 'ellipse';
+  borderStyle: 'none' | 'solid' | 'dashed' | 'dotted' | 'double';
+  borderThickness: number;
+  product: Product | null;
   zoomLevel: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onTextDrag: (index: number) => void;
+  onLogoDrag: () => void;
+  onDrag: (e: any, rect: DOMRect) => void;
+  onStopDragging: () => void;
+  showControls: boolean;
 }
 
-const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
-  previewImage,
-  productSize,
-  isDragging,
-  activeLineIndex,
+const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
+  lines,
+  inkColor,
   includeLogo,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-  onTouchStart,
-  onTouchMove,
-  downloadAsPng,
-  zoomIn,
-  zoomOut,
-  zoomLevel
+  logoPosition,
+  logoImage,
+  shape,
+  borderStyle,
+  borderThickness,
+  product,
+  zoomLevel,
+  onZoomIn,
+  onZoomOut,
+  onTextDrag,
+  onLogoDrag,
+  onDrag,
+  onStopDragging,
+  showControls
 }) => {
   const previewRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
@@ -74,24 +81,24 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
 
   const handleMouseDownForPan = (e: React.MouseEvent<HTMLDivElement>) => {
     // If we're in dragging mode for text/logo positioning, don't start panning
-    if (activeLineIndex !== null || (includeLogo && !isDragging)) {
-      onMouseDown(e);
+    if (false) {
+      
     } else {
       handlePanStart(e.clientX, e.clientY);
     }
   };
 
   const handleMouseMoveForPan = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      onMouseMove(e);
+    if (false) {
+      
     } else if (isPanning) {
       handlePanMove(e.clientX, e.clientY);
     }
   };
 
   const handleMouseUpForPan = () => {
-    if (isDragging) {
-      onMouseUp();
+    if (false) {
+      
     } else if (isPanning) {
       handlePanEnd();
     }
@@ -100,8 +107,8 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
   const handleTouchStartForPan = (e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
     
-    if (activeLineIndex !== null || (includeLogo && !isDragging)) {
-      onTouchStart(e);
+    if (false) {
+      
     } else {
       handlePanStart(e.touches[0].clientX, e.touches[0].clientY);
     }
@@ -110,16 +117,16 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
   const handleTouchMoveForPan = (e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
     
-    if (isDragging) {
-      onTouchMove(e);
+    if (false) {
+      
     } else if (isPanning) {
       handlePanMove(e.touches[0].clientX, e.touches[0].clientY);
     }
   };
 
   const handleTouchEndForPan = () => {
-    if (isDragging) {
-      onMouseUp();
+    if (false) {
+      
     } else if (isPanning) {
       handlePanEnd();
     }
@@ -132,8 +139,8 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
 
   // parse size to mm
   let widthMm = 38, heightMm = 14;
-  if (productSize) {
-    const parts = productSize.replace("mm", "").split("x");
+  if (product?.size) {
+    const parts = product?.size.replace("mm", "").split("x");
     if (parts.length === 2) {
       widthMm = parseFloat(parts[0]);
       heightMm = parseFloat(parts[1]);
@@ -146,14 +153,14 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
         <h3 className="font-medium text-gray-800">Live Preview</h3>
         <div className="flex gap-2">
           <p className="text-xs text-gray-600 self-center">
-            {productSize} mm
+            {product?.size} mm
           </p>
           <Button 
-            onClick={downloadAsPng}
+            onClick={() => {}}
             variant="outline" 
             size="sm" 
             className="flex items-center gap-1"
-            disabled={!previewImage}
+            disabled={!logoImage}
           >
             <Download size={16} />
             Download PNG
@@ -210,7 +217,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
             height: "300px",
           }}
         >
-          {previewImage ? (
+          {logoImage ? (
             <div
               style={{
                 transform: `translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
@@ -223,7 +230,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
               }}
             >
               <img 
-                src={previewImage} 
+                src={logoImage} 
                 alt="Stamp Preview" 
                 className="max-w-full max-h-48 pointer-events-none"
                 draggable="false"
@@ -235,15 +242,15 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
             </p>
           )}
           
-          {activeLineIndex !== null && !isDragging && (
+          {false && (
             <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
               <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
-                Drag to position Line {activeLineIndex + 1}
+                Drag to position Line {0 + 1}
               </p>
             </div>
           )}
           
-          {includeLogo && activeLineIndex === null && !isDragging && (
+          {false && false && (
             <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
               <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
                 Drag to position Logo
@@ -251,7 +258,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
             </div>
           )}
           
-          {zoomLevel > 1 && !isDragging && !isPanning && (
+          {zoomLevel > 1 && false && !isPanning && (
             <div className="absolute inset-0 bg-blue-500/5 flex items-center justify-center pointer-events-none">
               <p className="bg-white/90 text-xs px-3 py-1 rounded-lg shadow text-gray-600">
                 Click and drag to pan
@@ -269,15 +276,15 @@ const StampPreviewEnhanced: React.FC<StampPreviewProps> = ({
         </div>
       )}
       
-      {isDragging ? (
+      {false ? (
         <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
           <p>Release to set position</p>
         </div>
-      ) : activeLineIndex !== null ? (
+      ) : false ? (
         <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
-          <p>Click and drag in the preview area to position Line {activeLineIndex + 1}</p>
+          <p>Click and drag in the preview area to position Line {0 + 1}</p>
         </div>
-      ) : includeLogo && activeLineIndex === null ? (
+      ) : false && false ? (
         <div className="mt-2 text-sm text-center text-blue-600 bg-blue-50 p-2 rounded">
           <p>Click and drag in the preview area to position your logo</p>
         </div>

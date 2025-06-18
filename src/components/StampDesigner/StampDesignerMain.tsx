@@ -1,4 +1,3 @@
-
 import React, { Suspense, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
@@ -216,7 +215,11 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
                     <p className="text-gray-600 mb-6">{t('logo.description', "Upload and position your logo or skip this step.")}</p>
                     <LogoUploader 
                       includeLogo={design.includeLogo}
-                      toggleLogo={toggleLogo}
+                      logoImage={design.logoImage}
+                      logoPosition={design.logoPosition}
+                      onToggleLogo={toggleLogo}
+                      onLogoUpload={applyTemplate}
+                      onPositionChange={setLogoPosition}
                       highContrast={highContrast}
                       largeControls={largeControls}
                     />
