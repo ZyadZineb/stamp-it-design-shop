@@ -1,4 +1,3 @@
-
 import React, { Suspense, useState } from "react";
 import { Product } from '@/types';
 import { Separator } from "@/components/ui/separator";
@@ -39,7 +38,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     previewRef,
     handleAddToCart,
     getItemCount,
-    convertShapeForTemplateSelector,
     convertShapeForPreview,
     t
   } = useStampDesignerCore(product);
@@ -145,7 +143,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               product={product}
               design={design}
               designer={designer}
-              convertShapeForTemplateSelector={convertShapeForTemplateSelector}
+              convertShapeForPreview={convertShapeForPreview}
               highContrast={highContrast}
               largeControls={largeControls}
             />
