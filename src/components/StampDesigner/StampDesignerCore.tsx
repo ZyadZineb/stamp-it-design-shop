@@ -68,13 +68,20 @@ export const useStampDesignerCore = (product: Product | null) => {
     return true;
   };
 
-  // Convert shape for StampPreviewEnhanced - handle all shape conversions properly
+  // Convert shape for StampPreviewEnhanced - properly typed conversion
   const convertShapeForPreview = (shape: 'rectangle' | 'circle' | 'ellipse' | 'square'): 'rectangle' | 'circle' | 'oval' => {
-    if (shape === 'ellipse') return 'oval';
-    if (shape === 'square') return 'rectangle';
-    if (shape === 'rectangle') return 'rectangle';
-    if (shape === 'circle') return 'circle';
-    return 'rectangle'; // default fallback
+    switch (shape) {
+      case 'ellipse':
+        return 'oval';
+      case 'square':
+        return 'rectangle';
+      case 'rectangle':
+        return 'rectangle';
+      case 'circle':
+        return 'circle';
+      default:
+        return 'rectangle';
+    }
   };
 
   return {
