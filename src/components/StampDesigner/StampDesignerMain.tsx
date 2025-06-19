@@ -1,4 +1,3 @@
-
 import React, { Suspense, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
@@ -226,13 +225,13 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   const activeLineIndex = design.lines.findIndex(line => line.isDragging);
   const isDragging = design.lines.some(line => line.isDragging) || design.logoDragging;
 
-  // Convert shape for TemplateSelector - handle ellipse -> square, oval -> circle conversion  
+  // Convert shape for TemplateSelector - handle square/ellipse conversion  
   const convertShapeForTemplateSelector = (shape: string): 'rectangle' | 'circle' | 'ellipse' | 'square' => {
     if (shape === 'oval') return 'ellipse';
     return shape as 'rectangle' | 'circle' | 'ellipse' | 'square';
   };
 
-  // Convert shape for StampPreviewEnhanced - handle ellipse -> oval conversion
+  // Convert shape for StampPreviewEnhanced - handle ellipse/square -> oval/rectangle conversion
   const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
     if (shape === 'ellipse') return 'oval';
     if (shape === 'square') return 'rectangle';

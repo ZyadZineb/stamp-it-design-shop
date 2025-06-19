@@ -44,7 +44,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasKey, setCanvasKey] = useState(0);
 
-  // Force re-render and redraw whenever any prop changes - CRITICAL FIX for live preview
+  // CRITICAL: Force re-render and redraw whenever any prop changes for live preview
   useEffect(() => {
     console.log('[StampPreview] Props changed, re-rendering canvas');
     setCanvasKey(prev => prev + 1);
@@ -71,19 +71,20 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       linesCount: lines.length, 
       inkColor, 
       shape, 
-      borderStyle 
+      borderStyle,
+      borderThickness 
     });
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Set canvas size based on product
+    // Set canvas size based on product and shape
     const baseWidth = 200;
     const baseHeight = shape === 'circle' ? 200 : shape === 'oval' ? 150 : 120;
     canvas.width = baseWidth * zoomLevel;
     canvas.height = baseHeight * zoomLevel;
 
-    // Scale context
+    // Scale context for zoom
     ctx.scale(zoomLevel, zoomLevel);
 
     // Draw background
@@ -154,20 +155,22 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       img.src = logoImage;
     }
 
-    // Draw text lines
+    // Draw text lines with proper formatting
     lines.forEach((line, index) => {
       if (!line.text.trim()) return;
 
       ctx.fillStyle = inkColor;
-      ctx.font = `${line.bold ? 'bold ' : ''}${line.italic ? 'italic ' : ''}${line.fontSize}px ${line.fontFamily}`;
+      const fontWeight = line.bold ? 'bold' : 'normal';
+      const fontStyle = line.italic ? 'italic' : 'normal';
+      ctx.font = `${fontStyle} ${fontWeight} ${line.fontSize}px ${line.fontFamily}`;
       ctx.textAlign = line.alignment as CanvasTextAlign;
 
       let x = baseWidth / 2;
       if (line.alignment === 'left') x = 20;
       if (line.alignment === 'right') x = baseWidth - 20;
 
-      const lineHeight = 25;
-      const totalTextHeight = lines.length * lineHeight;
+      const lineHeight = Math.max(line.fontSize + 5, 25);
+      const totalTextHeight = lines.filter(l => l.text.trim()).length * lineHeight;
       const startY = (baseHeight - totalTextHeight) / 2 + lineHeight;
       let y = startY + index * lineHeight;
 
@@ -177,7 +180,26 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         y += line.yPosition;
       }
 
-      ctx.fillText(line.text, x, y);
+      // Apply letter spacing if specified
+      if (line.letterSpacing && line.letterSpacing > 0) {
+        // Manual letter spacing implementation
+        const chars = line.text.split('');
+        let currentX = x;
+        if (line.alignment === 'center') {
+          const totalWidth = chars.reduce((acc, char) => acc + ctx.measureText(char).width, 0) + (chars.length - 1) * line.letterSpacing;
+          currentX = x - totalWidth / 2;
+        } else if (line.alignment === 'right') {
+          const totalWidth = chars.reduce((acc, char) => acc + ctx.measureText(char).width, 0) + (chars.length - 1) * line.letterSpacing;
+          currentX = x - totalWidth;
+        }
+        
+        chars.forEach((char) => {
+          ctx.fillText(char, currentX, y);
+          currentX += ctx.measureText(char).width + line.letterSpacing;
+        });
+      } else {
+        ctx.fillText(line.text, x, y);
+      }
     });
 
     console.log('[StampPreview] Canvas redraw complete');
