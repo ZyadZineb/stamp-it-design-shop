@@ -76,8 +76,7 @@ export const useStampDesignerCore = (product: Product | null) => {
 
   // Convert shape for StampPreviewEnhanced - handle ellipse/square -> oval/rectangle conversion
   const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
-    if (shape === 'ellipse') return 'oval';
-    if (shape === 'square') return 'rectangle';
+    if (shape === 'ellipse' || shape === 'square') return 'oval';
     return shape as 'rectangle' | 'circle' | 'oval';
   };
 
