@@ -18,18 +18,84 @@ const WhatsAppCartCheckout: React.FC = () => {
     customerInfo,
     updateCustomerInfo,
     getTotalPrice,
-    getItemCount,
-    generateWhatsAppMessage
+    getItemCount
   } = useStampCart();
 
-  // Updated WhatsApp business number
+  // Enhanced WhatsApp business number
   const WHATSAPP_NUMBER = '212699118028';
+
+  const generateDetailedWhatsAppMessage = () => {
+    const orderDetails = [
+      '🛠️ New Custom Stamp Order',
+      '',
+      `👤 Customer: ${customerInfo.fullName}`,
+    ];
+
+    if (customerInfo.phoneNumber) {
+      orderDetails.push(`📞 Phone: ${customerInfo.phoneNumber}`);
+    }
+
+    if (customerInfo.deliveryAddress) {
+      orderDetails.push(`📍 Delivery: ${customerInfo.deliveryAddress}`);
+    }
+
+    orderDetails.push('');
+    orderDetails.push('🧾 Stamps Ordered:');
+
+    cartItems.forEach((item, index) => {
+      orderDetails.push(`\n${index + 1}. ${item.product.name} (${item.product.size})`);
+      orderDetails.push(`   • Quantity: ${item.quantity}`);
+      orderDetails.push(`   • Price: ${item.product.price} DHS each`);
+      orderDetails.push(`   • Ink Color: ${item.inkColor}`);
+      orderDetails.push(`   • Shape: ${item.shape}`);
+      
+      // Add detailed text formatting info
+      const textLines = item.customText.filter(line => line.text.trim());
+      if (textLines.length > 0) {
+        orderDetails.push(`   • Text Lines:`);
+        textLines.forEach((line, lineIndex) => {
+          const fontInfo = [];
+          if (line.fontFamily) fontInfo.push(`Font: ${line.fontFamily.split(',')[0]}`);
+          if (line.fontSize) fontInfo.push(`Size: ${line.fontSize}px`);
+          if (line.bold) fontInfo.push('Bold');
+          if (line.italic) fontInfo.push('Italic');
+          if (line.alignment) fontInfo.push(`Align: ${line.alignment}`);
+          if (line.letterSpacing) fontInfo.push(`Spacing: ${line.letterSpacing}px`);
+          
+          orderDetails.push(`     Line ${lineIndex + 1}: "${line.text}"`);
+          if (fontInfo.length > 0) {
+            orderDetails.push(`     Style: ${fontInfo.join(', ')}`);
+          }
+        });
+      }
+      
+      // Logo information
+      if (item.includeLogo && item.logoImage) {
+        orderDetails.push(`   • Logo: Included (Position: ${item.logoPosition})`);
+      }
+      
+      // Border information
+      if (item.borderStyle !== 'none') {
+        orderDetails.push(`   • Border: ${item.borderStyle} style, ${item.borderThickness}px thick`);
+      }
+    });
+
+    orderDetails.push('');
+    orderDetails.push(`💰 Total Amount: ${getTotalPrice()} DHS`);
+    orderDetails.push(`📦 Total Items: ${getItemCount()} stamps`);
+    orderDetails.push('');
+    orderDetails.push('🎨 Design previews will be sent in the next message');
+    orderDetails.push('');
+    orderDetails.push('Please confirm this order and provide delivery timeline. Thank you!');
+
+    return orderDetails.join('\n');
+  };
 
   const validateCustomerInfo = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!customerInfo.fullName.trim()) {
-      newErrors.fullName = t('checkout.errors.fullNameRequired', 'Full name is required');
+      newErrors.fullName = t('checkout.errors.fullNameRequired',  'Full name is required');
     }
 
     setErrors(newErrors);
@@ -48,11 +114,11 @@ const WhatsAppCartCheckout: React.FC = () => {
 
     setIsCopying(true);
     try {
-      const message = generateWhatsAppMessage();
+      const message = generateDetailedWhatsAppMessage();
       await navigator.clipboard.writeText(message);
       toast({
-        title: t('checkout.messageCopied', 'Message Copied'),
-        description: t('checkout.messageCopiedDesc', 'Order details copied to clipboard'),
+        title: "✅ Message Copied to Clipboard",
+        description: "Complete order details copied successfully",
         action: <CheckCircle className="w-4 h-4 text-green-500" />
       });
     } catch (error) {
@@ -69,8 +135,8 @@ const WhatsAppCartCheckout: React.FC = () => {
   const handleWhatsAppOrder = async () => {
     if (!validateCustomerInfo()) {
       toast({
-        title: t('checkout.validationError', 'Validation Error'),
-        description: t('checkout.validationErrorDesc', 'Please fill in all required fields'),
+        title: "❌ Validation Error",
+        description: "Please fill in all required fields before proceeding",
         variant: 'destructive'
       });
       return;
@@ -79,24 +145,25 @@ const WhatsAppCartCheckout: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      const message = generateWhatsAppMessage();
-      console.log('Generated WhatsApp message:', message); // Debug log
+      const message = generateDetailedWhatsAppMessage();
+      console.log('Generated WhatsApp message with full details:', message);
       
       const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-      console.log('WhatsApp URL:', whatsappURL); // Debug log
+      console.log('WhatsApp URL:', whatsappURL);
 
       // Open WhatsApp in new tab
       window.open(whatsappURL, '_blank');
 
       toast({
-        title: t('checkout.whatsappOpened', '✅ WhatsApp Opened'),
-        description: t('checkout.whatsappOpenedDesc', 'WhatsApp launched — please send your message to finalize the order.'),
-        action: <MessageCircle className="w-4 h-4 text-green-500" />
+        title: "✅ WhatsApp Opened Successfully",
+        description: "WhatsApp launched with your complete order details — please send the message to finalize your order.",
+        action: <MessageCircle className="w-4 h-4 text-green-500" />,
+        duration: 6000
       });
 
-      // Optional: Track analytics event
+      // Track analytics
       if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'whatsapp_cart_order_click', {
+        (window as any).gtag('event', 'whatsapp_cart_order_complete', {
           event_category: 'checkout',
           event_label: `${getItemCount()}_stamps`,
           value: getTotalPrice()
@@ -106,8 +173,8 @@ const WhatsAppCartCheckout: React.FC = () => {
     } catch (error) {
       console.error('WhatsApp order error:', error);
       toast({
-        title: t('checkout.whatsappError', 'WhatsApp Error'),
-        description: t('checkout.whatsappErrorDesc', 'Could not open WhatsApp. Please try copying the message instead.'),
+        title: "❌ WhatsApp Error",
+        description: "Could not open WhatsApp. Please try copying the message instead.",
         variant: 'destructive'
       });
     } finally {
@@ -135,16 +202,20 @@ const WhatsAppCartCheckout: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Order Summary */}
+          {/* Enhanced Order Summary */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold mb-2">Order Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Items:</span>
-                <span>{getItemCount()} stamps</span>
+                <span>Total Stamps:</span>
+                <span>{getItemCount()} items</span>
               </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total:</span>
+              <div className="flex justify-between">
+                <span>Models:</span>
+                <span>{cartItems.map(item => item.product.name).join(', ')}</span>
+              </div>
+              <div className="flex justify-between font-semibold text-lg border-t pt-2">
+                <span>Total Amount:</span>
                 <span>{getTotalPrice()} DHS</span>
               </div>
             </div>
@@ -156,7 +227,7 @@ const WhatsAppCartCheckout: React.FC = () => {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="cart-fullName">
-                Full Name *
+                Full Name * (Required for order processing)
               </label>
               <input
                 id="cart-fullName"
@@ -168,6 +239,7 @@ const WhatsAppCartCheckout: React.FC = () => {
                 }`}
                 placeholder="Enter your full name"
                 aria-describedby={errors.fullName ? "cart-fullName-error" : undefined}
+                required
               />
               {errors.fullName && (
                 <p id="cart-fullName-error" className="text-red-500 text-sm mt-1">{errors.fullName}</p>
@@ -176,7 +248,7 @@ const WhatsAppCartCheckout: React.FC = () => {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="cart-phoneNumber">
-                Phone Number
+                Phone Number (For delivery coordination)
               </label>
               <input
                 id="cart-phoneNumber"
@@ -184,26 +256,26 @@ const WhatsAppCartCheckout: React.FC = () => {
                 value={customerInfo.phoneNumber}
                 onChange={(e) => handleCustomerInfoChange('phoneNumber', e.target.value)}
                 className="w-full min-h-[44px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder="Enter your phone number"
+                placeholder="+212 6XX XXX XXX"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="cart-deliveryAddress">
-                Delivery Address
+                Delivery Address (Complete address for shipping)
               </label>
               <textarea
                 id="cart-deliveryAddress"
                 value={customerInfo.deliveryAddress}
                 onChange={(e) => handleCustomerInfoChange('deliveryAddress', e.target.value)}
                 className="w-full min-h-[88px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder="Enter your delivery address"
+                placeholder="Street address, city, postal code"
                 rows={3}
               />
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Enhanced Action Buttons */}
           <div className="space-y-3">
             <Button
               onClick={handleWhatsAppOrder}
@@ -214,12 +286,12 @@ const WhatsAppCartCheckout: React.FC = () => {
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  {t('checkout.processing', 'Processing...')}
+                  {t('checkout.processing', 'Processing Order...')}
                 </>
               ) : (
                 <>
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  📩 {t('checkout.sendOrderViaWhatsApp', 'Send My Order via WhatsApp')}
+                  📩 {t('checkout.sendOrderViaWhatsApp', 'Send Complete Order via WhatsApp')}
                 </>
               )}
             </Button>
@@ -234,20 +306,26 @@ const WhatsAppCartCheckout: React.FC = () => {
               {isCopying ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Copying...
+                  Copying Message...
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4 mr-2" />
-                  {t('checkout.copyMessage', 'Copy Message')}
+                  {t('checkout.copyMessage', 'Copy Full Order Message')}
                 </>
               )}
             </Button>
           </div>
 
-          <p className="text-sm text-gray-600 text-center">
-            {t('checkout.whatsappInstructions', 'Click the button to open WhatsApp with your complete order details pre-filled.')}
-          </p>
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>✅ What happens next:</strong><br/>
+              1. Click the WhatsApp button to open with your complete order<br/>
+              2. Your order details (products, text, formatting) are pre-filled<br/>
+              3. Send the message to complete your order<br/>
+              4. We'll confirm and provide delivery timeline
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

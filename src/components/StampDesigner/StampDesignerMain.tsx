@@ -1,30 +1,15 @@
-import React, { Suspense, useRef, useState } from "react";
-import { useTranslation } from 'react-i18next';
+
+import React, { Suspense, useState } from "react";
 import { Product } from '@/types';
-import { useStampDesigner } from '@/hooks/useStampDesigner';
-import { useStampCart } from '@/contexts/StampCartContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Check, ShoppingCart } from 'lucide-react';
-import StampPreview from './StampPreview';
-import StampPreviewEnhanced from './StampPreviewEnhanced';
-import StampPreviewAccessible from './StampPreviewAccessible';
-import PreviewOnPaper from './PreviewOnPaper';
-import SummaryBar from './SummaryBar';
+import { toast } from "@/hooks/use-toast";
+import StampDesignerTabs from './StampDesignerTabs';
+import StampDesignerPreview from './StampDesignerPreview';
 import StepNavigationControls from './StepNavigationControls';
-import TextEditor from './TextEditor';
-import BorderSelector from './BorderSelector';
-import TemplateSelector from './TemplateSelector';
-import LogoUploader from './LogoUploader';
-import ColorSelector from './ColorSelector';
-import WhatsAppOrderFlow from './WhatsAppOrderFlow';
 import CartModal from './CartModal';
 import { ErrorBoundary } from '../common/ErrorBoundary';
-import { toast } from "@/hooks/use-toast";
+import { useStampDesignerCore } from './StampDesignerCore';
 const ExportDesign = React.lazy(() => import("./ExportDesign"));
-const BarcodeGenerator = React.lazy(() => import("./BarcodeGenerator"));
 
 type StepType = 'templates' | 'logo' | 'text' | 'border' | 'color' | 'preview';
 
@@ -45,100 +30,35 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
   highContrast = false,
   largeControls = false
 }) => {
-  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState<StepType>(initialStep);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
   
-  // Cart context
-  const { addStampToCart, getItemCount } = useStampCart();
-  
-  // Use the unified hook (which does logging, debouncing, etc)
-  const designer = useStampDesigner(product);
-
   const {
-    design,
-    updateLine,
-    addLine,
-    removeLine,
-    setInkColor,
-    toggleLogo,
-    setLogoPosition,
-    updateLogoPosition,
-    setBorderStyle,
-    setBorderThickness,
-    toggleCurvedText,
-    updateTextPosition,
-    startTextDrag,
-    startLogoDrag,
-    stopDragging,
-    handleDrag,
-    previewImage,
-    downloadAsPng,
-    zoomIn,
-    zoomOut,
-    zoomLevel,
-    applyTemplate,
-    updateMultipleLines,
-    enhancedAutoArrange,
-    setGlobalAlignment
-  } = designer;
+    designer,
+    previewRef,
+    handleAddToCart,
+    getItemCount,
+    convertShapeForTemplateSelector,
+    convertShapeForPreview,
+    t
+  } = useStampDesignerCore(product);
 
+  const { design, handleDrag, stopDragging, previewImage, downloadAsPng } = designer;
   const steps: StepType[] = ['templates', 'logo', 'text', 'border', 'color', 'preview'];
-
-  const handleAddToCart = () => {
-    if (!product) {
-      toast({
-        title: "Error",
-        description: "Please select a product first",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate that we have at least some text
-    const hasText = design.lines.some(line => line.text.trim().length > 0);
-    if (!hasText) {
-      toast({
-        title: "Add Text Required",
-        description: "Please add at least one line of text to your stamp",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Add to cart with current design
-    addStampToCart({
-      product,
-      customText: design.lines,
-      inkColor: design.inkColor,
-      logoImage: design.logoImage,
-      logoPosition: design.logoPosition,
-      includeLogo: design.includeLogo,
-      borderStyle: design.borderStyle,
-      borderThickness: design.borderThickness,
-      shape: design.shape,
-      previewImage,
-      quantity: 1
-    });
-
-    // Show cart modal
-    setShowCartModal(true);
-  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
     
-    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+    if (design.lines.some((line: any) => line.isDragging) || design.logoDragging) {
       handleDrag(e, rect);
     } else {
-      const activeLineIndex = design.lines.findIndex(line => line.isDragging);
+      const activeLineIndex = design.lines.findIndex((line: any) => line.isDragging);
       if (activeLineIndex !== -1) {
-        startTextDrag(activeLineIndex);
+        designer.startTextDrag(activeLineIndex);
       } else if (design.includeLogo) {
-        startLogoDrag();
+        designer.startLogoDrag();
       }
     }
   };
@@ -147,7 +67,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     if (!previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
     
-    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+    if (design.lines.some((line: any) => line.isDragging) || design.logoDragging) {
       handleDrag(e, rect);
     }
   };
@@ -156,14 +76,14 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     if (!previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
     
-    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+    if (design.lines.some((line: any) => line.isDragging) || design.logoDragging) {
       handleDrag(e, rect);
     } else {
-      const activeLineIndex = design.lines.findIndex(line => line.isDragging);
+      const activeLineIndex = design.lines.findIndex((line: any) => line.isDragging);
       if (activeLineIndex !== -1) {
-        startTextDrag(activeLineIndex);
+        designer.startTextDrag(activeLineIndex);
       } else if (design.includeLogo) {
-        startLogoDrag();
+        designer.startLogoDrag();
       }
     }
   };
@@ -172,7 +92,7 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     if (!previewRef.current) return;
     const rect = previewRef.current.getBoundingClientRect();
     
-    if (design.lines.some(line => line.isDragging) || design.logoDragging) {
+    if (design.lines.some((line: any) => line.isDragging) || design.logoDragging) {
       handleDrag(e, rect);
     }
   };
@@ -199,7 +119,6 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
       setIsAnimating(false);
     }, 1000);
     
-    // Show confirmation toast
     toast({
       title: "✅ WhatsApp Opened",
       description: "WhatsApp launched — send your message to complete your order.",
@@ -211,271 +130,70 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
     }
   };
 
-  const handlePreview = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 1000);
-    
-    if (onPreview) {
-      onPreview();
-    }
-  };
-
-  const activeLineIndex = design.lines.findIndex(line => line.isDragging);
-  const isDragging = design.lines.some(line => line.isDragging) || design.logoDragging;
-
-  // Convert shape for TemplateSelector - handle square/ellipse conversion  
-  const convertShapeForTemplateSelector = (shape: string): 'rectangle' | 'circle' | 'ellipse' | 'square' => {
-    if (shape === 'oval') return 'ellipse';
-    return shape as 'rectangle' | 'circle' | 'ellipse' | 'square';
-  };
-
-  // Convert shape for StampPreviewEnhanced - handle ellipse/square -> oval/rectangle conversion
-  const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
-    if (shape === 'ellipse') return 'oval';
-    if (shape === 'square') return 'rectangle';
-    return shape as 'rectangle' | 'circle' | 'oval';
-  };
+  const activeLineIndex = design.lines.findIndex((line: any) => line.isDragging);
+  const isDragging = design.lines.some((line: any) => line.isDragging) || design.logoDragging;
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow overflow-y-auto">
-        <Tabs defaultValue={currentStep} value={currentStep} onValueChange={(value) => setCurrentStep(value as StepType)}>
-          <TabsList className="w-full justify-start mb-4 overflow-x-auto">
-            <TabsTrigger value="templates" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.templates', "Templates")}
-            </TabsTrigger>
-            <TabsTrigger value="logo" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.logo', "Logo")}
-            </TabsTrigger>
-            <TabsTrigger value="text" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.text', "Text")}
-            </TabsTrigger>
-            <TabsTrigger value="border" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.border', "Border")}
-            </TabsTrigger>
-            <TabsTrigger value="color" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.color', "Color")}
-            </TabsTrigger>
-            <TabsTrigger value="preview" className={largeControls ? "text-lg py-3 px-5 min-h-[44px]" : "min-h-[44px]"}>
-              {t('steps.preview', "Order")}
-            </TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Editor */}
+          <div className="lg:col-span-2">
+            <StampDesignerTabs
+              currentStep={currentStep}
+              setCurrentStep={setCurrentStep}
+              product={product}
+              design={design}
+              designer={designer}
+              convertShapeForTemplateSelector={convertShapeForTemplateSelector}
+              highContrast={highContrast}
+              largeControls={largeControls}
+            />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Editor */}
-            <div className="lg:col-span-2">
-              <TabsContent value="templates">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('templates.title', "Choose a Template")}</h2>
-                    <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
-                    <TemplateSelector 
-                      onSelectTemplate={applyTemplate} 
-                      productShape={convertShapeForTemplateSelector(design.shape)}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="logo">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('logo.title', "Add Your Logo")}</h2>
-                    <p className="text-gray-600 mb-6">{t('logo.description', "Upload and position your logo or skip this step.")}</p>
-                    <LogoUploader 
-                      includeLogo={design.includeLogo}
-                      logoImage={design.logoImage}
-                      logoPosition={design.logoPosition}
-                      onToggleLogo={toggleLogo}
-                      onLogoUpload={applyTemplate}
-                      onPositionChange={setLogoPosition}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="text">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('text.title', "Add Your Text")}</h2>
-                    <p className="text-gray-600 mb-6">{t('text.description', "Enter the text for your stamp and customize the font and style.")}</p>
-                    <TextEditor 
-                      lines={design.lines}
-                      onUpdateLine={updateLine}
-                      onAddLine={addLine}
-                      onRemoveLine={removeLine}
-                      onToggleCurvedText={toggleCurvedText}
-                      onStartTextDrag={startTextDrag}
-                      maxLines={product?.lines || 5}
-                      shape={design.shape}
-                      onAutoArrange={enhancedAutoArrange}
-                      onSetGlobalAlignment={setGlobalAlignment}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="border">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('border.title', "Choose Border Style")}</h2>
-                    <p className="text-gray-600 mb-6">{t('border.description', "Select a border style for your stamp.")}</p>
-                    <BorderSelector 
-                      borderStyle={design.borderStyle}
-                      borderThickness={design.borderThickness}
-                      onSetBorderStyle={setBorderStyle}
-                      onSetBorderThickness={setBorderThickness}
-                      shape={design.shape}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="color">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('color.title', "Choose Ink Color")}</h2>
-                    <p className="text-gray-600 mb-6">{t('color.description', "Select the ink color for your stamp.")}</p>
-                    <ColorSelector 
-                      availableColors={product?.inkColors || []}
-                      selectedColor={design.inkColor}
-                      onColorSelect={setInkColor}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="preview">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">{t('preview.title', "Order Your Stamp")}</h2>
-                    <p className="text-gray-600 mb-6">{t('preview.description', "Review your stamp design and order via WhatsApp.")}</p>
-                    
-                    <WhatsAppOrderFlow 
-                      product={product}
+            {currentStep === 'preview' && (
+              <>
+                <Separator className="my-6" />
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
+                    <ExportDesign 
+                      svgRef={null}
                       previewImage={previewImage}
-                    />
-                    
-                    <Separator className="my-6" />
-                    <ErrorBoundary>
-                      <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
-                        <ExportDesign 
-                          svgRef={null}
-                          previewImage={previewImage}
-                          productName={product?.name || ''}
-                          downloadAsPng={downloadAsPng}
-                        />
-                      </Suspense>
-                    </ErrorBoundary>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </div>
-
-            {/* Right Column - Preview */}
-            <div className="lg:col-span-1">
-              <Card className="sticky top-4">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold">{t('preview.livePreview', "Live Preview")}</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowCartModal(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <ShoppingCart size={16} />
-                      Cart ({getItemCount()})
-                    </Button>
-                  </div>
-                  
-                  {currentStep === 'preview' ? (
-                    <StampPreviewAccessible
-                      previewImage={previewImage}
-                      productSize={product?.size || ''}
-                      isDragging={isDragging}
-                      activeLineIndex={activeLineIndex}
-                      includeLogo={design.includeLogo}
-                      onMouseDown={handleMouseDown}
-                      onMouseMove={handleMouseMove}
-                      onMouseUp={stopDragging}
-                      onTouchStart={handleTouchStart}
-                      onTouchMove={handleTouchMove}
+                      productName={product?.name || ''}
                       downloadAsPng={downloadAsPng}
-                      zoomIn={zoomIn}
-                      zoomOut={zoomOut}
-                      zoomLevel={zoomLevel}
-                      highContrast={highContrast}
-                      largeControls={largeControls}
-                      isAnimating={isAnimating}
                     />
-                  ) : (
-                    <StampPreviewEnhanced
-                      lines={design.lines}
-                      inkColor={design.inkColor}
-                      includeLogo={design.includeLogo}
-                      logoPosition={design.logoPosition}
-                      logoImage={design.logoImage}
-                      shape={convertShapeForPreview(design.shape)}
-                      borderStyle={design.borderStyle}
-                      borderThickness={design.borderThickness}
-                      product={product}
-                      zoomLevel={zoomLevel}
-                      onZoomIn={zoomIn}
-                      onZoomOut={zoomOut}
-                      onTextDrag={startTextDrag}
-                      onLogoDrag={startLogoDrag}
-                      onDrag={handleDrag}
-                      onStopDragging={stopDragging}
-                      showControls={false}
-                    />
-                  )}
-                  
-                  <div className="mt-6 space-y-3">
-                    <Button 
-                      onClick={handleAddToCart}
-                      className={`w-full min-h-[44px] ${largeControls ? "text-lg py-4" : ""} bg-blue-600 hover:bg-blue-700`}
-                      variant="default"
-                    >
-                      <ShoppingCart className="mr-2" size={largeControls ? 20 : 16} />
-                      Add to Cart
-                    </Button>
-                    
-                    <Button 
-                      onClick={currentStep === 'preview' ? handleWhatsAppOrder : handleNextStep}
-                      className={`w-full min-h-[44px] ${largeControls ? "text-lg py-4" : ""} ${currentStep === 'preview' ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                      variant={currentStep === 'preview' ? "default" : "outline"}
-                    >
-                      {currentStep === 'preview' ? (
-                        <>
-                          <MessageCircle className="mr-2" size={largeControls ? 20 : 16} />
-                          📩 Order via WhatsApp
-                        </>
-                      ) : (
-                        <>
-                          <Check className="mr-2" size={largeControls ? 20 : 16} />
-                          {t('preview.continue', "Continue")}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </Suspense>
+                </ErrorBoundary>
+              </>
+            )}
           </div>
-        </Tabs>
+
+          {/* Right Column - Preview */}
+          <div className="lg:col-span-1">
+            <StampDesignerPreview
+              currentStep={currentStep}
+              product={product}
+              design={design}
+              designer={designer}
+              convertShapeForPreview={convertShapeForPreview}
+              handleAddToCart={handleAddToCart}
+              getItemCount={getItemCount}
+              setShowCartModal={setShowCartModal}
+              handleWhatsAppOrder={handleWhatsAppOrder}
+              handleNextStep={handleNextStep}
+              isAnimating={isAnimating}
+              highContrast={highContrast}
+              largeControls={largeControls}
+              previewRef={previewRef}
+              activeLineIndex={activeLineIndex}
+              isDragging={isDragging}
+              handleMouseDown={handleMouseDown}
+              handleMouseMove={handleMouseMove}
+              handleTouchStart={handleTouchStart}
+              handleTouchMove={handleTouchMove}
+              stopDragging={stopDragging}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mt-6">
