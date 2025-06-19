@@ -69,10 +69,12 @@ export const useStampDesignerCore = (product: Product | null) => {
   };
 
   // Convert shape for TemplateSelector - handle square/ellipse conversion  
-  const convertShapeForTemplateSelector = (shape: string): 'rectangle' | 'circle' | 'ellipse' | 'square' => {
-    if (shape === 'oval') return 'ellipse';
-    if (shape === 'rectangle' && product?.shape === 'square') return 'square';
-    return shape as 'rectangle' | 'circle' | 'ellipse' | 'square';
+  const convertShapeForTemplateSelector = (shape: string): 'rectangle' | 'circle' | 'oval' => {
+    if (shape === 'oval') return 'oval';
+    if (shape === 'rectangle' && product?.shape === 'square') return 'rectangle';
+    if (shape === 'ellipse') return 'oval';
+    if (shape === 'square') return 'rectangle';
+    return shape as 'rectangle' | 'circle' | 'oval';
   };
 
   // Convert shape for StampPreviewEnhanced - handle ellipse/square -> oval/rectangle conversion
