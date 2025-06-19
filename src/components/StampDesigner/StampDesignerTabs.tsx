@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
@@ -18,7 +19,7 @@ interface StampDesignerTabsProps {
   product: Product | null;
   design: any;
   designer: any;
-  convertShapeForTemplateSelector: (shape: string) => 'rectangle' | 'circle' | 'oval';
+  convertShapeForPreview: (shape: string) => 'rectangle' | 'circle' | 'oval';
   highContrast?: boolean;
   largeControls?: boolean;
 }
@@ -29,7 +30,7 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
   product,
   design,
   designer,
-  convertShapeForTemplateSelector,
+  convertShapeForPreview,
   highContrast = false,
   largeControls = false
 }) => {
@@ -50,9 +51,6 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
     enhancedAutoArrange,
     setGlobalAlignment
   } = designer;
-
-  // Convert shape from design to match TemplateSelector expected types
-  const templateSelectorShape = convertShapeForTemplateSelector(design.shape);
 
   return (
     <Tabs defaultValue={currentStep} value={currentStep} onValueChange={(value) => setCurrentStep(value as StepType)}>
@@ -84,7 +82,7 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
             <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
             <TemplateSelector 
               onSelectTemplate={applyTemplate} 
-              productShape={templateSelectorShape}
+              productShape={design.shape}
               highContrast={highContrast}
               largeControls={largeControls}
             />
