@@ -44,50 +44,74 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasKey, setCanvasKey] = useState(0);
 
-  // CRITICAL: Force re-render and redraw whenever any prop changes for live preview
+  // CRITICAL: Live preview - re-render on ANY design change
   useEffect(() => {
-    console.log('[StampPreview] Props changed, re-rendering canvas');
+    console.log('[StampPreview] Live update triggered - props changed, re-rendering canvas');
     setCanvasKey(prev => prev + 1);
-    // Use requestAnimationFrame to ensure DOM is ready
+    
+    // Use requestAnimationFrame to ensure DOM is ready for immediate updates
     requestAnimationFrame(() => {
-      redrawCanvas();
+      redrawCanvasWithLiveUpdates();
     });
-  }, [lines, inkColor, includeLogo, logoPosition, logoImage, shape, borderStyle, borderThickness, zoomLevel]);
+  }, [
+    lines, 
+    inkColor, 
+    includeLogo, 
+    logoPosition, 
+    logoImage, 
+    shape, 
+    borderStyle, 
+    borderThickness, 
+    zoomLevel,
+    // Monitor deep changes in text lines
+    JSON.stringify(lines.map(line => ({
+      text: line.text,
+      fontSize: line.fontSize,
+      fontFamily: line.fontFamily,
+      bold: line.bold,
+      italic: line.italic,
+      alignment: line.alignment,
+      letterSpacing: line.letterSpacing,
+      xPosition: line.xPosition,
+      yPosition: line.yPosition
+    })))
+  ]);
 
-  const redrawCanvas = () => {
+  const redrawCanvasWithLiveUpdates = () => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      console.log('[StampPreview] Canvas ref not available');
+      console.log('[StampPreview] Canvas ref not available for live update');
       return;
     }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      console.log('[StampPreview] Canvas context not available');
+      console.log('[StampPreview] Canvas context not available for live update');
       return;
     }
 
-    console.log('[StampPreview] Redrawing canvas with:', { 
+    console.log('[StampPreview] LIVE REDRAW - Canvas updating with:', { 
       linesCount: lines.length, 
       inkColor, 
       shape, 
       borderStyle,
-      borderThickness 
+      borderThickness,
+      zoomLevel
     });
 
-    // Clear canvas
+    // Clear canvas completely
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Set canvas size based on product and shape
+    // Set canvas size based on product and shape with live zoom
     const baseWidth = 200;
     const baseHeight = shape === 'circle' ? 200 : shape === 'oval' ? 150 : 120;
     canvas.width = baseWidth * zoomLevel;
     canvas.height = baseHeight * zoomLevel;
 
-    // Scale context for zoom
+    // Scale context for current zoom level
     ctx.scale(zoomLevel, zoomLevel);
 
-    // Draw background
+    // Draw background with live shape updates
     ctx.fillStyle = '#ffffff';
     if (shape === 'circle') {
       ctx.beginPath();
@@ -101,19 +125,44 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       ctx.fillRect(10, 10, baseWidth - 20, baseHeight - 20);
     }
 
-    // Draw border
+    // Draw border with live style updates
     if (borderStyle !== 'none') {
       ctx.strokeStyle = inkColor;
       ctx.lineWidth = borderThickness;
       
+      // Live border style updates
       if (borderStyle === 'dashed') {
         ctx.setLineDash([5, 5]);
       } else if (borderStyle === 'dotted') {
         ctx.setLineDash([2, 2]);
+      } else if (borderStyle === 'double') {
+        ctx.setLineDash([]);
+        // Draw double border
+        ctx.lineWidth = Math.max(1, borderThickness / 3);
+        if (shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(baseWidth/2, baseHeight/2, Math.min(baseWidth, baseHeight)/2 - 8, 0, 2 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(baseWidth/2, baseHeight/2, Math.min(baseWidth, baseHeight)/2 - 12, 0, 2 * Math.PI);
+          ctx.stroke();
+        } else if (shape === 'oval') {
+          ctx.beginPath();
+          ctx.ellipse(baseWidth/2, baseHeight/2, baseWidth/2 - 8, baseHeight/2 - 8, 0, 0, 2 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(baseWidth/2, baseHeight/2, baseWidth/2 - 12, baseHeight/2 - 12, 0, 0, 2 * Math.PI);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(8, 8, baseWidth - 16, baseHeight - 16);
+          ctx.strokeRect(12, 12, baseWidth - 24, baseHeight - 24);
+        }
+        return; // Skip single border for double
       } else {
         ctx.setLineDash([]);
       }
 
+      // Draw single border
       if (shape === 'circle') {
         ctx.beginPath();
         ctx.arc(baseWidth/2, baseHeight/2, Math.min(baseWidth, baseHeight)/2 - 10, 0, 2 * Math.PI);
@@ -127,7 +176,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       }
     }
 
-    // Draw logo if included
+    // Draw logo with live position updates
     if (includeLogo && logoImage) {
       const img = new Image();
       img.onload = () => {
@@ -135,6 +184,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         let logoX = baseWidth/2 - logoSize/2;
         let logoY = baseHeight/2 - logoSize/2;
 
+        // Live logo position updates
         switch (logoPosition) {
           case 'top':
             logoY = 20;
@@ -155,34 +205,39 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       img.src = logoImage;
     }
 
-    // Draw text lines with proper formatting
+    // Draw text lines with live formatting updates
     lines.forEach((line, index) => {
       if (!line.text.trim()) return;
 
+      // Live ink color updates
       ctx.fillStyle = inkColor;
+      
+      // Live font updates
       const fontWeight = line.bold ? 'bold' : 'normal';
       const fontStyle = line.italic ? 'italic' : 'normal';
-      ctx.font = `${fontStyle} ${fontWeight} ${line.fontSize}px ${line.fontFamily}`;
-      ctx.textAlign = line.alignment as CanvasTextAlign;
+      ctx.font = `${fontStyle} ${fontWeight} ${line.fontSize || 16}px ${line.fontFamily || 'Arial'}`;
+      
+      // Live alignment updates
+      ctx.textAlign = (line.alignment || 'center') as CanvasTextAlign;
 
       let x = baseWidth / 2;
       if (line.alignment === 'left') x = 20;
       if (line.alignment === 'right') x = baseWidth - 20;
 
-      const lineHeight = Math.max(line.fontSize + 5, 25);
+      const lineHeight = Math.max((line.fontSize || 16) + 5, 25);
       const totalTextHeight = lines.filter(l => l.text.trim()).length * lineHeight;
       const startY = (baseHeight - totalTextHeight) / 2 + lineHeight;
       let y = startY + index * lineHeight;
 
-      // Apply custom positioning if set
+      // Apply live custom positioning
       if (line.xPosition !== 0 || line.yPosition !== 0) {
-        x += line.xPosition;
-        y += line.yPosition;
+        x += line.xPosition || 0;
+        y += line.yPosition || 0;
       }
 
-      // Apply letter spacing if specified
+      // Apply live letter spacing
       if (line.letterSpacing && line.letterSpacing > 0) {
-        // Manual letter spacing implementation
+        // Manual letter spacing implementation for live updates
         const chars = line.text.split('');
         let currentX = x;
         if (line.alignment === 'center') {
@@ -202,7 +257,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
       }
     });
 
-    console.log('[StampPreview] Canvas redraw complete');
+    console.log('[StampPreview] Live canvas redraw complete');
   };
 
   return (

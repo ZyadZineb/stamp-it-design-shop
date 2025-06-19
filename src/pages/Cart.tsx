@@ -7,7 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { Trash2, Plus, Minus, ShoppingCart, MessageCircle } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import WhatsAppCheckout from '../components/StampDesigner/WhatsAppCheckout';
+import WhatsAppCartCheckout from '../components/StampDesigner/WhatsAppCartCheckout';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -151,84 +151,8 @@ const Cart = () => {
               </div>
               
               <div>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-lg font-semibold mb-4 flex items-center">
-                    <MessageCircle className="mr-2 text-green-600" size={20} />
-                    Order via WhatsApp
-                  </h2>
-                  
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fullName">
-                        Full Name *
-                      </label>
-                      <input
-                        id="fullName"
-                        type="text"
-                        value={customerInfo.fullName}
-                        onChange={(e) => handleCustomerInfoChange('fullName', e.target.value)}
-                        className={`w-full min-h-[44px] px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue ${
-                          errors.fullName ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        placeholder="Enter your full name"
-                        aria-describedby={errors.fullName ? "fullName-error" : undefined}
-                      />
-                      {errors.fullName && (
-                        <p id="fullName-error" className="text-red-500 text-sm mt-1">{errors.fullName}</p>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="phoneNumber">
-                        Phone Number
-                      </label>
-                      <input
-                        id="phoneNumber"
-                        type="tel"
-                        value={customerInfo.phoneNumber}
-                        onChange={(e) => handleCustomerInfoChange('phoneNumber', e.target.value)}
-                        className="w-full min-h-[44px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="deliveryAddress">
-                        Delivery Address
-                      </label>
-                      <textarea
-                        id="deliveryAddress"
-                        value={customerInfo.deliveryAddress}
-                        onChange={(e) => handleCustomerInfoChange('deliveryAddress', e.target.value)}
-                        className="w-full min-h-[88px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                        placeholder="Enter your delivery address"
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between">
-                      <span>Subtotal</span>
-                      <span>{cartTotal} DHS</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shipping</span>
-                      <span className="text-green-600">Contact us for rates</span>
-                    </div>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between font-semibold mb-6">
-                    <span>Total</span>
-                    <span>{cartTotal} DHS</span>
-                  </div>
-                  
-                  <WhatsAppCheckout
-                    product={cartItems[0]?.product || null}
-                    customerInfo={customerInfo}
-                    previewImage={cartItems[0]?.previewImage || null}
-                    onValidationError={handleValidationError}
-                  />
-                </div>
+                {/* Use the enhanced WhatsApp checkout component */}
+                <WhatsAppCartCheckout />
               </div>
             </div>
           )}

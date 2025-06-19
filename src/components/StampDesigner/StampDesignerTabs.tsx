@@ -19,7 +19,7 @@ interface StampDesignerTabsProps {
   product: Product | null;
   design: any;
   designer: any;
-  convertShapeForTemplateSelector: (shape: string) => 'rectangle' | 'circle' | 'ellipse' | 'square';
+  convertShapeForTemplateSelector: (shape: string) => 'rectangle' | 'circle' | 'oval';
   highContrast?: boolean;
   largeControls?: boolean;
 }
