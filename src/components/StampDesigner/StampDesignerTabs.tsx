@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
@@ -52,6 +51,9 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
     setGlobalAlignment
   } = designer;
 
+  // Convert shape from design to match TemplateSelector expected types
+  const templateSelectorShape = convertShapeForTemplateSelector(design.shape);
+
   return (
     <Tabs defaultValue={currentStep} value={currentStep} onValueChange={(value) => setCurrentStep(value as StepType)}>
       <TabsList className="w-full justify-start mb-4 overflow-x-auto">
@@ -82,7 +84,7 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
             <p className="text-gray-600 mb-6">{t('templates.description', "Start with a pre-designed template or create your own from scratch.")}</p>
             <TemplateSelector 
               onSelectTemplate={applyTemplate} 
-              productShape={convertShapeForTemplateSelector(design.shape)}
+              productShape={templateSelectorShape}
               highContrast={highContrast}
               largeControls={largeControls}
             />
