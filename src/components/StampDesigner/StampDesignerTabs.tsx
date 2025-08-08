@@ -175,6 +175,7 @@ const StampDesignerTabs: React.FC<StampDesignerTabsProps> = ({
             <WhatsAppOrderFlow 
               product={product}
               previewImage={designer.previewImage}
+              design={design}
             />
           </CardContent>
         </Card>

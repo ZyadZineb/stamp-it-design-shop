@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle } from 'lucide-react';
 import WhatsAppCheckout from '../components/StampDesigner/WhatsAppCheckout';
 import { Separator } from "@/components/ui/separator";
-
+import { StampDesign } from '@/types';
 const infoTagClass =
   "inline-block rounded-full bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 mr-2 mb-2 border border-blue-200";
 const infoTagRedClass =
@@ -78,6 +78,22 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  const defaultDesign: StampDesign = {
+    lines: [],
+    inkColor: product.inkColors?.[0] || 'black',
+    includeLogo: false,
+    logoPosition: 'center',
+    logoX: 0,
+    logoY: 0,
+    logoDragging: false,
+    logoImage: undefined,
+    shape: product.shape,
+    borderStyle: 'none',
+    borderThickness: 1,
+    elements: [],
+    globalAlignment: 'center'
+  };
 
   const goToStampDesigner = () => {
     navigate(`/design?productId=${product.id}`);
@@ -226,6 +242,7 @@ const ProductDetail = () => {
 
                 <WhatsAppCheckout
                   product={product}
+                  design={defaultDesign}
                   customerInfo={customerInfo}
                   previewImage={null}
                   onValidationError={handleValidationError}
