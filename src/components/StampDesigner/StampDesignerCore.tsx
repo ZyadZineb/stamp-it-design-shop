@@ -5,6 +5,7 @@ import { Product } from '@/types';
 import { useStampDesigner } from '@/hooks/useStampDesigner';
 import { useStampCart } from '@/contexts/StampCartContext';
 import { toast } from "@/hooks/use-toast";
+import { toCartShape, toPreviewShape } from '@/utils/shape';
 
 export interface StampDesignerCoreProps {
   product: Product | null;
@@ -55,7 +56,7 @@ export const useStampDesignerCore = (product: Product | null) => {
       includeLogo: designer.design.includeLogo,
       borderStyle: designer.design.borderStyle,
       borderThickness: designer.design.borderThickness,
-      shape: designer.design.shape,
+      shape: toCartShape(designer.design.shape),
       previewImage: designer.previewImage,
       quantity: 1
     });
@@ -68,21 +69,8 @@ export const useStampDesignerCore = (product: Product | null) => {
     return true;
   };
 
-  // Convert shape for StampPreviewEnhanced - properly typed conversion
-  const convertShapeForPreview = (shape: 'rectangle' | 'circle' | 'ellipse' | 'square'): 'rectangle' | 'circle' | 'oval' => {
-    switch (shape) {
-      case 'ellipse':
-        return 'oval';
-      case 'square':
-        return 'rectangle';
-      case 'rectangle':
-        return 'rectangle';
-      case 'circle':
-        return 'circle';
-      default:
-        return 'rectangle';
-    }
-  };
+  // Convert shape for StampPreviewEnhanced using shared util
+  const convertShapeForPreview = toPreviewShape;
 
   return {
     designer,

@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Copy, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
-import { Product } from '@/types';
+import { Product, StampDesign } from '@/types';
+import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 
 interface WhatsAppCheckoutProps {
   product: Product | null;
+  design: StampDesign;
   customerInfo: {
     fullName: string;
     phoneNumber: string;
@@ -18,6 +20,7 @@ interface WhatsAppCheckoutProps {
 
 const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
   product,
+  design,
   customerInfo,
   previewImage,
   onValidationError
@@ -25,10 +28,16 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
   const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
-
+ 
   // Updated WhatsApp business number
   const WHATSAPP_NUMBER = '212699118028';
-
+  const { buildMessage, openWhatsApp, copyToClipboard } = useWhatsAppMessage({
+    product,
+    design,
+    customerInfo,
+    previewImage,
+    whatsappNumber: WHATSAPP_NUMBER
+  });
   const validateCustomerInfo = () => {
     const errors: { [key: string]: string } = {};
 
@@ -45,43 +54,12 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
     return true;
   };
 
-  const generateWhatsAppMessage = () => {
-    const orderDetails = [
-      '🛠️ New Custom Stamp Order',
-      '',
-      `👤 Name: ${customerInfo.fullName}`,
-    ];
-
-    if (customerInfo.phoneNumber) {
-      orderDetails.push(`📞 Phone: ${customerInfo.phoneNumber}`);
-    }
-
-    if (customerInfo.deliveryAddress) {
-      orderDetails.push(`📍 Address: ${customerInfo.deliveryAddress}`);
-    }
-
-    if (product) {
-      orderDetails.push(`📬 Model: ${product.name} (${product.size})`);
-      orderDetails.push(`💰 Price: ${product.price} DHS`);
-    }
-
-    orderDetails.push('');
-    if (previewImage) {
-      orderDetails.push('🎨 Design Preview: Please see attached image');
-    } else {
-      orderDetails.push('🎨 Design: Custom stamp design (attach preview image if needed)');
-    }
-    orderDetails.push('');
-    orderDetails.push('Please confirm this order and let me know the delivery timeline. Thank you!');
-
-    return orderDetails.join('\n');
-  };
+  // Build message via shared hook
 
   const copyMessageToClipboard = async () => {
     setIsCopying(true);
     try {
-      const message = generateWhatsAppMessage();
-      await navigator.clipboard.writeText(message);
+      const success = await copyToClipboard();
       toast({
         title: t('checkout.messageCopied', 'Message Copied'),
         description: t('checkout.messageCopiedDesc', 'Order details copied to clipboard'),
@@ -106,11 +84,7 @@ const WhatsAppCheckout: React.FC<WhatsAppCheckoutProps> = ({
     setIsProcessing(true);
 
     try {
-      const message = generateWhatsAppMessage();
-      const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-      // Open WhatsApp in new tab
-      window.open(whatsappURL, '_blank');
+      openWhatsApp();
 
       toast({
         title: t('checkout.whatsappOpened', 'WhatsApp Opened'),

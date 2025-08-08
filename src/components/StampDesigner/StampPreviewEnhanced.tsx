@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StampTextLine, Product } from '@/types';
 import ReactiveStampCanvas from './ReactiveStampCanvas';
+import { toCanvasShape } from '@/utils/shape';
 
 interface StampPreviewEnhancedProps {
   lines: StampTextLine[];
@@ -44,19 +45,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
 }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Convert shape from preview format to canvas format
-  const convertShapeForCanvas = (previewShape: 'rectangle' | 'circle' | 'oval'): 'rectangle' | 'circle' | 'ellipse' | 'square' => {
-    switch (previewShape) {
-      case 'oval':
-        return 'ellipse';
-      case 'circle':
-        return 'circle';
-      case 'rectangle':
-      default:
-        return 'rectangle';
-    }
-  };
-
+  // Using shared shape conversion util for canvas rendering
   const handleCanvasUpdate = (imageData: string) => {
     console.log('[StampPreviewEnhanced] Canvas updated, new preview image generated');
     setPreviewImage(imageData);
@@ -70,7 +59,7 @@ const StampPreviewEnhanced: React.FC<StampPreviewEnhancedProps> = ({
         includeLogo={includeLogo}
         logoPosition={logoPosition}
         logoImage={logoImage}
-        shape={convertShapeForCanvas(shape)}
+        shape={toCanvasShape(shape)}
         borderStyle={borderStyle}
         borderThickness={borderThickness}
         product={product}

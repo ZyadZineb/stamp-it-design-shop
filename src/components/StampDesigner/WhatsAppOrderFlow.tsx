@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Product } from '@/types';
+import { Product, StampDesign } from '@/types';
 import CustomerInfoForm, { CustomerInfo } from './CustomerInfoForm';
 import WhatsAppCheckout from './WhatsAppCheckout';
 import { Separator } from "@/components/ui/separator";
@@ -9,11 +9,13 @@ import { Separator } from "@/components/ui/separator";
 interface WhatsAppOrderFlowProps {
   product: Product | null;
   previewImage: string | null;
+  design: StampDesign;
 }
 
 const WhatsAppOrderFlow: React.FC<WhatsAppOrderFlowProps> = ({
   product,
-  previewImage
+  previewImage,
+  design
 }) => {
   const { t } = useTranslation();
   
@@ -58,6 +60,7 @@ const WhatsAppOrderFlow: React.FC<WhatsAppOrderFlowProps> = ({
 
       <WhatsAppCheckout
         product={product}
+        design={design}
         customerInfo={customerInfo}
         previewImage={previewImage}
         onValidationError={handleValidationError}

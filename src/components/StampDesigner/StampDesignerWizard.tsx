@@ -16,6 +16,7 @@ import StampPreviewEnhanced from './StampPreviewEnhanced';
 import DesignTemplates from './DesignTemplates';
 import AutoArrange from './AutoArrange';
 import WhatsAppOrderFlow from './WhatsAppOrderFlow';
+import { toPreviewShape, toTemplatesShape } from '@/utils/shape';
 
 interface StampDesignerWizardProps {
   product: Product | null;
@@ -128,20 +129,8 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
     setActiveStep('text');
   };
 
-  // Convert shape for DesignTemplates - handle ellipse -> square conversion
-  const convertShapeForDesignTemplates = (shape: string): 'rectangle' | 'circle' | 'square' => {
-    if (shape === 'ellipse') return 'square';
-    if (shape === 'oval') return 'circle';
-    return shape as 'rectangle' | 'circle' | 'square';
-  };
-
-  // Convert shape for StampPreviewEnhanced - handle ellipse -> oval conversion
-  const convertShapeForPreview = (shape: string): 'rectangle' | 'circle' | 'oval' => {
-    if (shape === 'ellipse') return 'oval';
-    if (shape === 'square') return 'rectangle';
-    return shape as 'rectangle' | 'circle' | 'oval';
-  };
-
+  // (removed) shape conversion now centralized in utils/shape.ts
+  // (removed) preview conversion now centralized in utils/shape.ts
   const renderStepContent = () => {
     switch (activeStep) {
       case 'templates':
@@ -149,7 +138,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           <div className="space-y-6">
             <DesignTemplates
               onSelectTemplate={handleTemplateSelect}
-              productShape={convertShapeForDesignTemplates(designer.design.shape)}
+              productShape={toTemplatesShape(designer.design.shape)}
             />
           </div>
         );
@@ -222,6 +211,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           <WhatsAppOrderFlow
             product={product}
             previewImage={designer.previewImage}
+            design={designer.design}
           />
         );
 
@@ -346,7 +336,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
                   includeLogo={designer.design.includeLogo}
                   logoPosition={designer.design.logoPosition}
                   logoImage={designer.design.logoImage}
-                  shape={convertShapeForPreview(designer.design.shape)}
+                  shape={toPreviewShape(designer.design.shape)}
                   borderStyle={designer.design.borderStyle}
                   borderThickness={designer.design.borderThickness}
                   product={product}
