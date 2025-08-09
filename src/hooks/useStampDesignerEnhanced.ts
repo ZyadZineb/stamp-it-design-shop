@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { StampDesign, StampTextLine, Product, StampElement } from '../types';
 import { useCanvasCentering } from './useCanvasCentering';
 import { useDebounce } from './useDebounce';
+import { sizePx, mmToPx } from '@/utils/dimensions';
 
 interface DesignHistoryState {
   past: StampDesign[];
