@@ -175,6 +175,7 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
 
   const drawLogo = (ctx: CanvasRenderingContext2D, logoSrc: string, position: string, width: number, height: number) => {
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
       const logoSize = 30;
       let x = width/2 - logoSize/2;

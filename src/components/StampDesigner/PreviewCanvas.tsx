@@ -448,9 +448,8 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({
               src={previewImage}
               alt={t("preview.stampDesign", "Stamp design")}
               className="object-contain w-full h-full"
-              style={{
-                imageRendering: "auto"
-              }}
+              style={{ imageRendering: 'auto' }}
+              loading="lazy"
             />
           ) : (
             <div className="flex flex-col items-center justify-center w-full h-full p-8 text-center bg-gray-50/50 rounded">

@@ -68,9 +68,8 @@ const StampPreviewAccessible: React.FC<StampPreviewAccessibleProps> = ({
           src={previewImage}
           alt={t("preview.stampDesign", "Stamp design")}
           className="object-contain w-full h-full"
-          style={{
-            imageRendering: "auto"
-          }}
+          style={{ imageRendering: 'auto' }}
+          loading="lazy"
         />
       ) : (
         <div className="flex items-center justify-center w-full h-full">

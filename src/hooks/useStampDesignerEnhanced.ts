@@ -1075,52 +1075,52 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     return previewUrl;
   };
 
-  // Download preview as PNG with exact stamp size and transparent background
+  // Download preview as PNG with exact stamp size and transparent background (HiDPI-aware)
   const downloadAsPng = () => {
     if (!svgRef.current || !product) return;
 
-    console.log('[StampDesigner] downloadAsPng');
+    console.log('[StampDesigner] downloadAsPng (HiDPI)');
 
-    // Create a canvas element with exact stamp dimensions
+    // Exact pixel size from mm at 10 px/mm
+    const { widthPx, heightPx } = sizePx(product.size);
+
+    // HiDPI scaling
+    const dpr = Math.max(1, Math.min(4, window.devicePixelRatio || 1));
+
+    // Create canvas and context with alpha for transparency
     const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) return;
+    canvas.width = Math.round(widthPx * dpr);
+    canvas.height = Math.round(heightPx * dpr);
+    canvas.style.width = `${widthPx}px`;
+    canvas.style.height = `${heightPx}px`;
 
-    // Parse dimensions and convert to pixels at 10px per mm for real-world accuracy
-    const sizeDimensions = product.size.replace('mm', '').split('x').map(dim => parseInt(dim.trim(), 10));
-    let canvasWidth = 380; // Default for 38mm
-    let canvasHeight = 140; // Default for 14mm
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
 
-    if (sizeDimensions.length === 2) {
-      canvasWidth = sizeDimensions[0] * 10;
-      canvasHeight = sizeDimensions[1] * 10;
-    }
+    // Scale for device pixel ratio and clear to keep transparency
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, widthPx, heightPx);
 
-    // Set canvas dimensions to exact stamp size
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-
-    // Create an image from the SVG
+    // Rasterize the current SVG preview
     const img = new Image();
-    // Create a blob from the SVG string
+    img.crossOrigin = 'anonymous';
+
     const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      // Clear canvas (transparent background)
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw image to canvas without background (preserves transparency)
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+      try {
+        // Draw SVG onto canvas (no background)
+        ctx.drawImage(img, 0, 0, widthPx, heightPx);
 
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `${product.name.replace(/\s/g, '-')}-stamp-${canvasWidth}x${canvasHeight}px.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-
-      // Clean up
-      URL.revokeObjectURL(url);
+        // Trigger download
+        const link = document.createElement('a');
+        link.download = `${product.name.replace(/\s/g, '-')}-stamp-${widthPx}x${heightPx}px.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } finally {
+        URL.revokeObjectURL(url);
+      }
     };
 
     img.onerror = () => {

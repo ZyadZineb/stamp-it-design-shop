@@ -16,6 +16,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           src={product.images[0]}
           alt={product.name}
           className="w-full h-32 md:h-52 object-contain object-center bg-gray-100 max-w-full"
+          loading="lazy"
         />
       </Link>
       <div className="pt-2 md:p-5 flex flex-col flex-1">
