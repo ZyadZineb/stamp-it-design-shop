@@ -1,16 +1,19 @@
 export type ArcAlign = 'center' | 'start' | 'end';
-export type ArcDirection = 'cw' | 'ccw';
+export type ArcDirection = 'cw' | 'ccw' | 'outside' | 'inside';
 
 export interface LayoutArcInput {
   text: string;
-  cx: number; // center x in px
-  cy: number; // center y in px
+  cx?: number; // center x in px (alias)
+  cy?: number; // center y in px (alias)
+  centerX?: number; // alternative naming support
+  centerY?: number;
   radiusPx: number; // radius in px
   arcDegrees?: number; // sweep angle, default 180
   align?: ArcAlign; // center by default
-  direction?: ArcDirection; // cw (top) or ccw (bottom)
+  direction?: ArcDirection; // cw/ccw or outside/inside
   letterSpacingPx?: number; // additional spacing between glyphs in px
   font: string; // canvas font string e.g. "bold 16px Arial"
+  rotationDeg?: number; // additional rotation around center
 }
 
 export interface GlyphPose {
@@ -29,18 +32,28 @@ function measureWidth(text: string, font: string): number {
   return ctx.measureText(text).width;
 }
 
+function rotatePoint(x: number, y: number, cx: number, cy: number, angRad: number) {
+  const s = Math.sin(angRad);
+  const c = Math.cos(angRad);
+  const dx = x - cx;
+  const dy = y - cy;
+  return { x: cx + dx * c - dy * s, y: cy + dx * s + dy * c };
+}
+
 export function layoutArc(input: LayoutArcInput): GlyphPose[] {
   const {
     text,
-    cx,
-    cy,
     radiusPx,
     arcDegrees = 180,
     align = 'center',
     direction = 'cw',
     letterSpacingPx = 0,
     font,
+    rotationDeg = 0,
   } = input;
+
+  const cx = input.cx ?? input.centerX ?? 0;
+  const cy = input.cy ?? input.centerY ?? 0;
 
   const chars = Array.from(text);
   if (chars.length === 0) return [];
@@ -57,15 +70,18 @@ export function layoutArc(input: LayoutArcInput): GlyphPose[] {
   const scale = totalWidth > 0 ? Math.min(1, availableArcLength / totalWidth) : 1;
 
   // angle per pixel along the arc
-  const anglePerPx = sweepRadians / Math.max(1, (totalWidth || 1));
+  const anglePerPx = sweepRadians / Math.max(1, totalWidth || 1);
 
   // starting angle: center the text on the arc
   let startAngle = -sweepRadians / 2; // start at left end (relative to top center)
   if (align === 'start') startAngle = -sweepRadians / 2;
   if (align === 'end') startAngle = sweepRadians / 2 - sweepRadians;
 
-  // direction: cw draws along top arc left->right, ccw mirrors vertically
-  const dir = direction === 'ccw' ? -1 : 1;
+  // direction: map to sign
+  const dir = (direction === 'ccw' || direction === 'inside') ? -1 : 1;
+
+  // rotation around center
+  const rot = (rotationDeg * Math.PI) / 180;
 
   // Place each glyph
   let cursorPx = 0;
@@ -73,8 +89,9 @@ export function layoutArc(input: LayoutArcInput): GlyphPose[] {
 
   for (let i = 0; i < chars.length; i++) {
     const w = widths[i] * scale;
-    const advance = (w + (i > 0 ? letterSpacingPx * scale : 0));
-    const midPx = cursorPx + w / 2 + (i > 0 ? letterSpacingPx * scale : 0);
+    const spacing = i > 0 ? letterSpacingPx * scale : 0;
+    const advance = w + spacing;
+    const midPx = cursorPx + w / 2 + spacing / 2;
     const angle = startAngle + dir * midPx * anglePerPx;
 
     const x = cx + radiusPx * Math.cos(angle);
@@ -83,7 +100,11 @@ export function layoutArc(input: LayoutArcInput): GlyphPose[] {
     // Tangent angle rotated by 90deg to orient glyph upright along path
     const tangentAngle = angle + (Math.PI / 2) * dir;
 
-    poses.push({ char: chars[i], x, y, angle: tangentAngle });
+    // Apply global rotation about center
+    const p = rotatePoint(x, y, cx, cy, rot);
+    const finalAngle = tangentAngle + rot;
+
+    poses.push({ char: chars[i], x: p.x, y: p.y, angle: finalAngle });
     cursorPx += advance;
   }
 
