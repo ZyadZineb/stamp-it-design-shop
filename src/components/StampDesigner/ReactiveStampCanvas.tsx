@@ -1,6 +1,9 @@
 
 import React, { useEffect, useRef, useCallback } from 'react';
 import { StampTextLine, Product } from '@/types';
+import { sizePx, mmToPx } from '@/utils/dimensions';
+import { layoutArc } from '@/engine/curvedText';
+import { drawCurvedText } from '@/export/drawCurvedText';
 
 interface ReactiveStampCanvasProps {
   lines: StampTextLine[];
@@ -53,32 +56,34 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Set canvas dimensions based on product and zoom
-    const baseWidth = 200;
-    const baseHeight = shape === 'circle' ? 200 : shape === 'ellipse' ? 150 : 120;
-    canvas.width = baseWidth * zoomLevel;
-    canvas.height = baseHeight * zoomLevel;
+    // Set canvas dimensions based on product size (10 px per mm) and zoom
+    const { widthPx, heightPx } = sizePx(product?.size || '38x14mm');
+    canvas.width = Math.max(1, Math.round(widthPx * zoomLevel));
+    canvas.height = Math.max(1, Math.round(heightPx * zoomLevel));
 
     // Scale context
     ctx.save();
     ctx.scale(zoomLevel, zoomLevel);
 
-    // Draw background
-    ctx.fillStyle = '#ffffff';
-    drawShape(ctx, baseWidth, baseHeight, shape);
+    const cx = widthPx / 2;
+    const cy = heightPx / 2;
 
-    // Draw border
+    // Safe-zone and border metrics
+    const margin = mmToPx(1.0);
+    const strokePx = Math.max(1, mmToPx(0.4));
+
+    // Draw border only (no background fill to keep preview close to export)
     if (borderStyle !== 'none') {
-      drawBorder(ctx, baseWidth, baseHeight, shape, borderStyle, borderThickness, inkColor);
+      drawBorder(ctx, widthPx, heightPx, shape, borderStyle, borderThickness || strokePx, inkColor, margin);
     }
 
     // Draw logo
     if (includeLogo && logoImage) {
-      drawLogo(ctx, logoImage, logoPosition, baseWidth, baseHeight);
+      drawLogo(ctx, logoImage, logoPosition, widthPx, heightPx);
     }
 
-    // Draw text lines
-    drawTextLines(ctx, lines, inkColor, baseWidth, baseHeight);
+    // Draw text lines (straight and curved)
+    drawTextLines(ctx, lines, inkColor, widthPx, heightPx);
 
     ctx.restore();
 
@@ -108,22 +113,32 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     };
   }, [redrawCanvas]);
 
-  const drawShape = (ctx: CanvasRenderingContext2D, width: number, height: number, shapeType: string) => {
+  const drawShape = (ctx: CanvasRenderingContext2D, width: number, height: number, shapeType: string, margin: number) => {
     ctx.beginPath();
     switch (shapeType) {
       case 'circle':
-        ctx.arc(width/2, height/2, Math.min(width, height)/2 - 10, 0, 2 * Math.PI);
+        ctx.arc(width/2, height/2, Math.min(width, height)/2 - margin, 0, 2 * Math.PI);
         break;
       case 'ellipse':
-        ctx.ellipse(width/2, height/2, width/2 - 10, height/2 - 10, 0, 0, 2 * Math.PI);
+        ctx.ellipse(width/2, height/2, width/2 - margin, height/2 - margin, 0, 0, 2 * Math.PI);
         break;
       default: // rectangle, square
-        ctx.rect(10, 10, width - 20, height - 20);
+        ctx.rect(margin, margin, width - 2*margin, height - 2*margin);
     }
-    ctx.fill();
+    // No fill to keep transparency in preview
   };
 
-  const drawBorder = (ctx: CanvasRenderingContext2D, width: number, height: number, shapeType: string, style: string, thickness: number, color: string) => {
+  const drawBorder = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    shapeType: string,
+    style: string,
+    thickness: number,
+    color: string,
+    margin: number
+  ) => {
+    ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = thickness;
 
@@ -140,36 +155,36 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
         // Draw double border
         const innerThickness = Math.max(1, thickness / 3);
         ctx.lineWidth = innerThickness;
-        
         // Outer border
         ctx.beginPath();
-        drawBorderPath(ctx, width, height, shapeType, -8);
+        drawBorderPath(ctx, width, height, shapeType, margin);
         ctx.stroke();
-        
         // Inner border
         ctx.beginPath();
-        drawBorderPath(ctx, width, height, shapeType, -12);
+        drawBorderPath(ctx, width, height, shapeType, margin + mmToPx(2));
         ctx.stroke();
+        ctx.restore();
         return;
       default:
         ctx.setLineDash([]);
     }
 
     ctx.beginPath();
-    drawBorderPath(ctx, width, height, shapeType, -10);
+    drawBorderPath(ctx, width, height, shapeType, margin);
     ctx.stroke();
+    ctx.restore();
   };
 
-  const drawBorderPath = (ctx: CanvasRenderingContext2D, width: number, height: number, shapeType: string, offset: number) => {
+  const drawBorderPath = (ctx: CanvasRenderingContext2D, width: number, height: number, shapeType: string, margin: number) => {
     switch (shapeType) {
       case 'circle':
-        ctx.arc(width/2, height/2, Math.min(width, height)/2 + offset, 0, 2 * Math.PI);
+        ctx.arc(width/2, height/2, Math.min(width, height)/2 - margin, 0, 2 * Math.PI);
         break;
       case 'ellipse':
-        ctx.ellipse(width/2, height/2, width/2 + offset, height/2 + offset, 0, 0, 2 * Math.PI);
+        ctx.ellipse(width/2, height/2, width/2 - margin, height/2 - margin, 0, 0, 2 * Math.PI);
         break;
       default:
-        ctx.rect(10 - offset, 10 - offset, width - 20 + (2 * offset), height - 20 + (2 * offset));
+        ctx.rect(margin, margin, width - 2*margin, height - 2*margin);
     }
   };
 
@@ -177,26 +192,26 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      const logoSize = 30;
-      let x = width/2 - logoSize/2;
-      let y = height/2 - logoSize/2;
+      const size = Math.min(width, height) * 0.2;
+      let x = width/2 - size/2;
+      let y = height/2 - size/2;
 
       switch (position) {
         case 'top':
-          y = 20;
+          y = mmToPx(1.0);
           break;
         case 'bottom':
-          y = height - logoSize - 20;
+          y = height - size - mmToPx(1.0);
           break;
         case 'left':
-          x = 20;
+          x = mmToPx(1.0);
           break;
         case 'right':
-          x = width - logoSize - 20;
+          x = width - size - mmToPx(1.0);
           break;
       }
 
-      ctx.drawImage(img, x, y, logoSize, logoSize);
+      ctx.drawImage(img, x, y, size, size);
     };
     img.src = logoSrc;
   };
@@ -204,30 +219,66 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
   const drawTextLines = (ctx: CanvasRenderingContext2D, textLines: StampTextLine[], color: string, width: number, height: number) => {
     ctx.fillStyle = color;
 
+    const cx = width / 2;
+    const cy = height / 2;
+
     textLines.forEach((line, index) => {
       if (!line.text.trim()) return;
 
       // Set font properties
       const fontWeight = line.bold ? 'bold' : 'normal';
       const fontStyle = line.italic ? 'italic' : 'normal';
-      ctx.font = `${fontStyle} ${fontWeight} ${line.fontSize || 16}px ${line.fontFamily || 'Arial'}`;
+      const fontPx = line.fontSize || 16;
+      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${line.fontFamily || 'Arial'}`;
+
+      if (line.curved) {
+        // Compute radius similar to previous logic: 70% of min half-size plus Y offset
+        const rx = (width / 2) - mmToPx(1.0);
+        const ry = (height / 2) - mmToPx(1.0);
+        const baseRadius = Math.min(rx, ry) * 0.7;
+        const maxDelta = Math.min(rx, ry) * 0.25;
+        const radiusPx = baseRadius + ((line.yPosition || 0) / 100) * maxDelta;
+        const direction = (line.textPosition === 'bottom') ? 'ccw' : 'cw';
+        const letterSpacingPx = line.letterSpacing || 0;
+
+        const poses = layoutArc({
+          text: line.text,
+          cx,
+          cy,
+          radiusPx,
+          arcDegrees: 180,
+          align: 'center',
+          direction,
+          letterSpacingPx,
+          font: ctx.font,
+        });
+
+        drawCurvedText(ctx, poses, { font: ctx.font, fillStyle: color });
+        return;
+      }
+
+      // Straight text
       ctx.textAlign = (line.alignment || 'center') as CanvasTextAlign;
+      ctx.textBaseline = 'alphabetic';
 
-      // Calculate position
       let x = width / 2;
-      if (line.alignment === 'left') x = 20;
-      if (line.alignment === 'right') x = width - 20;
+      if (line.alignment === 'left') x = mmToPx(1.0);
+      if (line.alignment === 'right') x = width - mmToPx(1.0);
 
-      const lineHeight = Math.max((line.fontSize || 16) + 5, 25);
-      const totalTextHeight = textLines.filter(l => l.text.trim()).length * lineHeight;
-      const startY = (height - totalTextHeight) / 2 + lineHeight;
-      let y = startY + index * lineHeight;
+      const nonEmptyLines = textLines.filter(l => !l.curved && l.text.trim());
+      const i = nonEmptyLines.findIndex(l => l === line);
+      const lineHeight = Math.max(fontPx * 1.2, 20);
+      let y = cy + fontPx / 3;
+      if (nonEmptyLines.length > 1) {
+        const totalH = (nonEmptyLines.length - 1) * lineHeight;
+        const startY = cy - totalH / 2 + fontPx / 3;
+        y = startY + i * lineHeight;
+      }
 
-      // Apply custom positioning
-      x += line.xPosition || 0;
-      y += line.yPosition || 0;
+      // Apply custom positioning in px based on percentage of half-dimension
+      x += ((line.xPosition || 0) / 100) * (width / 2);
+      y += ((line.yPosition || 0) / 100) * (height / 2);
 
-      // Draw text with letter spacing if needed
       if (line.letterSpacing && line.letterSpacing > 0) {
         drawTextWithLetterSpacing(ctx, line.text, x, y, line.letterSpacing, line.alignment || 'center');
       } else {

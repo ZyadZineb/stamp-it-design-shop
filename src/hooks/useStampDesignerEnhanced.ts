@@ -3,6 +3,7 @@ import { StampDesign, StampTextLine, Product, StampElement } from '../types';
 import { useCanvasCentering } from './useCanvasCentering';
 import { useDebounce } from './useDebounce';
 import { sizePx, mmToPx } from '@/utils/dimensions';
+import { layoutArc } from '@/engine/curvedText';
 
 interface DesignHistoryState {
   past: StampDesign[];
