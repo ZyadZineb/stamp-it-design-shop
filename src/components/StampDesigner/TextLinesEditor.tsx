@@ -179,6 +179,16 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                     onCheckedChange={(checked) => {
                       if (checked) {
                         onToggleCurvedText(index, 'top');
+                        // initialize curved defaults
+                        onUpdateLine(index, {
+                          radiusMm: line.radiusMm ?? 10,
+                          arcDeg: line.arcDeg ?? 180,
+                          curvedAlign: line.curvedAlign ?? 'center',
+                          direction: line.direction ?? 'outside',
+                          axisXMm: line.axisXMm,
+                          axisYMm: line.axisYMm,
+                          rotationDeg: line.rotationDeg ?? 0,
+                        });
                       } else {
                         onUpdateLine(index, { curved: false });
                       }
@@ -190,30 +200,156 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                 </div>
               </div>
 
-              {/* Curved Text Position */}
-              {line.curved && (
-                <div>
-                  <Label className="text-xs text-gray-600 mb-1 block">
-                    {t('textEditor.curvedPosition', 'Curved Position')}
-                  </Label>
-                  <Select
-                    value={line.textPosition || 'top'}
-                    onValueChange={(value: 'top' | 'bottom' | 'left' | 'right') => 
-                      onUpdateLine(index, { textPosition: value })
-                    }
-                  >
-                    <SelectTrigger className="min-h-[44px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="top">{t('textEditor.top', 'Top')}</SelectItem>
-                      <SelectItem value="bottom">{t('textEditor.bottom', 'Bottom')}</SelectItem>
-                      <SelectItem value="left">{t('textEditor.left', 'Left')}</SelectItem>
-                      <SelectItem value="right">{t('textEditor.right', 'Right')}</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {/* Position & Layout Controls */}
+              {!line.curved ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Horizontal (x, mm)</Label>
+                    <Input
+                      type="number"
+                      value={line.xMm ?? ''}
+                      onChange={(e) => onUpdateLine(index, { xMm: Number(e.target.value) })}
+                      placeholder="e.g. 10"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Vertical (y, mm)</Label>
+                    <Input
+                      type="number"
+                      value={line.yMm ?? ''}
+                      onChange={(e) => onUpdateLine(index, { yMm: Number(e.target.value) })}
+                      placeholder="e.g. 5"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Baseline</Label>
+                    <Select
+                      value={line.baseline || 'alphabetic'}
+                      onValueChange={(value: 'middle' | 'alphabetic' | 'hanging') => onUpdateLine(index, { baseline: value })}
+                    >
+                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="middle">Middle</SelectItem>
+                        <SelectItem value="alphabetic">Alphabetic</SelectItem>
+                        <SelectItem value="hanging">Hanging</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Radius (mm)</Label>
+                    <Input
+                      type="number"
+                      value={line.radiusMm ?? ''}
+                      onChange={(e) => onUpdateLine(index, { radiusMm: Math.max(0, Number(e.target.value)) })}
+                      placeholder="e.g. 12"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Arc (°)</Label>
+                    <Input
+                      type="number"
+                      value={line.arcDeg ?? 180}
+                      onChange={(e) => onUpdateLine(index, { arcDeg: Number(e.target.value) })}
+                      placeholder="180"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Direction</Label>
+                    <Select
+                      value={line.direction || 'outside'}
+                      onValueChange={(value: 'outside' | 'inside') => onUpdateLine(index, { direction: value })}
+                    >
+                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="outside">Outside</SelectItem>
+                        <SelectItem value="inside">Inside</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Align on Arc</Label>
+                    <Select
+                      value={line.curvedAlign || 'center'}
+                      onValueChange={(value: 'center' | 'start' | 'end') => onUpdateLine(index, { curvedAlign: value })}
+                    >
+                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="center">Center</SelectItem>
+                        <SelectItem value="start">Start</SelectItem>
+                        <SelectItem value="end">End</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Axis X (mm)</Label>
+                    <Input
+                      type="number"
+                      value={line.axisXMm ?? ''}
+                      onChange={(e) => onUpdateLine(index, { axisXMm: Number(e.target.value) })}
+                      placeholder="center"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Axis Y (mm)</Label>
+                    <Input
+                      type="number"
+                      value={line.axisYMm ?? ''}
+                      onChange={(e) => onUpdateLine(index, { axisYMm: Number(e.target.value) })}
+                      placeholder="center"
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 mb-1 block">Rotation (°)</Label>
+                    <Input
+                      type="number"
+                      value={line.rotationDeg ?? 0}
+                      onChange={(e) => onUpdateLine(index, { rotationDeg: Number(e.target.value) })}
+                      placeholder="0"
+                      className="min-h-[44px]"
+                    />
+                  </div>
                 </div>
               )}
+
+              {/* Letter Spacing (mm), Color, Visibility */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs text-gray-600 mb-1 block">Letter Spacing (mm)</Label>
+                  <Input
+                    type="number"
+                    value={line.letterSpacingMm ?? ''}
+                    onChange={(e) => onUpdateLine(index, { letterSpacingMm: Number(e.target.value) })}
+                    placeholder="e.g. 0.5"
+                    className="min-h-[44px]"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-600 mb-1 block">Color</Label>
+                  <Input
+                    type="color"
+                    value={(line.color as string) || '#000000'}
+                    onChange={(e) => onUpdateLine(index, { color: e.target.value })}
+                    className="h-[44px] w-full"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id={`visible-${index}`}
+                    checked={line.visible !== false}
+                    onCheckedChange={(checked) => onUpdateLine(index, { visible: checked })}
+                  />
+                  <Label htmlFor={`visible-${index}`} className="text-sm">Visible</Label>
+                </div>
+              </div>
 
               {/* Individual Line Alignment */}
               <div>

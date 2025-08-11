@@ -4,6 +4,7 @@ import { useCanvasCentering } from './useCanvasCentering';
 import { useDebounce } from './useDebounce';
 import { sizePx, mmToPx } from '@/utils/dimensions';
 import { layoutArc } from '@/engine/curvedText';
+import { drawCurvedText } from '@/export/drawCurvedText';
 
 interface DesignHistoryState {
   past: StampDesign[];
@@ -1079,15 +1080,11 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Download preview as PNG with exact stamp size and transparent background (HiDPI-aware)
   const downloadAsPng = () => {
-    if (!svgRef.current || !product) return;
-
-    console.log('[StampDesigner] downloadAsPng (HiDPI)');
+    if (!product) return;
 
     // Exact pixel size from mm at 10 px/mm
     const { widthPx, heightPx } = sizePx(product.size);
-
-    // HiDPI scaling
-    const dpr = Math.max(1, Math.min(4, window.devicePixelRatio || 1));
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
 
     // Create canvas and context with alpha for transparency
     const canvas = document.createElement('canvas');
@@ -1103,34 +1100,179 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, widthPx, heightPx);
 
-    // Rasterize the current SVG preview
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // Helpers
+    const margin = mmToPx(1.0);
+    const strokePx = Math.max(1, mmToPx(0.4));
 
-    const svgBlob = new Blob([svgRef.current], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(svgBlob);
-
-    img.onload = () => {
-      try {
-        // Draw SVG onto canvas (no background)
-        ctx.drawImage(img, 0, 0, widthPx, heightPx);
-
-        // Trigger download
-        const link = document.createElement('a');
-        link.download = `${product.name.replace(/\s/g, '-')}-stamp-${widthPx}x${heightPx}px.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      } finally {
-        URL.revokeObjectURL(url);
+    const beginBorderPath = () => {
+      ctx.beginPath();
+      switch (design.shape) {
+        case 'circle': {
+          const r = Math.min(widthPx, heightPx) / 2 - margin;
+          ctx.arc(widthPx / 2, heightPx / 2, r, 0, Math.PI * 2);
+          break;
+        }
+        case 'ellipse': {
+          ctx.ellipse(widthPx / 2, heightPx / 2, widthPx / 2 - margin, heightPx / 2 - margin, 0, 0, Math.PI * 2);
+          break;
+        }
+        default: {
+          ctx.rect(margin, margin, widthPx - 2 * margin, heightPx - 2 * margin);
+        }
       }
     };
 
-    img.onerror = () => {
-      console.error('Failed to load SVG for PNG export');
-      URL.revokeObjectURL(url);
+    // Clip to stamp shape so nothing bleeds outside
+    ctx.save();
+    beginBorderPath();
+    ctx.clip();
+
+    // Draw text lines
+    const drawStraight = (line: StampTextLine) => {
+      const fontPx = line.fontSizeMm ? mmToPx(line.fontSizeMm) : (line.fontSize || 16);
+      const letterSpacingPx = line.letterSpacingMm ? mmToPx(line.letterSpacingMm) : (line.letterSpacing || 0);
+      const fontWeight = line.bold ? 'bold' : 'normal';
+      const fontStyle = line.italic ? 'italic' : 'normal';
+      const fontFamily = line.fontFamily || 'Arial';
+      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
+      ctx.fillStyle = line.color || design.inkColor;
+      ctx.textAlign = (line.alignment || 'center') as CanvasTextAlign;
+      ctx.textBaseline = (line.baseline || 'alphabetic') as CanvasTextBaseline;
+
+      const x = line.xMm != null ? mmToPx(line.xMm) : (widthPx / 2 + ((line.xPosition || 0) / 100) * (widthPx / 2));
+      const y = line.yMm != null ? mmToPx(line.yMm) : (heightPx / 2 + ((line.yPosition || 0) / 100) * (heightPx / 2));
+
+      if (letterSpacingPx > 0) {
+        const chars = Array.from(line.text);
+        const totalWidth = chars.reduce((acc, ch) => acc + ctx.measureText(ch).width, 0) + (chars.length - 1) * letterSpacingPx;
+        let currentX = x;
+        if (ctx.textAlign === 'center') currentX = x - totalWidth / 2;
+        if (ctx.textAlign === 'right' || ctx.textAlign === 'end') currentX = x - totalWidth;
+        chars.forEach((ch) => {
+          ctx.fillText(ch, currentX, y);
+          currentX += ctx.measureText(ch).width + letterSpacingPx;
+        });
+      } else {
+        ctx.fillText(line.text, x, y);
+      }
     };
 
-    img.src = url;
+    const drawCurved = (line: StampTextLine) => {
+      const fontPx = line.fontSizeMm ? mmToPx(line.fontSizeMm) : (line.fontSize || 16);
+      const letterSpacingPx = line.letterSpacingMm ? mmToPx(line.letterSpacingMm) : (line.letterSpacing || 0);
+      const fontWeight = line.bold ? 'bold' : 'normal';
+      const fontStyle = line.italic ? 'italic' : 'normal';
+      const fontFamily = line.fontFamily || 'Arial';
+      const font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
+
+      const centerX = line.axisXMm != null ? mmToPx(line.axisXMm) : widthPx / 2;
+      const centerY = line.axisYMm != null ? mmToPx(line.axisYMm) : heightPx / 2;
+      const radiusPx = line.radiusMm != null ? Math.max(0, mmToPx(line.radiusMm)) : Math.min(widthPx, heightPx) * 0.35;
+      const arcDegrees = line.arcDeg ?? 180;
+      const align = line.curvedAlign || 'center';
+      const direction = line.direction || 'outside';
+      const rotationDeg = line.rotationDeg || 0;
+
+      const poses = layoutArc({
+        text: line.text,
+        centerX,
+        centerY,
+        radiusPx,
+        arcDegrees,
+        align,
+        direction,
+        letterSpacingPx,
+        font,
+        rotationDeg,
+      });
+
+      drawCurvedText(ctx, poses, { font, fillStyle: line.color || design.inkColor });
+    };
+
+    design.lines.forEach((line) => {
+      if (!line.text.trim() || line.visible === false) return;
+      if (line.curved) drawCurved(line); else drawStraight(line);
+    });
+
+    // Restore after clip
+    ctx.restore();
+
+    // Draw border on top (no fill to keep transparent)
+    if (design.borderStyle !== 'none') {
+      ctx.save();
+      ctx.strokeStyle = design.inkColor;
+      ctx.lineWidth = design.borderThickness || strokePx;
+      // dashed/dotted/double
+      const drawOnce = (offsetMm = 0) => {
+        ctx.beginPath();
+        const extra = mmToPx(offsetMm);
+        switch (design.shape) {
+          case 'circle':
+            ctx.arc(widthPx / 2, heightPx / 2, Math.min(widthPx, heightPx) / 2 - (margin + extra), 0, Math.PI * 2);
+            break;
+          case 'ellipse':
+            ctx.ellipse(widthPx / 2, heightPx / 2, widthPx / 2 - (margin + extra), heightPx / 2 - (margin + extra), 0, 0, Math.PI * 2);
+            break;
+          default:
+            ctx.rect(margin + extra, margin + extra, widthPx - 2 * (margin + extra), heightPx - 2 * (margin + extra));
+        }
+        ctx.stroke();
+      };
+
+      switch (design.borderStyle) {
+        case 'dashed':
+          ctx.setLineDash([8, 4]);
+          drawOnce();
+          break;
+        case 'dotted':
+          ctx.setLineDash([3, 3]);
+          drawOnce();
+          break;
+        case 'double':
+          ctx.setLineDash([]);
+          const lw = ctx.lineWidth;
+          ctx.lineWidth = Math.max(1, lw / 3);
+          drawOnce();
+          drawOnce(2);
+          break;
+        default:
+          ctx.setLineDash([]);
+          drawOnce();
+      }
+      ctx.restore();
+    }
+
+    const finish = () => {
+      const link = document.createElement('a');
+      link.download = `${product.name.replace(/\s/g, '-')}-stamp-${widthPx}x${heightPx}px.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+
+    // Optional: draw logo (async-safe)
+    if (design.includeLogo && design.logoImage) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        // Place logo roughly at center with percentage offsets
+        const size = Math.min(widthPx, heightPx) * 0.2;
+        const x = widthPx / 2 - size / 2 + (design.logoX / 100) * (widthPx * 0.2);
+        const y = heightPx / 2 - size / 2 + (design.logoY / 100) * (heightPx * 0.2);
+
+        // Draw inside clip
+        ctx.save();
+        beginBorderPath();
+        ctx.clip();
+        ctx.drawImage(img, x, y, size, size);
+        ctx.restore();
+
+        finish();
+      };
+      img.onerror = finish;
+      img.src = design.logoImage;
+    } else {
+      finish();
+    }
   };
 
   return {

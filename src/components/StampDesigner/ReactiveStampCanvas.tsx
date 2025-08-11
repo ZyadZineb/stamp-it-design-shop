@@ -72,18 +72,27 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     const margin = mmToPx(1.0);
     const strokePx = Math.max(1, mmToPx(0.4));
 
-    // Draw border only (no background fill to keep preview close to export)
-    if (borderStyle !== 'none') {
-      drawBorder(ctx, widthPx, heightPx, shape, borderStyle, borderThickness || strokePx, inkColor, margin);
-    }
+    // Clip to stamp shape before drawing inner content
+    ctx.save();
+    ctx.beginPath();
+    drawBorderPath(ctx, widthPx, heightPx, shape, margin);
+    ctx.clip();
 
-    // Draw logo
+    // Draw logo (clipped)
     if (includeLogo && logoImage) {
       drawLogo(ctx, logoImage, logoPosition, widthPx, heightPx);
     }
 
-    // Draw text lines (straight and curved)
+    // Draw text lines (straight and curved) inside clip
     drawTextLines(ctx, lines, inkColor, widthPx, heightPx);
+
+    // Restore after clip
+    ctx.restore();
+
+    // Draw border on top (no fill to keep transparent background)
+    if (borderStyle !== 'none') {
+      drawBorder(ctx, widthPx, heightPx, shape, borderStyle, borderThickness || strokePx, inkColor, margin);
+    }
 
     ctx.restore();
 
@@ -222,65 +231,59 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     const cx = width / 2;
     const cy = height / 2;
 
-    textLines.forEach((line, index) => {
-      if (!line.text.trim()) return;
+    textLines.forEach((line) => {
+      if (!line.text.trim() || line.visible === false) return;
 
-      // Set font properties
+      // Resolve font size and spacing
+      const fontPx = line.fontSizeMm ? mmToPx(line.fontSizeMm) : (line.fontSize || 16);
+      const letterSpacingPx = line.letterSpacingMm ? mmToPx(line.letterSpacingMm) : (line.letterSpacing || 0);
       const fontWeight = line.bold ? 'bold' : 'normal';
       const fontStyle = line.italic ? 'italic' : 'normal';
-      const fontPx = line.fontSize || 16;
-      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${line.fontFamily || 'Arial'}`;
+      const fontFamily = line.fontFamily || 'Arial';
+      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
+
+      const fill = line.color || color;
+      ctx.fillStyle = fill;
 
       if (line.curved) {
-        // Compute radius similar to previous logic: 70% of min half-size plus Y offset
-        const rx = (width / 2) - mmToPx(1.0);
-        const ry = (height / 2) - mmToPx(1.0);
-        const baseRadius = Math.min(rx, ry) * 0.7;
-        const maxDelta = Math.min(rx, ry) * 0.25;
-        const radiusPx = baseRadius + ((line.yPosition || 0) / 100) * maxDelta;
-        const direction = (line.textPosition === 'bottom') ? 'ccw' : 'cw';
-        const letterSpacingPx = line.letterSpacing || 0;
+        // Use mm-based curved controls when provided
+        const centerX = line.axisXMm != null ? mmToPx(line.axisXMm) : cx;
+        const centerY = line.axisYMm != null ? mmToPx(line.axisYMm) : cy;
+        const radiusPx = line.radiusMm != null ? Math.max(0, mmToPx(line.radiusMm)) : Math.min(width, height) * 0.35;
+        const arcDegrees = line.arcDeg ?? 180;
+        const align = (line.curvedAlign || 'center');
+        const direction = line.direction || 'outside';
+        const rotationDeg = line.rotationDeg || 0;
 
         const poses = layoutArc({
           text: line.text,
-          cx,
-          cy,
+          centerX,
+          centerY,
           radiusPx,
-          arcDegrees: 180,
-          align: 'center',
+          arcDegrees,
+          align,
           direction,
           letterSpacingPx,
           font: ctx.font,
+          rotationDeg,
         });
 
-        drawCurvedText(ctx, poses, { font: ctx.font, fillStyle: color });
+        drawCurvedText(ctx, poses, { font: ctx.font, fillStyle: fill });
         return;
       }
 
       // Straight text
-      ctx.textAlign = (line.alignment || 'center') as CanvasTextAlign;
-      ctx.textBaseline = 'alphabetic';
+      const textAlign = (line.alignment || 'center') as CanvasTextAlign;
+      ctx.textAlign = textAlign;
+      const baseline = line.baseline || 'alphabetic';
+      ctx.textBaseline = baseline as CanvasTextBaseline;
 
-      let x = width / 2;
-      if (line.alignment === 'left') x = mmToPx(1.0);
-      if (line.alignment === 'right') x = width - mmToPx(1.0);
+      // Base position
+      let x = line.xMm != null ? mmToPx(line.xMm) : (width / 2 + ((line.xPosition || 0) / 100) * (width / 2));
+      let y = line.yMm != null ? mmToPx(line.yMm) : (height / 2 + ((line.yPosition || 0) / 100) * (height / 2));
 
-      const nonEmptyLines = textLines.filter(l => !l.curved && l.text.trim());
-      const i = nonEmptyLines.findIndex(l => l === line);
-      const lineHeight = Math.max(fontPx * 1.2, 20);
-      let y = cy + fontPx / 3;
-      if (nonEmptyLines.length > 1) {
-        const totalH = (nonEmptyLines.length - 1) * lineHeight;
-        const startY = cy - totalH / 2 + fontPx / 3;
-        y = startY + i * lineHeight;
-      }
-
-      // Apply custom positioning in px based on percentage of half-dimension
-      x += ((line.xPosition || 0) / 100) * (width / 2);
-      y += ((line.yPosition || 0) / 100) * (height / 2);
-
-      if (line.letterSpacing && line.letterSpacing > 0) {
-        drawTextWithLetterSpacing(ctx, line.text, x, y, line.letterSpacing, line.alignment || 'center');
+      if (letterSpacingPx > 0) {
+        drawTextWithLetterSpacing(ctx, line.text, x, y, letterSpacingPx, line.alignment || 'center');
       } else {
         ctx.fillText(line.text, x, y);
       }

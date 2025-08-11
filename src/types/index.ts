@@ -46,6 +46,23 @@ export type StampTextLine = {
   textEffect?: TextEffect;
   letterSpacing?: number;
   textPosition?: 'top' | 'bottom' | 'left' | 'right'; // synchronized property
+  // New optional mm-based and advanced fields (backward-compatible)
+  color?: string;
+  visible?: boolean;
+  fontSizeMm?: number;
+  letterSpacingMm?: number;
+  xMm?: number;
+  yMm?: number;
+  // Curved text advanced controls
+  axisXMm?: number;
+  axisYMm?: number;
+  rotationDeg?: number;
+  radiusMm?: number;
+  arcDeg?: number;
+  curvedAlign?: 'center' | 'start' | 'end';
+  direction?: 'outside' | 'inside';
+  // Straight baseline control
+  baseline?: 'middle' | 'alphabetic' | 'hanging';
 };
 
 export interface StampDesign {
