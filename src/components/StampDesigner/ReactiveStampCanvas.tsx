@@ -4,6 +4,7 @@ import { StampTextLine, Product } from '@/types';
 import { sizePx, mmToPx } from '@/utils/dimensions';
 import { layoutArc } from '@/engine/curvedText';
 import { drawCurvedText } from '@/export/drawCurvedText';
+import { clamp } from '@/utils/layout';
 
 interface ReactiveStampCanvasProps {
   lines: StampTextLine[];
@@ -41,7 +42,8 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const dpr = (typeof window !== 'undefined' ? window.devicePixelRatio : 1) || 1;
+    const ctx = canvas.getContext('2d', { alpha: true }) as CanvasRenderingContext2D | null;
     if (!ctx) return;
 
     console.log('[ReactiveCanvas] Redrawing with:', {
@@ -53,29 +55,29 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
       zoomLevel
     });
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Set canvas dimensions based on product size (10 px per mm) and zoom
+    // Set canvas dimensions based on product size (10 px per mm) and zoom with DPR scaling
     const { widthPx, heightPx } = sizePx(product?.size || '38x14mm');
-    canvas.width = Math.max(1, Math.round(widthPx * zoomLevel));
-    canvas.height = Math.max(1, Math.round(heightPx * zoomLevel));
+    canvas.width = Math.max(1, Math.round(widthPx * zoomLevel * dpr));
+    canvas.height = Math.max(1, Math.round(heightPx * zoomLevel * dpr));
 
-    // Scale context
+    // Reset transform and apply DPR*zoom scaling; clear
+    ctx.setTransform(dpr * zoomLevel, 0, 0, dpr * zoomLevel, 0, 0);
+    ctx.clearRect(0, 0, widthPx, heightPx);
+
+    // Scale-independent drawing from here in logical px
     ctx.save();
-    ctx.scale(zoomLevel, zoomLevel);
 
     const cx = widthPx / 2;
     const cy = heightPx / 2;
 
     // Safe-zone and border metrics
-    const margin = mmToPx(1.0);
-    const strokePx = Math.max(1, mmToPx(0.4));
+    const safe = mmToPx(1.0);
+    const strokePxVal = Math.max(1, mmToPx(0.4));
 
-    // Clip to stamp shape before drawing inner content
+    // Clip to exact stamp shape before drawing inner content (no margin)
     ctx.save();
     ctx.beginPath();
-    drawBorderPath(ctx, widthPx, heightPx, shape, margin);
+    drawBorderPath(ctx, widthPx, heightPx, shape, 0);
     ctx.clip();
 
     // Draw logo (clipped)
@@ -84,14 +86,14 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     }
 
     // Draw text lines (straight and curved) inside clip
-    drawTextLines(ctx, lines, inkColor, widthPx, heightPx);
+    drawTextLines(ctx, lines, inkColor, widthPx, heightPx, safe);
 
     // Restore after clip
     ctx.restore();
 
     // Draw border on top (no fill to keep transparent background)
     if (borderStyle !== 'none') {
-      drawBorder(ctx, widthPx, heightPx, shape, borderStyle, borderThickness || strokePx, inkColor, margin);
+      drawBorder(ctx, widthPx, heightPx, shape, borderStyle, borderThickness || strokePxVal, inkColor, mmToPx(1.0));
     }
 
     ctx.restore();
@@ -225,20 +227,26 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
     img.src = logoSrc;
   };
 
-  const drawTextLines = (ctx: CanvasRenderingContext2D, textLines: StampTextLine[], color: string, width: number, height: number) => {
+  const drawTextLines = (ctx: CanvasRenderingContext2D, textLines: StampTextLine[], color: string, width: number, height: number, safe: number) => {
     ctx.fillStyle = color;
 
-    const cx = width / 2;
-    const cy = height / 2;
+    const measureWithSpacing = (k: CanvasRenderingContext2D, text: string, spacing: number) => {
+      if (!text) return 0;
+      if (spacing > 0) {
+        const chars = text.split('');
+        const sum = chars.reduce((acc, ch) => acc + k.measureText(ch).width, 0);
+        return sum + (chars.length - 1) * spacing;
+      }
+      return k.measureText(text).width;
+    };
 
     textLines.forEach((line) => {
       if (!line.text.trim() || line.visible === false) return;
 
-      // Resolve font size and spacing
       const fontPx = line.fontSizeMm ? mmToPx(line.fontSizeMm) : (line.fontSize || 16);
       const letterSpacingPx = line.letterSpacingMm ? mmToPx(line.letterSpacingMm) : (line.letterSpacing || 0);
-      const fontWeight = line.bold ? 'bold' : 'normal';
-      const fontStyle = line.italic ? 'italic' : 'normal';
+      const fontWeight = line.bold ? 'bold' : (line.fontWeight as any) || 'normal';
+      const fontStyle = line.italic ? 'italic' : (line.fontStyle as any) || 'normal';
       const fontFamily = line.fontFamily || 'Arial';
       ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
 
@@ -246,25 +254,30 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
       ctx.fillStyle = fill;
 
       if (line.curved) {
-        // Use mm-based curved controls when provided
-        const centerX = line.axisXMm != null ? mmToPx(line.axisXMm) : cx;
-        const centerY = line.axisYMm != null ? mmToPx(line.axisYMm) : cy;
-        const radiusPx = line.radiusMm != null ? Math.max(0, mmToPx(line.radiusMm)) : Math.min(width, height) * 0.35;
-        const arcDegrees = line.arcDeg ?? 180;
-        const align = (line.curvedAlign || 'center');
-        const direction = line.direction || 'outside';
+        // Curved rendering with axis clamp and rotation
+        const cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;
+        const cyRaw = line.axisYMm != null ? mmToPx(line.axisYMm) : height / 2;
+        const cx = Math.min(width - safe, Math.max(safe, cxRaw));
+        const cy = Math.min(height - safe, Math.max(safe, cyRaw));
+        const radiusPx = Math.max(mmToPx(Math.max(0.1, line.radiusMm ?? Math.min(width, height) / 10)), 0.1);
+        const arcDegrees = line.arcDeg ?? 120;
+        const align = (line.curvedAlign || 'center') as any;
+        const direction = (line.direction || 'outside') as any;
         const rotationDeg = line.rotationDeg || 0;
 
         const poses = layoutArc({
           text: line.text,
-          centerX,
-          centerY,
+          fontFamily,
+          fontWeight,
+          fontStyle,
+          fontSizePx: fontPx,
+          letterSpacingPx,
           radiusPx,
           arcDegrees,
           align,
           direction,
-          letterSpacingPx,
-          font: ctx.font,
+          centerX: cx,
+          centerY: cy,
           rotationDeg,
         });
 
@@ -272,18 +285,34 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
         return;
       }
 
-      // Straight text
-      const textAlign = (line.alignment || 'center') as CanvasTextAlign;
-      ctx.textAlign = textAlign;
-      const baseline = line.baseline || 'alphabetic';
-      ctx.textBaseline = baseline as CanvasTextBaseline;
+      // Straight rendering with clamped X/Y and alignment-aware bounds
+      const alignMap = { left: 'left', center: 'center', right: 'right' } as const;
+      const textAlign = alignMap[(line.alignment || 'center') as 'left' | 'center' | 'right'];
+      ctx.textAlign = textAlign as CanvasTextAlign;
+      const baseline = (line.baseline || 'middle') as CanvasTextBaseline;
+      ctx.textBaseline = baseline;
 
-      // Base position
-      let x = line.xMm != null ? mmToPx(line.xMm) : (width / 2 + ((line.xPosition || 0) / 100) * (width / 2));
-      let y = line.yMm != null ? mmToPx(line.yMm) : (height / 2 + ((line.yPosition || 0) / 100) * (height / 2));
+      const totalW = measureWithSpacing(ctx, line.text, letterSpacingPx);
+      const anchor = (line.alignment || 'center');
+      const minX = safe + (anchor === 'right' ? totalW : 0);
+      const maxX = (width - safe) - (anchor === 'left' ? totalW : 0);
+
+      const x0 = line.xMm != null ? mmToPx(line.xMm) : width / 2;
+      const y0 = line.yMm != null ? mmToPx(line.yMm) : height / 2;
+
+      const x = Math.min(maxX, Math.max(minX, x0));
+      const y = Math.min(height - safe, Math.max(safe, y0));
 
       if (letterSpacingPx > 0) {
-        drawTextWithLetterSpacing(ctx, line.text, x, y, letterSpacingPx, line.alignment || 'center');
+        // Manual letter-spacing drawing
+        const chars = line.text.split('');
+        let currentX = x;
+        if (anchor === 'center') currentX = x - totalW / 2;
+        if (anchor === 'right') currentX = x - totalW;
+        for (const ch of chars) {
+          ctx.fillText(ch, currentX, y);
+          currentX += ctx.measureText(ch).width + letterSpacingPx;
+        }
       } else {
         ctx.fillText(line.text, x, y);
       }

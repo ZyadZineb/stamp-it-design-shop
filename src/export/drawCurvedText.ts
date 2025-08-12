@@ -13,7 +13,7 @@ export function drawCurvedText(ctx: CanvasRenderingContext2D, poses: GlyphPose[]
   for (const g of poses) {
     ctx.save();
     ctx.translate(g.x, g.y);
-    ctx.rotate(g.angle);
+    ctx.rotate(g.angleRad);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(g.char, 0, 0);

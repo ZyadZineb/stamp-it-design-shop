@@ -3,31 +3,43 @@ import { mmToPx } from '@/utils/dimensions';
 import { layoutArc } from '@/engine/curvedText';
 import CurvedTextSvg from '@/components/CurvedTextSvg';
 import type { CurvedLine } from '@/types/line';
+import { clamp, safePx, DEFAULT_SAFE_MM } from '@/utils/layout';
 
 interface CurvedTextLineProps {
   line: CurvedLine;
+  widthPx: number;
+  heightPx: number;
 }
 
-const CurvedTextLine: React.FC<CurvedTextLineProps> = ({ line }) => {
+const CurvedTextLine: React.FC<CurvedTextLineProps> = ({ line, widthPx, heightPx }) => {
   const fontSizePx = mmToPx(line.fontSizeMm);
   const letterSpacingPx = mmToPx(line.letterSpacingMm);
   const fontWeight = (typeof line.fontWeight === 'number' ? (line.fontWeight >= 600 ? 'bold' : 'normal') : (line.fontWeight as any)) || 'normal';
   const fontStyle = line.fontStyle || 'normal';
 
+  const safe = safePx(DEFAULT_SAFE_MM);
+  const cxPxRaw = mmToPx(line.axisXMm);
+  const cyPxRaw = mmToPx(line.axisYMm);
+  const cxPx = clamp(cxPxRaw, safe, widthPx - safe);
+  const cyPx = clamp(cyPxRaw, safe, heightPx - safe);
+
   const poses = useMemo(() => {
     return layoutArc({
       text: line.text,
-      centerX: mmToPx(line.axisXMm),
-      centerY: mmToPx(line.axisYMm),
-      radiusPx: Math.max(0, mmToPx(line.radiusMm)),
-      arcDegrees: line.arcDeg,
-      align: line.align,
-      direction: line.direction,
+      fontFamily: line.fontFamily,
+      fontWeight: line.fontWeight,
+      fontStyle: line.fontStyle,
+      fontSizePx,
       letterSpacingPx,
-      font: `${fontStyle} ${fontWeight} ${fontSizePx}px ${line.fontFamily}`,
+      radiusPx: Math.max(0.1, mmToPx(line.radiusMm)),
+      arcDegrees: line.arcDeg,
+      align: line.align as any || 'center',
+      direction: line.direction as any || 'outside',
+      centerX: cxPx,
+      centerY: cyPx,
       rotationDeg: line.rotationDeg,
     });
-  }, [line.text, line.axisXMm, line.axisYMm, line.radiusMm, line.arcDeg, line.align, line.direction, letterSpacingPx, fontSizePx, fontStyle, fontWeight, line.fontFamily, line.rotationDeg]);
+  }, [line.text, line.fontFamily, line.fontWeight, line.fontStyle, fontSizePx, letterSpacingPx, line.radiusMm, line.arcDeg, line.align, line.direction, cxPx, cyPx, line.rotationDeg]);
 
   return (
     <CurvedTextSvg

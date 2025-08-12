@@ -25,7 +25,7 @@ const CurvedTextSvg: React.FC<CurvedTextSvgProps> = ({ poses, fill, fontFamily, 
           fontStyle={fontStyle}
           textAnchor="middle"
           dominantBaseline="middle"
-          transform={`rotate(${(g.angle * 180) / Math.PI} ${g.x} ${g.y})`}
+          transform={`rotate(${(g.angleRad * 180) / Math.PI} ${g.x} ${g.y})`}
         >
           {g.char}
         </text>

@@ -1,111 +1,89 @@
-export type ArcAlign = 'center' | 'start' | 'end';
-export type ArcDirection = 'cw' | 'ccw' | 'outside' | 'inside';
+export type ArcAlign = 'center'|'start'|'end';
+export type ArcDirection = 'outside'|'inside';
 
-export interface LayoutArcInput {
+export interface ArcLayoutInput {
   text: string;
-  cx?: number; // center x in px (alias)
-  cy?: number; // center y in px (alias)
-  centerX?: number; // alternative naming support
-  centerY?: number;
-  radiusPx: number; // radius in px
-  arcDegrees?: number; // sweep angle, default 180
-  align?: ArcAlign; // center by default
-  direction?: ArcDirection; // cw/ccw or outside/inside
-  letterSpacingPx?: number; // additional spacing between glyphs in px
-  font: string; // canvas font string e.g. "bold 16px Arial"
-  rotationDeg?: number; // additional rotation around center
+  fontFamily: string;
+  fontWeight?: string | number;
+  fontStyle?: 'normal' | 'italic';
+  fontSizePx: number;
+  letterSpacingPx?: number;
+  radiusPx: number;
+  arcDegrees: number;
+  align: ArcAlign;
+  direction: ArcDirection;
+  centerX: number;
+  centerY: number;
+  rotationDeg?: number;
 }
 
-export interface GlyphPose {
-  char: string;
-  x: number;
-  y: number;
-  angle: number; // radians, tangent angle for orientation
-}
+export interface GlyphPose { char: string; x: number; y: number; angleRad: number; }
 
-// Measure text using an offscreen canvas
-function measureWidth(text: string, font: string): number {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return 0;
-  ctx.font = font;
-  return ctx.measureText(text).width;
-}
-
-function rotatePoint(x: number, y: number, cx: number, cy: number, angRad: number) {
-  const s = Math.sin(angRad);
-  const c = Math.cos(angRad);
-  const dx = x - cx;
-  const dy = y - cy;
+const rotPt = (x: number, y: number, cx: number, cy: number, a: number) => {
+  const s = Math.sin(a), c = Math.cos(a);
+  const dx = x - cx, dy = y - cy;
   return { x: cx + dx * c - dy * s, y: cy + dx * s + dy * c };
+};
+
+function meas(font: string) {
+  const c = document.createElement('canvas');
+  const k = c.getContext('2d');
+  if (!k) throw new Error('2D');
+  k.font = font;
+  return k;
 }
 
-export function layoutArc(input: LayoutArcInput): GlyphPose[] {
-  const {
-    text,
-    radiusPx,
-    arcDegrees = 180,
-    align = 'center',
-    direction = 'cw',
-    letterSpacingPx = 0,
-    font,
-    rotationDeg = 0,
-  } = input;
+export function layoutArc(i: ArcLayoutInput): GlyphPose[] {
+  const text = (i.text ?? '').toString();
+  if (!text) return [];
 
-  const cx = input.cx ?? input.centerX ?? 0;
-  const cy = input.cy ?? input.centerY ?? 0;
+  const fs = Math.max(0.1, +i.fontSizePx || 0);
+  const ls = Number.isFinite(i.letterSpacingPx as number) ? (i.letterSpacingPx as number) : 0;
+  const r = Math.max(0.1, +i.radiusPx || 0);
+  const arcDeg = Number.isFinite(+i.arcDegrees) ? +i.arcDegrees : 120;
+  const cx = Number.isFinite(+i.centerX) ? +i.centerX : 0;
+  const cy = Number.isFinite(+i.centerY) ? +i.centerY : 0;
+  const rot = ((i.rotationDeg || 0) * Math.PI) / 180;
 
-  const chars = Array.from(text);
-  if (chars.length === 0) return [];
+  const font = `${i.fontStyle || 'normal'} ${i.fontWeight || 400} ${fs}px ${i.fontFamily}`;
+  const ctx = meas(font);
 
-  // total arc length = sum of char widths + spacing
-  const widths = chars.map(ch => measureWidth(ch, font));
-  const totalWidth = widths.reduce((a, b) => a + b, 0) + letterSpacingPx * (chars.length - 1);
+  const adv = [...text].map(ch => ctx.measureText(ch).width + ls);
+  const total = adv.reduce((a, b) => a + b, 0);
+  const arcRad = (arcDeg * Math.PI) / 180;
+  const arcLen = Math.max(0.001, r * arcRad);
 
-  // convert arc sweep degrees to radians and then to available arc length
-  const sweepRadians = (arcDegrees * Math.PI) / 180;
-  const availableArcLength = radiusPx * sweepRadians;
+  let scale = 1;
+  if (total > arcLen) {
+    const letters = adv.length;
+    const space = ls * letters;
+    if (space > 0) {
+      const target = arcLen - (total - space);
+      scale = Math.max(0, target / space);
+    }
+  }
 
-  // scale factor if text longer than available arc (simple fit)
-  const scale = totalWidth > 0 ? Math.min(1, availableArcLength / totalWidth) : 1;
+  const scaled = adv.map(a => a - ls + ls * scale);
+  const totalScaled = scaled.reduce((a, b) => a + b, 0);
 
-  // angle per pixel along the arc
-  const anglePerPx = sweepRadians / Math.max(1, totalWidth || 1);
+  const dir = (i.direction === 'inside') ? -1 : 1;
+  let sweep = totalScaled / r;
+  let start = -sweep / 2;
+  if (i.align === 'start') start = 0;
+  if (i.align === 'end') start = -sweep;
+  start += ((arcRad - sweep) / 2);
 
-  // starting angle: center the text on the arc
-  let startAngle = -sweepRadians / 2; // start at left end (relative to top center)
-  if (align === 'start') startAngle = -sweepRadians / 2;
-  if (align === 'end') startAngle = sweepRadians / 2 - sweepRadians;
-
-  // direction: map to sign
-  const dir = (direction === 'ccw' || direction === 'inside') ? -1 : 1;
-
-  // rotation around center
-  const rot = (rotationDeg * Math.PI) / 180;
-
-  // Place each glyph
-  let cursorPx = 0;
   const poses: GlyphPose[] = [];
-
-  for (let i = 0; i < chars.length; i++) {
-    const w = widths[i] * scale;
-    const spacing = i > 0 ? letterSpacingPx * scale : 0;
-    const advance = w + spacing;
-    const midPx = cursorPx + w / 2 + spacing / 2;
-    const angle = startAngle + dir * midPx * anglePerPx;
-
-    const x = cx + radiusPx * Math.cos(angle);
-    const y = cy + radiusPx * Math.sin(angle);
-
-    // Tangent angle rotated by 90deg to orient glyph upright along path
-    const tangentAngle = angle + (Math.PI / 2) * dir;
-
-    // Apply global rotation about center
-    const p = rotatePoint(x, y, cx, cy, rot);
-    const finalAngle = tangentAngle + rot;
-
-    poses.push({ char: chars[i], x: p.x, y: p.y, angle: finalAngle });
-    cursorPx += advance;
+  let t = start;
+  for (let k = 0; k < scaled.length; k++) {
+    const half = (scaled[k] / r) / 2;
+    t += half;
+    const x = cx + Math.cos(t) * r * dir;
+    const y = cy + Math.sin(t) * r * dir;
+    const a = t + (dir === 1 ? Math.PI / 2 : -Math.PI / 2);
+    const p = rotPt(x, y, cx, cy, rot);
+    poses.push({ char: text[k], x: p.x, y: p.y, angleRad: a + rot });
+    t += half;
   }
 
   return poses;
