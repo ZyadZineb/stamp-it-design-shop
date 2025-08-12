@@ -782,19 +782,22 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
         const poses = layoutArc({
           text: line.text,
+          fontFamily,
+          fontWeight,
+          fontStyle,
+          fontSizePx: fontPx,
+          letterSpacingPx,
           centerX,
           centerY,
           radiusPx,
           arcDegrees,
           align,
           direction,
-          letterSpacingPx,
-          font: `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`,
           rotationDeg,
         });
 
         poses.forEach((g) => {
-          const deg = (g.angle * 180) / Math.PI;
+          const deg = (g.angleRad * 180) / Math.PI;
           svgContent += `
             <text x="${g.x}" y="${g.y}"
               fill="${line.color || design.inkColor}"
@@ -969,14 +972,17 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
       const poses = layoutArc({
         text: line.text,
+        fontFamily,
+        fontWeight,
+        fontStyle,
+        fontSizePx: fontPx,
+        letterSpacingPx,
         centerX,
         centerY,
         radiusPx,
         arcDegrees,
         align,
         direction,
-        letterSpacingPx,
-        font,
         rotationDeg,
       });
 

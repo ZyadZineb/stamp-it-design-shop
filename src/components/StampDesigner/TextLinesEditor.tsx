@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Plus, Type, RotateCcw, Palette } from 'lucide-react';
+import { Trash2, Plus, Type } from 'lucide-react';
 import { StampTextLine, Product } from '@/types';
 import { useTranslation } from 'react-i18next';
 import AlignmentControls from './AlignmentControls';
+import Bar from '@/components/controls/Bar';
+import { rangeForProductMm } from '@/utils/ranges';
 
 interface TextLinesEditorProps {
   lines: StampTextLine[];
@@ -16,11 +18,13 @@ interface TextLinesEditorProps {
   onAddLine: () => void;
   onRemoveLine: (index: number) => void;
   productShape: 'rectangle' | 'circle' | 'square' | 'ellipse';
+  product?: Product | null;
   maxLines: number;
   onToggleCurvedText: (index: number, textPosition?: 'top' | 'bottom' | 'left' | 'right') => void;
   globalAlignment?: 'left' | 'center' | 'right';
   onGlobalAlignmentChange?: (alignment: 'left' | 'center' | 'right') => void;
 }
+
 
 const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
   lines,
@@ -28,6 +32,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
   onAddLine,
   onRemoveLine,
   productShape,
+  product,
   maxLines,
   onToggleCurvedText,
   globalAlignment = 'center',
@@ -39,6 +44,11 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
     'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana', 
     'Courier New', 'Impact', 'Comic Sans MS', 'Trebuchet MS', 'Calibri'
   ];
+
+  const { widthMm, heightMm } = rangeForProductMm({ size: product?.size || '38x14mm' });
+  const SAFE_MM = 1.0;
+  const clamp = (v:number,min:number,max:number)=> Math.min(max, Math.max(min, v));
+
 
   return (
     <div className="space-y-6">
@@ -203,26 +213,26 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
               {/* Position & Layout Controls */}
               {!line.curved ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Horizontal (x, mm)</Label>
-                    <Input
-                      type="number"
-                      value={line.xMm ?? ''}
-                      onChange={(e) => onUpdateLine(index, { xMm: Number(e.target.value) })}
-                      placeholder="e.g. 10"
-                      className="min-h-[44px]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Vertical (y, mm)</Label>
-                    <Input
-                      type="number"
-                      value={line.yMm ?? ''}
-                      onChange={(e) => onUpdateLine(index, { yMm: Number(e.target.value) })}
-                      placeholder="e.g. 5"
-                      className="min-h-[44px]"
-                    />
-                  </div>
+                  <Bar
+                    id={`xMm-${index}`}
+                    label={t('textEditor.horizontal', 'Horizontal (X)')}
+                    unit="mm"
+                    min={SAFE_MM}
+                    max={widthMm - SAFE_MM}
+                    step={0.5}
+                    value={line.xMm ?? widthMm / 2}
+                    onChange={(v)=> onUpdateLine(index, { xMm: clamp(+v, SAFE_MM, widthMm - SAFE_MM) })}
+                  />
+                  <Bar
+                    id={`yMm-${index}`}
+                    label={t('textEditor.vertical', 'Vertical (Y)')}
+                    unit="mm"
+                    min={SAFE_MM}
+                    max={heightMm - SAFE_MM}
+                    step={0.5}
+                    value={line.yMm ?? heightMm / 2}
+                    onChange={(v)=> onUpdateLine(index, { yMm: clamp(+v, SAFE_MM, heightMm - SAFE_MM) })}
+                  />
                   <div>
                     <Label className="text-xs text-gray-600 mb-1 block">Baseline</Label>
                     <Select
@@ -238,6 +248,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                     </Select>
                   </div>
                 </div>
+
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
@@ -287,36 +298,37 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Axis X (mm)</Label>
-                    <Input
-                      type="number"
-                      value={line.axisXMm ?? ''}
-                      onChange={(e) => onUpdateLine(index, { axisXMm: Number(e.target.value) })}
-                      placeholder="center"
-                      className="min-h-[44px]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Axis Y (mm)</Label>
-                    <Input
-                      type="number"
-                      value={line.axisYMm ?? ''}
-                      onChange={(e) => onUpdateLine(index, { axisYMm: Number(e.target.value) })}
-                      placeholder="center"
-                      className="min-h-[44px]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Rotation (°)</Label>
-                    <Input
-                      type="number"
-                      value={line.rotationDeg ?? 0}
-                      onChange={(e) => onUpdateLine(index, { rotationDeg: Number(e.target.value) })}
-                      placeholder="0"
-                      className="min-h-[44px]"
-                    />
-                  </div>
+                  <Bar
+                    id={`axisX-${index}`}
+                    label={t('textEditor.axisX', 'Axis X')}
+                    unit="mm"
+                    min={SAFE_MM}
+                    max={widthMm - SAFE_MM}
+                    step={0.5}
+                    value={line.axisXMm ?? widthMm / 2}
+                    onChange={(v)=> onUpdateLine(index, { axisXMm: clamp(+v, SAFE_MM, widthMm - SAFE_MM) })}
+                  />
+                  <Bar
+                    id={`axisY-${index}`}
+                    label={t('textEditor.axisY', 'Axis Y')}
+                    unit="mm"
+                    min={SAFE_MM}
+                    max={heightMm - SAFE_MM}
+                    step={0.5}
+                    value={line.axisYMm ?? heightMm / 2}
+                    onChange={(v)=> onUpdateLine(index, { axisYMm: clamp(+v, SAFE_MM, heightMm - SAFE_MM) })}
+                  />
+                  <Bar
+                    id={`rotation-${index}`}
+                    label={t('textEditor.rotation', 'Rotation')}
+                    unit="°"
+                    min={-180}
+                    max={180}
+                    step={1}
+                    value={line.rotationDeg ?? 0}
+                    onChange={(v)=> onUpdateLine(index, { rotationDeg: Math.max(-180, Math.min(180, +v)) })}
+                  />
+
                 </div>
               )}
 

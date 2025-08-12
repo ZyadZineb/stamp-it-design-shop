@@ -152,6 +152,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
               onAddLine={designer.addLine}
               onRemoveLine={designer.removeLine}
               productShape={designer.design.shape}
+              product={product}
               maxLines={product?.lines || 5}
               onToggleCurvedText={designer.toggleCurvedText}
               globalAlignment={designer.design.globalAlignment}
@@ -160,6 +161,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
             <AutoArrange onAutoArrange={designer.enhancedAutoArrange} />
           </div>
         );
+
 
       case 'logo':
         return (

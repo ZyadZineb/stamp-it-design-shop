@@ -245,8 +245,8 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
 
       const fontPx = line.fontSizeMm ? mmToPx(line.fontSizeMm) : (line.fontSize || 16);
       const letterSpacingPx = line.letterSpacingMm ? mmToPx(line.letterSpacingMm) : (line.letterSpacing || 0);
-      const fontWeight = line.bold ? 'bold' : (line.fontWeight as any) || 'normal';
-      const fontStyle = line.italic ? 'italic' : (line.fontStyle as any) || 'normal';
+      const fontWeight = line.bold ? 'bold' : 'normal';
+      const fontStyle = line.italic ? 'italic' : 'normal';
       const fontFamily = line.fontFamily || 'Arial';
       ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
 
