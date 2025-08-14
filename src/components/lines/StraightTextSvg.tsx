@@ -10,15 +10,15 @@ interface StraightTextSvgProps {
 }
 
 const anchorMap = {
-  left: 'start',
+  start: 'start',
   center: 'middle',
-  right: 'end',
+  end: 'end',
 } as const;
 
 const StraightTextSvg: React.FC<StraightTextSvgProps> = ({ line, widthPx, heightPx }) => {
   const safe = safePx(DEFAULT_SAFE_MM);
-  const fontSize = mmToPx(line.fontSizeMm);
-  const letterSpacing = mmToPx(line.letterSpacingMm);
+  const fontSize = mmToPx(line.fontSizePt / 10); // Convert pt to mm approximation
+  const letterSpacing = mmToPx(line.letterSpacing / 10);
   const font = `${line.fontStyle || 'normal'} ${line.fontWeight || 400} ${fontSize}px ${line.fontFamily}`;
 
   // Measure total width with letter spacing
@@ -36,8 +36,8 @@ const StraightTextSvg: React.FC<StraightTextSvgProps> = ({ line, widthPx, height
   const w = measure(line.text || '');
   const anchor = line.align || 'center';
 
-  const minX = safe + (anchor === 'right' ? w : 0);
-  const maxX = (widthPx - safe) - (anchor === 'left' ? w : 0);
+  const minX = safe + (anchor === 'end' ? w : 0);
+  const maxX = (widthPx - safe) - (anchor === 'start' ? w : 0);
 
   const x0 = mmToPx(line.xMm);
   const y0 = mmToPx(line.yMm);
@@ -49,7 +49,7 @@ const StraightTextSvg: React.FC<StraightTextSvgProps> = ({ line, widthPx, height
     <text
       x={x}
       y={y}
-      textAnchor={anchorMap[anchor]}
+      textAnchor={anchorMap[anchor] || 'middle'}
       dominantBaseline={line.baseline}
       fontFamily={line.fontFamily}
       fontWeight={line.fontWeight as any}

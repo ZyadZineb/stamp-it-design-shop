@@ -73,7 +73,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
       {/* Text Lines */}
       <div className="space-y-4">
         {lines.map((line, index) => (
-          <div key={index} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+          <div key={line.id || index} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <Type size={16} className="text-orange-500" />
@@ -99,36 +99,30 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
               <div>
                 <Label htmlFor={`text-${index}`} className="text-xs text-gray-600 mb-1 block">
                   {t('textEditor.textContent', 'Text Content')}
-                  <span className="text-orange-500 ml-1">
-                    {t('textEditor.clickToEdit', '(Click to edit)')}
-                  </span>
                 </Label>
                 <Input
                   id={`text-${index}`}
                   value={line.text}
                   onChange={(e) => onUpdateLine(index, { text: e.target.value })}
                   placeholder={t('textEditor.enterText', 'Enter your text here...')}
-                  className="min-h-[44px] text-base" // Mobile-friendly touch target
+                  className="w-full"
                 />
               </div>
 
-              {/* Font Controls */}
+              {/* Font Family and Size */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs text-gray-600 mb-1 block">
+                  <Label htmlFor={`font-${index}`} className="text-xs text-gray-600 mb-1 block">
                     {t('textEditor.fontFamily', 'Font Family')}
                   </Label>
-                  <Select
-                    value={line.fontFamily}
-                    onValueChange={(value) => onUpdateLine(index, { fontFamily: value })}
-                  >
-                    <SelectTrigger className="min-h-[44px]">
-                      <SelectValue />
+                  <Select value={line.fontFamily} onValueChange={(value) => onUpdateLine(index, { fontFamily: value })}>
+                    <SelectTrigger id={`font-${index}`}>
+                      <SelectValue placeholder="Select font" />
                     </SelectTrigger>
                     <SelectContent>
                       {fontOptions.map((font) => (
-                        <SelectItem key={font} value={font} style={{ fontFamily: font }}>
-                          {font}
+                        <SelectItem key={font} value={font}>
+                          <span style={{ fontFamily: font }}>{font}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -136,30 +130,26 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                 </div>
 
                 <div>
-                  <Label className="text-xs text-gray-600 mb-1 block">
+                  <Label htmlFor={`size-${index}`} className="text-xs text-gray-600 mb-1 block">
                     {t('textEditor.fontSize', 'Font Size')}
-                    <span className="text-orange-500 ml-1">
-                      {t('textEditor.dragToResize', '(Drag to resize)')}
-                    </span>
                   </Label>
-                  <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
                     <Slider
-                      value={[line.fontSize]}
-                      onValueChange={(value) => onUpdateLine(index, { fontSize: value[0] })}
+                      id={`size-${index}`}
                       min={8}
                       max={32}
                       step={1}
-                      className="w-full"
+                      value={[line.fontSize]}
+                      onValueChange={(value) => onUpdateLine(index, { fontSize: value[0], fontSizePt: value[0] })}
+                      className="flex-1"
                     />
-                    <div className="text-xs text-gray-500 text-center">
-                      {line.fontSize}px
-                    </div>
+                    <span className="w-8 text-sm text-gray-600">{line.fontSize}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Text Style Controls */}
-              <div className="flex flex-wrap gap-3">
+              {/* Font Style */}
+              <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id={`bold-${index}`}
@@ -170,7 +160,6 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                     {t('textEditor.bold', 'Bold')}
                   </Label>
                 </div>
-
                 <div className="flex items-center space-x-2">
                   <Switch
                     id={`italic-${index}`}
@@ -181,217 +170,167 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                     {t('textEditor.italic', 'Italic')}
                   </Label>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id={`curved-${index}`}
-                    checked={line.curved}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        onToggleCurvedText(index, 'top');
-                        // initialize curved defaults
-                        onUpdateLine(index, {
-                          radiusMm: line.radiusMm ?? 10,
-                          arcDeg: line.arcDeg ?? 180,
-                          curvedAlign: line.curvedAlign ?? 'center',
-                          direction: line.direction ?? 'outside',
-                          axisXMm: line.axisXMm,
-                          axisYMm: line.axisYMm,
-                          rotationDeg: line.rotationDeg ?? 0,
-                        });
-                      } else {
-                        onUpdateLine(index, { curved: false });
-                      }
-                    }}
-                  />
-                  <Label htmlFor={`curved-${index}`} className="text-sm">
-                    {t('textEditor.curved', 'Curved')}
-                  </Label>
-                </div>
               </div>
 
-              {/* Position & Layout Controls */}
-              {!line.curved ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Bar
-                    id={`xMm-${index}`}
-                    label={t('textEditor.horizontal', 'Horizontal (X)')}
-                    unit="mm"
-                    min={SAFE_MM}
-                    max={widthMm - SAFE_MM}
-                    step={0.5}
-                    value={line.xMm ?? widthMm / 2}
-                    onChange={(v)=> onUpdateLine(index, { xMm: clamp(+v, SAFE_MM, widthMm - SAFE_MM) })}
-                  />
-                  <Bar
-                    id={`yMm-${index}`}
-                    label={t('textEditor.vertical', 'Vertical (Y)')}
-                    unit="mm"
-                    min={SAFE_MM}
-                    max={heightMm - SAFE_MM}
-                    step={0.5}
-                    value={line.yMm ?? heightMm / 2}
-                    onChange={(v)=> onUpdateLine(index, { yMm: clamp(+v, SAFE_MM, heightMm - SAFE_MM) })}
-                  />
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Baseline</Label>
-                    <Select
-                      value={line.baseline || 'alphabetic'}
-                      onValueChange={(value: 'middle' | 'alphabetic' | 'hanging') => onUpdateLine(index, { baseline: value })}
-                    >
-                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="middle">Middle</SelectItem>
-                        <SelectItem value="alphabetic">Alphabetic</SelectItem>
-                        <SelectItem value="hanging">Hanging</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Radius (mm)</Label>
-                    <Input
-                      type="number"
-                      value={line.radiusMm ?? ''}
-                      onChange={(e) => onUpdateLine(index, { radiusMm: Math.max(0, Number(e.target.value)) })}
-                      placeholder="e.g. 12"
-                      className="min-h-[44px]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Arc (°)</Label>
-                    <Input
-                      type="number"
-                      value={line.arcDeg ?? 180}
-                      onChange={(e) => onUpdateLine(index, { arcDeg: Number(e.target.value) })}
-                      placeholder="180"
-                      className="min-h-[44px]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Direction</Label>
-                    <Select
-                      value={line.direction || 'outside'}
-                      onValueChange={(value: 'outside' | 'inside') => onUpdateLine(index, { direction: value })}
-                    >
-                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="outside">Outside</SelectItem>
-                        <SelectItem value="inside">Inside</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-1 block">Align on Arc</Label>
-                    <Select
-                      value={line.curvedAlign || 'center'}
-                      onValueChange={(value: 'center' | 'start' | 'end') => onUpdateLine(index, { curvedAlign: value })}
-                    >
-                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="center">Center</SelectItem>
-                        <SelectItem value="start">Start</SelectItem>
-                        <SelectItem value="end">End</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Bar
-                    id={`axisX-${index}`}
-                    label={t('textEditor.axisX', 'Axis X')}
-                    unit="mm"
-                    min={SAFE_MM}
-                    max={widthMm - SAFE_MM}
-                    step={0.5}
-                    value={line.axisXMm ?? widthMm / 2}
-                    onChange={(v)=> onUpdateLine(index, { axisXMm: clamp(+v, SAFE_MM, widthMm - SAFE_MM) })}
-                  />
-                  <Bar
-                    id={`axisY-${index}`}
-                    label={t('textEditor.axisY', 'Axis Y')}
-                    unit="mm"
-                    min={SAFE_MM}
-                    max={heightMm - SAFE_MM}
-                    step={0.5}
-                    value={line.axisYMm ?? heightMm / 2}
-                    onChange={(v)=> onUpdateLine(index, { axisYMm: clamp(+v, SAFE_MM, heightMm - SAFE_MM) })}
-                  />
-                  <Bar
-                    id={`rotation-${index}`}
-                    label={t('textEditor.rotation', 'Rotation')}
-                    unit="°"
-                    min={-180}
-                    max={180}
-                    step={1}
-                    value={line.rotationDeg ?? 0}
-                    onChange={(v)=> onUpdateLine(index, { rotationDeg: Math.max(-180, Math.min(180, +v)) })}
-                  />
-
-                </div>
-              )}
-
-              {/* Letter Spacing (mm), Color, Visibility */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <Label className="text-xs text-gray-600 mb-1 block">Letter Spacing (mm)</Label>
-                  <Input
-                    type="number"
-                    value={line.letterSpacingMm ?? ''}
-                    onChange={(e) => onUpdateLine(index, { letterSpacingMm: Number(e.target.value) })}
-                    placeholder="e.g. 0.5"
-                    className="min-h-[44px]"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-gray-600 mb-1 block">Color</Label>
-                  <Input
-                    type="color"
-                    value={(line.color as string) || '#000000'}
-                    onChange={(e) => onUpdateLine(index, { color: e.target.value })}
-                    className="h-[44px] w-full"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id={`visible-${index}`}
-                    checked={line.visible !== false}
-                    onCheckedChange={(checked) => onUpdateLine(index, { visible: checked })}
-                  />
-                  <Label htmlFor={`visible-${index}`} className="text-sm">Visible</Label>
-                </div>
-              </div>
-
-              {/* Individual Line Alignment */}
+              {/* Alignment Controls */}
               <div>
-                <Label className="text-xs text-gray-600 mb-1 block">
-                  {t('textEditor.lineAlignment', 'Line Alignment')}
-                  <span className="text-orange-500 ml-1">
-                    {t('textEditor.overridesGlobal', '(Overrides global)')}
-                  </span>
+                <Label className="text-xs text-gray-600 mb-2 block">
+                  {t('textEditor.alignment', 'Alignment')}
                 </Label>
                 <AlignmentControls
                   alignment={line.alignment}
                   onAlignmentChange={(alignment) => onUpdateLine(index, { alignment })}
                 />
               </div>
+
+              {/* Letter Spacing */}
+              <div>
+                <Label htmlFor={`spacing-${index}`} className="text-xs text-gray-600 mb-1 block">
+                  {t('textEditor.letterSpacing', 'Letter Spacing')}
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Slider
+                    id={`spacing-${index}`}
+                    min={-2}
+                    max={8}
+                    step={0.5}
+                    value={[line.letterSpacing || 0]}
+                    onValueChange={(value) => onUpdateLine(index, { letterSpacing: value[0] })}
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-sm text-gray-600">{(line.letterSpacing || 0).toFixed(1)}</span>
+                </div>
+              </div>
+
+              {/* Curved Text Toggle */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                <div>
+                  <Label className="text-sm font-medium">
+                    {t('textEditor.curvedText', 'Curved Text')}
+                  </Label>
+                  <p className="text-xs text-gray-600">
+                    {t('textEditor.curvedTextDesc', 'Follow a circular path')}
+                  </p>
+                </div>
+                <Switch
+                  checked={line.curved || false}
+                  onCheckedChange={() => onToggleCurvedText(index)}
+                />
+              </div>
+
+              {/* Position Controls */}
+              <div className="space-y-4">
+                <Label className="text-sm font-medium">Position Controls</Label>
+                
+                {!line.curved ? (
+                  // Straight line positioning
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Bar id="xMm" label="Horizontal (X)" unit="mm" min={SAFE_MM} max={widthMm-SAFE_MM} step={0.5}
+                      value={line.xMm || widthMm/2}
+                      onChange={(v)=> onUpdateLine(index, { xMm: clamp(+v, SAFE_MM, widthMm-SAFE_MM) })}
+                    />
+                    <Bar id="yMm" label="Vertical (Y)" unit="mm" min={SAFE_MM} max={heightMm-SAFE_MM} step={0.5}
+                      value={line.yMm || heightMm/2}
+                      onChange={(v)=> onUpdateLine(index, { yMm: clamp(+v, SAFE_MM, heightMm-SAFE_MM) })}
+                    />
+                  </div>
+                ) : (
+                  // Curved line positioning
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Bar id="axisX" label="Axis X" unit="mm" min={SAFE_MM} max={widthMm-SAFE_MM} step={0.5}
+                        value={line.axisXMm || widthMm/2}
+                        onChange={(v)=> onUpdateLine(index, { axisXMm: clamp(+v, SAFE_MM, widthMm-SAFE_MM) })}
+                      />
+                      <Bar id="axisY" label="Axis Y" unit="mm" min={SAFE_MM} max={heightMm-SAFE_MM} step={0.5}
+                        value={line.axisYMm || heightMm/2}
+                        onChange={(v)=> onUpdateLine(index, { axisYMm: clamp(+v, SAFE_MM, heightMm-SAFE_MM) })}
+                      />
+                      <Bar id="rotation" label="Rotation" unit="°" min={-180} max={180} step={1}
+                        value={line.rotationDeg || 0}
+                        onChange={(v)=> onUpdateLine(index, { rotationDeg: Math.max(-180, Math.min(180, +v)) })}
+                      />
+                    </div>
+                    
+                    {/* Curved text controls */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Curve Settings</Label>
+                        <Switch 
+                          checked={line.curve?.enabled || false}
+                          onCheckedChange={(enabled) => onUpdateLine(index, { 
+                            curve: { 
+                              enabled, 
+                              radiusMm: enabled ? Math.min(widthMm, heightMm)/4 : undefined,
+                              startAngleDeg: -90,
+                              sweepDeg: 180,
+                              direction: 'outer',
+                              fitMode: 'none'
+                            } 
+                          })}
+                        />
+                      </div>
+                      
+                      {line.curve?.enabled && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                          <Bar 
+                            id="radius" 
+                            label="Radius" 
+                            unit="mm" 
+                            min={1} 
+                            max={Math.min(widthMm, heightMm)/2 - SAFE_MM} 
+                            step={0.5}
+                            value={line.curve.radiusMm || Math.min(widthMm, heightMm)/4}
+                            onChange={(v) => onUpdateLine(index, { 
+                              curve: { ...line.curve!, radiusMm: +v } 
+                            })}
+                          />
+                          <Bar 
+                            id="startAngle" 
+                            label="Start Angle" 
+                            unit="°" 
+                            min={-180} 
+                            max={180} 
+                            step={5}
+                            value={line.curve.startAngleDeg || -90}
+                            onChange={(v) => onUpdateLine(index, { 
+                              curve: { ...line.curve!, startAngleDeg: +v } 
+                            })}
+                          />
+                          <Bar 
+                            id="sweep" 
+                            label="Arc Span" 
+                            unit="°" 
+                            min={10} 
+                            max={360} 
+                            step={5}
+                            value={line.curve.sweepDeg || 180}
+                            onChange={(v) => onUpdateLine(index, { 
+                              curve: { ...line.curve!, sweepDeg: +v } 
+                            })}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
-
-        {/* Add Line Button */}
-        {productShape && lines.length < maxLines && (
-          <Button
-            onClick={onAddLine}
-            variant="outline"
-            className="w-full min-h-[44px] border-dashed border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400"
-          >
-            <Plus size={16} className="mr-2" />
-            {t('textEditor.addLine', 'Add Text Line')}
-          </Button>
-        )}
       </div>
+
+      {/* Add Line Button */}
+      {lines.length < maxLines && (
+        <Button
+          onClick={onAddLine}
+          variant="outline"
+          className="w-full border-dashed border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400"
+        >
+          <Plus size={16} className="mr-2" />
+          {t('textEditor.addLine', 'Add Text Line')}
+        </Button>
+      )}
     </div>
   );
 };

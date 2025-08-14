@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,26 @@ interface TemplateCategory {
   nameTranslationKey?: string;
 }
 
+// Helper function to transform legacy line format to new format
+const transformLine = (line: any): StampTextLine => ({
+  id: crypto.randomUUID(),
+  text: line.text || '',
+  align: 'center' as const,
+  fontSizePt: line.fontSize || 16,
+  letterSpacing: line.letterSpacing || 0,
+  lineSpacing: 0,
+  fontSize: line.fontSize || 16,
+  fontFamily: line.fontFamily || 'Arial',
+  bold: line.bold || false,
+  italic: line.italic || false,
+  alignment: line.alignment || 'center',
+  curved: line.curved || false,
+  xPosition: line.xPosition || 0,
+  yPosition: line.yPosition || 0,
+  isDragging: line.isDragging || false,
+  textPosition: line.textPosition || 'top'
+});
+
 const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, productShape }) => {
   const { t, i18n } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('business');
@@ -28,446 +47,299 @@ const DesignTemplates: React.FC<DesignTemplatesProps> = ({ onSelectTemplate, pro
     { id: 'healthcare', nameTranslationKey: 'templates.categories.healthcare', name: 'Healthcare' },
   ];
   
-  // Define sample design templates with proper type alignment
-  const templates: { 
-    id: string;
-    name: string;
-    nameTranslationKey?: string;
-    description: string;
-    descriptionTranslationKey?: string;
-    category: string;
-    forShapes: ('rectangle' | 'circle' | 'square')[];
-    template: Partial<StampDesign>;
-  }[] = [
-    {
-      id: 'business-address',
-      nameTranslationKey: 'templates.businessAddress.name',
-      name: 'Business Address',
-      descriptionTranslationKey: 'templates.businessAddress.description',
-      description: 'Perfect for company address stamps',
-      category: 'business',
-      forShapes: ['rectangle', 'square'],
-      template: {
-        borderStyle: 'solid',
-        lines: [
-          {
-            text: 'COMPANY NAME',
-            fontSize: 18,
-            fontFamily: 'Arial',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -25,
-            isDragging: false
-          },
-          {
-            text: '123 Business Street',
-            fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 0,
-            isDragging: false
-          },
-          {
-            text: 'City, State 12345',
-            fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 25,
-            isDragging: false
-          }
-        ],
-        inkColor: 'blue',
-        includeLogo: false,
-        logoX: 0,
-        logoY: 0
+  const templates = {
+    business: [
+      {
+        id: 'simple-business',
+        name: t('templates.simpleBusiness', 'Simple Business'),
+        description: t('templates.simpleBusinessDesc', 'Clean and professional layout'),
+        template: {
+          borderStyle: 'solid' as const,
+          lines: [
+            transformLine({
+              text: 'COMPANY NAME',
+              fontSize: 18,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Your Address',
+              fontSize: 12,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Phone • Email',
+              fontSize: 10,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            })
+          ],
+          borderThickness: 2,
+          inkColor: '#000000'
+        }
+      },
+      {
+        id: 'corporate-header',
+        name: t('templates.corporateHeader', 'Corporate Header'),
+        description: t('templates.corporateHeaderDesc', 'Professional header design'),
+        template: {
+          borderStyle: 'double' as const,
+          lines: [
+            transformLine({
+              text: 'CORPORATION',
+              fontSize: 20,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Established 2024',
+              fontSize: 10,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            })
+          ],
+          borderThickness: 3,
+          inkColor: '#000080'
+        }
       }
-    },
-    {
-      id: 'business-signature',
-      nameTranslationKey: 'templates.businessSignature.name',
-      name: 'Signature',
-      descriptionTranslationKey: 'templates.businessSignature.description',
-      description: 'For document signing and approvals',
-      category: 'business',
-      forShapes: ['rectangle', 'square'],
-      template: {
-        borderStyle: 'double',
-        lines: [
-          {
-            text: 'APPROVED',
-            fontSize: 20,
-            fontFamily: 'Arial',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -25,
-            isDragging: false
-          },
-          {
-            text: 'Date: ___________',
-            fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 25,
-            isDragging: false
-          }
-        ],
-        inkColor: 'red',
-        includeLogo: false,
-        logoX: 0,
-        logoY: 0
+    ],
+    legal: [
+      {
+        id: 'notary-seal',
+        name: t('templates.notarySeal', 'Notary Seal'),
+        description: t('templates.notarySealDesc', 'Official notary stamp format'),
+        template: {
+          borderStyle: 'solid' as const,
+          lines: [
+            transformLine({
+              text: 'NOTARY PUBLIC',
+              fontSize: 16,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: true,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'State of Morocco',
+              fontSize: 14,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Commission Expires',
+              fontSize: 10,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: true,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            })
+          ],
+          borderThickness: 2,
+          inkColor: '#000000'
+        }
       }
-    },
-    {
-      id: 'business-circular',
-      nameTranslationKey: 'templates.businessCircular.name',
-      name: 'Circular Stamp',
-      descriptionTranslationKey: 'templates.businessCircular.description',
-      description: 'Professional round stamp layout',
-      category: 'business',
-      forShapes: ['circle'],
-      template: {
-        borderStyle: 'double',
-        lines: [
-          {
-            text: 'OFFICIAL STAMP',
-            fontSize: 16,
-            fontFamily: 'Arial',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: true,
-            xPosition: 0,
-            yPosition: -40,
-            isDragging: false
-          },
-          {
-            text: 'COMPANY NAME',
-            fontSize: 18,
-            fontFamily: 'Arial',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 0,
-            isDragging: false
-          },
-          {
-            text: 'ESTABLISHED 2022',
-            fontSize: 12,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: true,
-            xPosition: 0,
-            yPosition: 40,
-            isDragging: false
-          }
-        ],
-        inkColor: 'blue',
-        includeLogo: true,
-        logoX: 0,
-        logoY: 0
+    ],
+    education: [
+      {
+        id: 'school-stamp',
+        name: t('templates.schoolStamp', 'School Stamp'),
+        description: t('templates.schoolStampDesc', 'Educational institution format'),
+        template: {
+          borderStyle: 'solid' as const,
+          lines: [
+            transformLine({
+              text: 'SCHOOL NAME',
+              fontSize: 16,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: true,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'APPROVED',
+              fontSize: 18,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Academic Year',
+              fontSize: 10,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: true,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            })
+          ],
+          borderThickness: 2,
+          inkColor: '#000080'
+        }
       }
-    },
-    {
-      id: 'legal-certified',
-      nameTranslationKey: 'templates.legalCertified.name',
-      name: 'Certified Copy',
-      descriptionTranslationKey: 'templates.legalCertified.description',
-      description: 'For certifying legal documents',
-      category: 'legal',
-      forShapes: ['rectangle', 'square'],
-      template: {
-        borderStyle: 'double',
-        lines: [
-          {
-            text: 'CERTIFIED TRUE COPY',
-            fontSize: 18,
-            fontFamily: 'Times New Roman',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -25,
-            isDragging: false
-          },
-          {
-            text: 'Attorney at Law',
-            fontSize: 14,
-            fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 0,
-            isDragging: false
-          },
-          {
-            text: 'Reg. No. _____________',
-            fontSize: 14,
-            fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 25,
-            isDragging: false
-          }
-        ],
-        inkColor: 'blue',
-        includeLogo: false,
-        logoX: 0,
-        logoY: 0
+    ],
+    healthcare: [
+      {
+        id: 'medical-office',
+        name: t('templates.medicalOffice', 'Medical Office'),
+        description: t('templates.medicalOfficeDesc', 'Healthcare provider stamp'),
+        template: {
+          borderStyle: 'solid' as const,
+          lines: [
+            transformLine({
+              text: 'DR. NAME',
+              fontSize: 16,
+              fontFamily: 'Arial',
+              bold: true,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'Medical Specialist',
+              fontSize: 12,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            }),
+            transformLine({
+              text: 'License #12345',
+              fontSize: 10,
+              fontFamily: 'Arial',
+              bold: false,
+              italic: false,
+              alignment: 'center',
+              curved: false,
+              xPosition: 0,
+              yPosition: 0,
+              isDragging: false
+            })
+          ],
+          borderThickness: 1,
+          inkColor: '#000080'
+        }
       }
-    },
-    {
-      id: 'legal-notary',
-      nameTranslationKey: 'templates.legalNotary.name',
-      name: 'Notary Seal',
-      descriptionTranslationKey: 'templates.legalNotary.description',
-      description: 'For notary public stamps',
-      category: 'legal',
-      forShapes: ['circle'],
-      template: {
-        borderStyle: 'double',
-        lines: [
-          {
-            text: 'NOTARY PUBLIC - STATE OF ________',
-            fontSize: 14,
-            fontFamily: 'Times New Roman',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: true,
-            xPosition: 0,
-            yPosition: -40,
-            isDragging: false
-          },
-          {
-            text: 'JOHN DOE',
-            fontSize: 18,
-            fontFamily: 'Times New Roman',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 0,
-            isDragging: false
-          },
-          {
-            text: 'MY COMMISSION EXPIRES __/__/____',
-            fontSize: 12,
-            fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: true,
-            xPosition: 0,
-            yPosition: 40,
-            isDragging: false
-          }
-        ],
-        inkColor: 'blue',
-        includeLogo: false,
-        logoX: 0,
-        logoY: 0
-      }
-    },
-    {
-      id: 'education-library',
-      nameTranslationKey: 'templates.educationLibrary.name',
-      name: 'Library',
-      descriptionTranslationKey: 'templates.educationLibrary.description',
-      description: 'For school and library use',
-      category: 'education',
-      forShapes: ['rectangle'],
-      template: {
-        borderStyle: 'solid',
-        lines: [
-          {
-            text: 'SCHOOL LIBRARY',
-            fontSize: 18,
-            fontFamily: 'Georgia',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -25,
-            isDragging: false
-          },
-          {
-            text: 'Date: __/__/____',
-            fontSize: 14,
-            fontFamily: 'Georgia',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false
-          }
-        ],
-        inkColor: 'purple',
-        includeLogo: true,
-        logoX: 0,
-        logoY: -60
-      }
-    },
-    {
-      id: 'healthcare-prescription',
-      nameTranslationKey: 'templates.healthcarePrescription.name',
-      name: 'Prescription',
-      descriptionTranslationKey: 'templates.healthcarePrescription.description',
-      description: 'For medical prescriptions',
-      category: 'healthcare',
-      forShapes: ['rectangle', 'square'],
-      template: {
-        borderStyle: 'solid',
-        lines: [
-          {
-            text: 'DR. JANE SMITH, MD',
-            fontSize: 16,
-            fontFamily: 'Arial',
-            bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -25,
-            isDragging: false
-          },
-          {
-            text: 'License #: 12345',
-            fontSize: 12,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 0,
-            isDragging: false
-          },
-          {
-            text: 'DEA #: XS1234567',
-            fontSize: 12,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 25,
-            isDragging: false
-          }
-        ],
-        inkColor: 'blue',
-        includeLogo: true,
-        logoX: -60,
-        logoY: 0
-      }
-    }
-  ];
-
-  // Filter templates based on product shape and active category
-  const filteredTemplates = templates.filter(template => 
-    template.forShapes.includes(productShape) && template.category === activeCategory
-  );
-
-  const getCategoryName = (category: TemplateCategory) => {
-    if (category.nameTranslationKey && i18n.exists(category.nameTranslationKey)) {
-      return t(category.nameTranslationKey);
-    }
-    return category.name;
+    ]
   };
 
-  const getTemplateName = (template: typeof templates[0]) => {
-    if (template.nameTranslationKey && i18n.exists(template.nameTranslationKey)) {
-      return t(template.nameTranslationKey);
-    }
-    return template.name;
-  };
-
-  const getTemplateDescription = (template: typeof templates[0]) => {
-    if (template.descriptionTranslationKey && i18n.exists(template.descriptionTranslationKey)) {
-      return t(template.descriptionTranslationKey);
-    }
-    return template.description;
-  };
+  const currentTemplates = templates[activeCategory as keyof typeof templates] || [];
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-medium text-lg">{t('templates.title', 'Design Templates')}</h3>
-      <p className="text-sm text-gray-500">{t('templates.subtitle', 'Start with a template and customize it to your needs.')}</p>
-      
-      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-        <TabsList className="grid grid-cols-4 mb-4">
-          {categories.map(category => (
-            <TabsTrigger 
-              key={category.id} 
-              value={category.id}
-              className="text-xs sm:text-sm"
-            >
-              {getCategoryName(category)}
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-2">{t('templates.title', 'Choose a Template')}</h2>
+        <p className="text-gray-600">{t('templates.description', 'Start with a professional template or create your own design.')}</p>
+      </div>
+
+      <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+        <TabsList className="grid w-full grid-cols-4">
+          {categories.map((category) => (
+            <TabsTrigger key={category.id} value={category.id}>
+              {category.nameTranslationKey ? t(category.nameTranslationKey, category.name) : category.name}
             </TabsTrigger>
           ))}
         </TabsList>
-        
-        {categories.map(category => (
+
+        {categories.map((category) => (
           <TabsContent key={category.id} value={category.id}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-              {filteredTemplates.map((template) => (
-                <Card key={template.id}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {currentTemplates.map((template) => (
+                <Card key={template.id} className="hover:shadow-md transition-shadow cursor-pointer">
                   <CardContent className="p-4">
-                    <h4 className="font-medium">{getTemplateName(template)}</h4>
-                    <p className="text-sm text-gray-500 mt-1">{getTemplateDescription(template)}</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full mt-3" 
+                    <h3 className="font-semibold mb-2">{template.name}</h3>
+                    <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+                    <Button
                       onClick={() => onSelectTemplate(template.template)}
+                      className="w-full"
+                      variant="outline"
                     >
-                      {t('templates.useTemplate', 'Use Template')}
+                      {t('templates.select', 'Select Template')}
                     </Button>
                   </CardContent>
                 </Card>
               ))}
-              
-              {filteredTemplates.length === 0 && (
-                <p className="text-sm text-gray-500 col-span-2">
-                  {t('templates.noTemplates', 'No templates available for this stamp shape.')}
-                </p>
-              )}
             </div>
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Blank Template Option */}
+      <Card className="border-dashed border-2">
+        <CardContent className="p-6 text-center">
+          <h3 className="font-semibold mb-2">{t('templates.blank', 'Start from Blank')}</h3>
+          <p className="text-sm text-gray-600 mb-4">{t('templates.blankDesc', 'Create your own design from scratch')}</p>
+          <Button
+            onClick={() => onSelectTemplate({ lines: [] })}
+            variant="outline"
+          >
+            {t('templates.createBlank', 'Create Blank Stamp')}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

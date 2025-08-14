@@ -18,7 +18,12 @@ const useStampDesignerEnhanced = (product: Product | null) => {
 
   // Add textPosition to model
   const defaultLine: StampTextLine = {
+    id: crypto.randomUUID(),
     text: '',
+    align: 'center' as const,
+    fontSizePt: 16,
+    letterSpacing: 0,
+    lineSpacing: 0,
     fontSize: 16,
     fontFamily: 'Arial',
     bold: false,
@@ -28,7 +33,6 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     xPosition: 0,
     yPosition: 0,
     isDragging: false,
-    letterSpacing: 0,
     textPosition: 'top'
   };
 
@@ -45,7 +49,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     // Create empty lines based on product capacity
     const lines: StampTextLine[] = [];
     for (let i = 0; i < (product?.lines || 1); i++) {
-      lines.push({ ...defaultLine });
+      lines.push({ ...defaultLine, id: crypto.randomUUID() });
     }
     return lines;
   };
@@ -209,7 +213,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     if (design.lines.length < (product?.lines || 5)) {
       const updatedDesign = {
         ...design,
-        lines: [...design.lines, { ...defaultLine }]
+        lines: [...design.lines, { ...defaultLine, id: crypto.randomUUID() }]
       };
       console.log('[StampDesigner] addLine');
       updateHistory(updatedDesign);

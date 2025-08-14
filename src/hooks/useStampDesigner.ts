@@ -32,17 +32,21 @@ export interface UseStampDesignerReturn {
 }
 
 const defaultLine: StampTextLine = {
+  id: crypto.randomUUID(),
   text: '',
+  align: 'center' as const,
+  fontSizePt: 16,
+  letterSpacing: 0,
+  lineSpacing: 0,
   fontSize: 16,
   fontFamily: 'Arial',
   bold: false,
   italic: false,
   alignment: 'center',
   curved: false,
-  letterSpacing: 0,
   xPosition: 0,
   yPosition: 0,
-  textPosition: 'top'
+  textPosition: 'top' as const
 };
 
 // Unified stamp designer hook

@@ -32,10 +32,28 @@ export interface TextEffect {
   separatorChar?: '★' | '•' | '|';
 }
 
+export type LineAlign = 'start' | 'center' | 'end';
+
+export interface LineCurve {
+  enabled: boolean;
+  radiusMm?: number; // mm from center (circle) or chosen center (rect)
+  startAngleDeg?: number; // default depends on placement
+  sweepDeg?: number; // arc span in degrees (positive = CW)
+  direction?: 'outer' | 'inner'; // flips vertical orientation
+  fitMode?: 'none' | 'textLength' | 'letterSpacing' | 'fontScale';
+}
+
 export type StampTextLine = {
+  id: string;
   text: string;
-  fontSize: number;
+  align: LineAlign; // affects startOffset on curved paths
   fontFamily: string;
+  fontSizePt: number;
+  letterSpacing: number; // px
+  lineSpacing: number; // px (only used for straight lines)
+  curve?: LineCurve; // new
+  // Legacy compatibility
+  fontSize: number;
   bold: boolean;
   italic: boolean;
   alignment: 'left' | 'center' | 'right';
@@ -44,7 +62,6 @@ export type StampTextLine = {
   yPosition?: number;
   isDragging?: boolean;
   textEffect?: TextEffect;
-  letterSpacing?: number;
   textPosition?: 'top' | 'bottom' | 'left' | 'right'; // synchronized property
   // New optional mm-based and advanced fields (backward-compatible)
   color?: string;

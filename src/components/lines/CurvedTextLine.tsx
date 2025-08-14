@@ -12,8 +12,8 @@ interface CurvedTextLineProps {
 }
 
 const CurvedTextLine: React.FC<CurvedTextLineProps> = ({ line, widthPx, heightPx }) => {
-  const fontSizePx = mmToPx(line.fontSizeMm);
-  const letterSpacingPx = mmToPx(line.letterSpacingMm);
+  const fontSizePx = mmToPx(line.fontSizePt / 10); // Convert pt to mm approximation
+  const letterSpacingPx = mmToPx(line.letterSpacing / 10);
   const fontWeight = (typeof line.fontWeight === 'number' ? (line.fontWeight >= 600 ? 'bold' : 'normal') : (line.fontWeight as any)) || 'normal';
   const fontStyle = line.fontStyle || 'normal';
 
