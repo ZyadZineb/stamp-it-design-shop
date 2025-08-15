@@ -274,9 +274,23 @@ const useStampDesignerEnhanced = (product: Product | null) => {
   const toggleCurvedText = (index: number, textPosition: 'top' | 'bottom' | 'left' | 'right' = 'top') => {
     console.log('[StampDesigner] toggleCurvedText', { index, textPosition });
     const current = design.lines[index];
+    const newCurved = !current.curved;
+    
+    // If enabling curved text, set default curved properties
+    const curvedDefaults = newCurved ? {
+      radiusMm: 15, // Default radius
+      axisXMm: product ? sizePx(product.size).widthPx / 20 : 15, // Center X in mm
+      axisYMm: product ? sizePx(product.size).heightPx / 20 : 10, // Center Y in mm
+      rotationDeg: 0,
+      arcDeg: 120,
+      curvedAlign: 'center' as const,
+      direction: 'outside' as const
+    } : {};
+    
     updateLine(index, {
-      curved: !current.curved,
-      textPosition: textPosition
+      curved: newCurved,
+      textPosition: textPosition,
+      ...curvedDefaults
     });
   };
 
@@ -1090,14 +1104,7 @@ const useStampDesignerEnhanced = (product: Product | null) => {
     setLogoPosition,
     setBorderStyle,
     setBorderThickness,
-    toggleCurvedText: (index: number, textPosition: 'top' | 'bottom' | 'left' | 'right' = 'top') => {
-      console.log('[StampDesigner] toggleCurvedText', { index, textPosition });
-      const current = design.lines[index];
-      updateLine(index, {
-        curved: !current.curved,
-        textPosition: textPosition
-      });
-    },
+    toggleCurvedText, // Add the function to the return object
     updateTextPosition: (index: number, x: number, y: number) => {
       console.log('[StampDesigner] updateTextPosition', { index, x, y });
       // Constrain the movement within -100 to 100 range

@@ -254,34 +254,47 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
       ctx.fillStyle = fill;
 
       if (line.curved) {
-        // Curved rendering with axis clamp and rotation
+        // Curved rendering with axis clamp and rotation - add defensive defaults
+        const productWidth = product ? sizePx(product.size).widthPx : 200;
+        const productHeight = product ? sizePx(product.size).heightPx : 200;
+        
         const cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;
         const cyRaw = line.axisYMm != null ? mmToPx(line.axisYMm) : height / 2;
         const cx = Math.min(width - safe, Math.max(safe, cxRaw));
         const cy = Math.min(height - safe, Math.max(safe, cyRaw));
-        const radiusPx = Math.max(mmToPx(Math.max(0.1, line.radiusMm ?? Math.min(width, height) / 10)), 0.1);
+        const radiusPx = Math.max(mmToPx(Math.max(0.1, line.radiusMm ?? Math.min(productWidth, productHeight) / 20)), 10);
         const arcDegrees = line.arcDeg ?? 120;
-        const align = (line.curvedAlign || 'center') as any;
+        const align = (line.curvedAlign || line.align || 'center') as any;
         const direction = (line.direction || 'outside') as any;
         const rotationDeg = line.rotationDeg || 0;
 
-        const poses = layoutArc({
-          text: line.text,
-          fontFamily,
-          fontWeight,
-          fontStyle,
-          fontSizePx: fontPx,
-          letterSpacingPx,
-          radiusPx,
-          arcDegrees,
-          align,
-          direction,
-          centerX: cx,
-          centerY: cy,
-          rotationDeg,
-        });
+        try {
+          const poses = layoutArc({
+            text: line.text,
+            fontFamily,
+            fontWeight,
+            fontStyle,
+            fontSizePx: fontPx,
+            letterSpacingPx,
+            radiusPx,
+            arcDegrees,
+            align,
+            direction,
+            centerX: cx,
+            centerY: cy,
+            rotationDeg,
+          });
 
-        drawCurvedText(ctx, poses, { font: ctx.font, fillStyle: fill });
+          if (poses && poses.length > 0) {
+            drawCurvedText(ctx, poses, { font: ctx.font, fillStyle: fill });
+          }
+        } catch (error) {
+          console.warn('[ReactiveCanvas] Error rendering curved text:', error);
+          // Fallback to straight text if curved fails
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(line.text, cx, cy);
+        }
         return;
       }
 
