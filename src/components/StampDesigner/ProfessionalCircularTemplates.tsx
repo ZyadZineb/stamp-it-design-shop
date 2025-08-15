@@ -9,6 +9,25 @@ interface ProfessionalCircularTemplatesProps {
   onApplyTemplate: (template: Partial<StampDesign>) => void;
 }
 
+const createLine = (text: string, overrides: Partial<StampTextLine> = {}): StampTextLine => ({
+  id: crypto.randomUUID(),
+  text,
+  align: 'center',
+  fontFamily: 'Arial',
+  fontSizePt: 16,
+  letterSpacing: 0,
+  lineSpacing: 0,
+  fontSize: 16,
+  bold: false,
+  italic: false,
+  alignment: 'center',
+  curved: false,
+  xPosition: 0,
+  yPosition: 0,
+  isDragging: false,
+  ...overrides,
+});
+
 const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps> = ({ onApplyTemplate }) => {
   const { t } = useTranslation();
   const [category, setCategory] = React.useState('business');
@@ -23,71 +42,38 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: 'OFFICIAL SEAL * PROFESSIONAL STAMP *',
+          createLine('OFFICIAL SEAL * PROFESSIONAL STAMP *', {
+            fontSizePt: 16,
             fontSize: 16,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 1
-          },
-          {
-            text: 'COMPANY NAME',
+          }),
+          createLine('COMPANY NAME', {
+            fontSizePt: 20,
             fontSize: 20,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -15,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: '123 BUSINESS STREET',
+            yPosition: -15
+          }),
+          createLine('123 BUSINESS STREET', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 5,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'CITY, STATE 12345',
+            yPosition: 5
+          }),
+          createLine('CITY, STATE 12345', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 20,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'EST. 2024',
+            yPosition: 20
+          }),
+          createLine('EST. 2024', {
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 1
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: true,
@@ -105,58 +91,32 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'solid' as const,
         lines: [
-          {
-            text: '* BUSINESS NAME * ESTABLISHED 2024 *',
+          createLine('* BUSINESS NAME * ESTABLISHED 2024 *', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'JOHN SMITH',
+          }),
+          createLine('JOHN SMITH', {
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: '123 BUSINESS AVENUE',
+            yPosition: -10
+          }),
+          createLine('123 BUSINESS AVENUE', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'CONTACT: (123) 456-7890 * EMAIL@EXAMPLE.COM',
+            yPosition: 10
+          }),
+          createLine('CONTACT: (123) 456-7890 * EMAIL@EXAMPLE.COM', {
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'black',
         includeLogo: false,
@@ -172,58 +132,38 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: 'CORPORATE SEAL * AUTHENTIC DOCUMENT *',
-            fontSize: 14,
+          createLine('CORPORATE SEAL * AUTHENTIC DOCUMENT *', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'CORPORATION NAME',
+          }),
+          createLine('CORPORATION NAME', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 20,
             fontSize: 20,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -15,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'INCORPORATED',
+            yPosition: -15
+          }),
+          createLine('INCORPORATED', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
             yPosition: 5,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'REGISTERED: 00/00/0000',
-            fontSize: 12,
+          }),
+          createLine('REGISTERED: 00/00/0000', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 12,
+            fontSize: 12,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: true,
@@ -243,58 +183,37 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: '* NOTARY PUBLIC * STATE OF JURISDICTION *',
+          createLine('* NOTARY PUBLIC * STATE OF JURISDICTION *', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'NOTARY NAME',
+          }),
+          createLine('NOTARY NAME', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'COMMISSION #000000',
-            fontSize: 12,
+            yPosition: -10
+          }),
+          createLine('COMMISSION #000000', {
             fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'MY COMMISSION EXPIRES 00/00/0000',
+            fontSizePt: 12,
             fontSize: 12,
+            yPosition: 10
+          }),
+          createLine('MY COMMISSION EXPIRES 00/00/0000', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 12,
+            fontSize: 12,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.5
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: false,
@@ -312,58 +231,36 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: '* CERTIFIED TRUE COPY * OFFICIAL DOCUMENT *',
-            fontSize: 14,
+          createLine('* CERTIFIED TRUE COPY * OFFICIAL DOCUMENT *', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'CERTIFIED',
+          }),
+          createLine('CERTIFIED', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 20,
             fontSize: 20,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
             yPosition: -10,
-            isDragging: false,
             letterSpacing: 1
-          },
-          {
-            text: 'DATE: _______________',
+          }),
+          createLine('DATE: _______________', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 14,
             fontSize: 14,
+            yPosition: 15
+          }),
+          createLine('ATTORNEY SIGNATURE: _______________', {
             fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 15,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'ATTORNEY SIGNATURE: _______________',
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 35,
-            isDragging: false,
-            letterSpacing: 0
-          }
+            yPosition: 35
+          })
         ],
         inkColor: 'blue',
         includeLogo: false,
@@ -381,58 +278,37 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'solid' as const,
         lines: [
-          {
-            text: '* WITNESSED * AUTHENTIC SIGNATURE *',
-            fontSize: 14,
+          createLine('* WITNESSED * AUTHENTIC SIGNATURE *', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'SIGNATURE WITNESSED BY',
+          }),
+          createLine('SIGNATURE WITNESSED BY', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 16,
             fontSize: 16,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'NAME: _______________',
+            yPosition: -10
+          }),
+          createLine('NAME: _______________', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 14,
             fontSize: 14,
+            yPosition: 10
+          }),
+          createLine('DATE: __/__/____ * ID: __________', {
             fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'DATE: __/__/____ * ID: __________',
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: false,
@@ -450,58 +326,33 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: '* MEDICAL PRACTICE * CONFIDENTIAL *',
+          createLine('* MEDICAL PRACTICE * CONFIDENTIAL *', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'DR. FULL NAME',
+          }),
+          createLine('DR. FULL NAME', {
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'LICENSE #: 000000',
+            yPosition: -10
+          }),
+          createLine('LICENSE #: 000000', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'MEDICAL SPECIALTY * NPI #: 0000000000',
+            yPosition: 10
+          }),
+          createLine('MEDICAL SPECIALTY * NPI #: 0000000000', {
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: true,
@@ -519,58 +370,33 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'solid' as const,
         lines: [
-          {
-            text: '* PHARMACY * PRESCRIPTION VERIFIED *',
+          createLine('* PHARMACY * PRESCRIPTION VERIFIED *', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'PHARMACY NAME',
+          }),
+          createLine('PHARMACY NAME', {
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'VERIFIED BY: _______________',
+            yPosition: -10
+          }),
+          createLine('VERIFIED BY: _______________', {
+            fontSizePt: 14,
             fontSize: 14,
-            fontFamily: 'Arial',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'DATE: __/__/____ * TIME: __:__ AM/PM',
+            yPosition: 10
+          }),
+          createLine('DATE: __/__/____ * TIME: __:__ AM/PM', {
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Arial',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: false,
@@ -588,58 +414,37 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: '* SCHOOL LIBRARY * PROPERTY OF *',
-            fontSize: 14,
+          createLine('* SCHOOL LIBRARY * PROPERTY OF *', {
             fontFamily: 'Georgia',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'SCHOOL NAME',
+          }),
+          createLine('SCHOOL NAME', {
+            fontFamily: 'Georgia',
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Georgia',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'BOOK ID: _____________',
+            yPosition: -10
+          }),
+          createLine('BOOK ID: _____________', {
+            fontFamily: 'Georgia',
+            fontSizePt: 14,
             fontSize: 14,
+            yPosition: 10
+          }),
+          createLine('DUE DATE: __/__/____ * PLEASE RETURN', {
             fontFamily: 'Georgia',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'DUE DATE: __/__/____ * PLEASE RETURN',
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Georgia',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: true,
@@ -657,58 +462,37 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'solid' as const,
         lines: [
-          {
-            text: '* STUDENT RECORDS * CONFIDENTIAL *',
-            fontSize: 14,
+          createLine('* STUDENT RECORDS * CONFIDENTIAL *', {
             fontFamily: 'Georgia',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'INSTITUTION NAME',
+          }),
+          createLine('INSTITUTION NAME', {
+            fontFamily: 'Georgia',
+            fontSizePt: 18,
             fontSize: 18,
-            fontFamily: 'Georgia',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: -10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'VERIFIED BY: _______________',
+            yPosition: -10
+          }),
+          createLine('VERIFIED BY: _______________', {
+            fontFamily: 'Georgia',
+            fontSizePt: 14,
             fontSize: 14,
+            yPosition: 10
+          }),
+          createLine('DATE: __/__/____ * REF: __________', {
             fontFamily: 'Georgia',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 10,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'DATE: __/__/____ * REF: __________',
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Georgia',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: false,
@@ -726,58 +510,38 @@ const ProfessionalCircularTemplates: React.FC<ProfessionalCircularTemplatesProps
       template: {
         borderStyle: 'double' as const,
         lines: [
-          {
-            text: '* OFFICIAL USE ONLY * GOVERNMENT DOCUMENT *',
-            fontSize: 14,
+          createLine('* OFFICIAL USE ONLY * GOVERNMENT DOCUMENT *', {
             fontFamily: 'Times New Roman',
+            fontSizePt: 14,
+            fontSize: 14,
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: -40,
-            isDragging: false,
             letterSpacing: 0.5
-          },
-          {
-            text: 'APPROVED',
+          }),
+          createLine('APPROVED', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 22,
             fontSize: 22,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
             yPosition: -5,
-            isDragging: false,
             letterSpacing: 1
-          },
-          {
-            text: 'OFFICIAL: _______________',
+          }),
+          createLine('OFFICIAL: _______________', {
+            fontFamily: 'Times New Roman',
+            fontSizePt: 14,
             fontSize: 14,
+            yPosition: 20
+          }),
+          createLine('DATE: __/__/____ * REF: __________', {
             fontFamily: 'Times New Roman',
-            bold: false,
-            italic: false,
-            alignment: 'center' as const,
-            curved: false,
-            xPosition: 0,
-            yPosition: 20,
-            isDragging: false,
-            letterSpacing: 0
-          },
-          {
-            text: 'DATE: __/__/____ * REF: __________',
+            fontSizePt: 12,
             fontSize: 12,
-            fontFamily: 'Times New Roman',
             bold: true,
-            italic: false,
-            alignment: 'center' as const,
             curved: true,
-            xPosition: 0,
             yPosition: 40,
-            isDragging: false,
             letterSpacing: 0.3
-          }
+          })
         ],
         inkColor: 'blue',
         includeLogo: true,

@@ -6,9 +6,14 @@ import { StampTextLine } from '@/types';
 
 // Helper to create a minimal valid StampTextLine
 const line = (overrides: Partial<StampTextLine> = {}): StampTextLine => ({
+  id: crypto.randomUUID(),
   text: 'Test',
-  fontSize: 16,
+  align: 'center',
   fontFamily: 'Arial',
+  fontSizePt: 16,
+  letterSpacing: 0,
+  lineSpacing: 0,
+  fontSize: 16,
   bold: false,
   italic: false,
   alignment: 'center',
