@@ -165,9 +165,10 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
             )}
           </div>
 
-          {/* Right Column - Preview */}
+          {/* Right Column - Preview (Sticky) */}
           <div className="lg:col-span-1">
-            <StampDesignerPreview
+            <div className="sticky top-4 z-10">
+              <StampDesignerPreview
               currentStep={currentStep}
               product={product}
               design={design}
@@ -189,7 +190,8 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
               handleTouchStart={handleTouchStart}
               handleTouchMove={handleTouchMove}
               stopDragging={stopDragging}
-            />
+              />
+            </div>
           </div>
         </div>
       </div>
