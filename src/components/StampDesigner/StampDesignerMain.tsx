@@ -133,65 +133,63 @@ const StampDesignerMain: React.FC<StampDesignerMainProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-grow overflow-y-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Editor */}
-          <div className="lg:col-span-2">
-            <StampDesignerTabs
-              currentStep={currentStep}
-              setCurrentStep={setCurrentStep}
-              product={product}
-              design={design}
-              designer={designer}
-              convertShapeForPreview={convertShapeForPreview}
-              highContrast={highContrast}
-              largeControls={largeControls}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
+        {/* Left Column - Editor */}
+        <div className="lg:col-span-2 overflow-y-auto">
+          <StampDesignerTabs
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+            product={product}
+            design={design}
+            designer={designer}
+            convertShapeForPreview={convertShapeForPreview}
+            highContrast={highContrast}
+            largeControls={largeControls}
+          />
+
+          {currentStep === 'preview' && (
+            <>
+              <Separator className="my-6" />
+              <ErrorBoundary>
+                <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
+                  <ExportDesign 
+                    svgRef={null}
+                    previewImage={previewImage}
+                    productName={product?.name || ''}
+                    downloadAsPng={downloadAsPng}
+                  />
+                </Suspense>
+              </ErrorBoundary>
+            </>
+          )}
+        </div>
+
+        {/* Right Column - Preview (Sticky) */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4 z-10">
+            <StampDesignerPreview
+            currentStep={currentStep}
+            product={product}
+            design={design}
+            designer={designer}
+            convertShapeForPreview={convertShapeForPreview}
+            handleAddToCart={handleAddToCart}
+            getItemCount={getItemCount}
+            setShowCartModal={setShowCartModal}
+            handleWhatsAppOrder={handleWhatsAppOrder}
+            handleNextStep={handleNextStep}
+            isAnimating={isAnimating}
+            highContrast={highContrast}
+            largeControls={largeControls}
+            previewRef={previewRef}
+            activeLineIndex={activeLineIndex}
+            isDragging={isDragging}
+            handleMouseDown={handleMouseDown}
+            handleMouseMove={handleMouseMove}
+            handleTouchStart={handleTouchStart}
+            handleTouchMove={handleTouchMove}
+            stopDragging={stopDragging}
             />
-
-            {currentStep === 'preview' && (
-              <>
-                <Separator className="my-6" />
-                <ErrorBoundary>
-                  <Suspense fallback={<div className="p-4 text-gray-400">Loading export tools…</div>}>
-                    <ExportDesign 
-                      svgRef={null}
-                      previewImage={previewImage}
-                      productName={product?.name || ''}
-                      downloadAsPng={downloadAsPng}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              </>
-            )}
-          </div>
-
-          {/* Right Column - Preview (Sticky) */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-4 z-10">
-              <StampDesignerPreview
-              currentStep={currentStep}
-              product={product}
-              design={design}
-              designer={designer}
-              convertShapeForPreview={convertShapeForPreview}
-              handleAddToCart={handleAddToCart}
-              getItemCount={getItemCount}
-              setShowCartModal={setShowCartModal}
-              handleWhatsAppOrder={handleWhatsAppOrder}
-              handleNextStep={handleNextStep}
-              isAnimating={isAnimating}
-              highContrast={highContrast}
-              largeControls={largeControls}
-              previewRef={previewRef}
-              activeLineIndex={activeLineIndex}
-              isDragging={isDragging}
-              handleMouseDown={handleMouseDown}
-              handleMouseMove={handleMouseMove}
-              handleTouchStart={handleTouchStart}
-              handleTouchMove={handleTouchMove}
-              stopDragging={stopDragging}
-              />
-            </div>
           </div>
         </div>
       </div>
