@@ -275,9 +275,9 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
           {/* Left Column - Controls */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
             <Card>
               <CardContent className="p-6">
                 <div className="mb-6">
@@ -326,7 +326,7 @@ const StampDesignerWizard: React.FC<StampDesignerWizardProps> = ({
           </div>
 
           {/* Right Column - Preview */}
-          <div className="lg:sticky lg:top-6">
+          <div className="lg:sticky lg:top-6 lg:self-start">
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4 text-center">
