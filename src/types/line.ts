@@ -7,7 +7,7 @@ export interface LineCurve {
   startAngleDeg?: number; // default depends on placement
   sweepDeg?: number; // arc span in degrees (positive = CW)
   direction?: 'outer' | 'inner'; // flips vertical orientation
-  flipped?: boolean; // flips text upside down for bottom curves
+  flipped?: 'top' | 'bottom'; // text orientation for curves
   fitMode?: 'none' | 'textLength' | 'letterSpacing' | 'fontScale';
 }
 

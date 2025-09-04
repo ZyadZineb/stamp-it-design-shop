@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Trash2, Plus, Type } from 'lucide-react';
 import { StampTextLine, Product } from '@/types';
 import { useTranslation } from 'react-i18next';
@@ -310,19 +311,24 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                             })}
                           />
                           <div className="col-span-2">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <Label className="text-sm font-medium">Flip Text</Label>
-                                <p className="text-xs text-muted-foreground">
-                                  Flip text upside down (useful for bottom curves)
-                                </p>
-                              </div>
-                              <Switch
-                                checked={line.curve.flipped || false}
-                                onCheckedChange={(flipped) => onUpdateLine(index, { 
-                                  curve: { ...line.curve!, flipped } 
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Text Orientation</Label>
+                              <RadioGroup
+                                value={line.curve.flipped || 'top'}
+                                onValueChange={(value) => onUpdateLine(index, { 
+                                  curve: { ...line.curve!, flipped: value as 'top' | 'bottom' } 
                                 })}
-                              />
+                                className="flex gap-4"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="top" id={`top-${index}`} />
+                                  <Label htmlFor={`top-${index}`} className="text-sm">Top</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="bottom" id={`bottom-${index}`} />
+                                  <Label htmlFor={`bottom-${index}`} className="text-sm">Bottom</Label>
+                                </div>
+                              </RadioGroup>
                             </div>
                           </div>
                         </div>
