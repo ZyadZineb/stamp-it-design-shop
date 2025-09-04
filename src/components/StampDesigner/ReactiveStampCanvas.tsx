@@ -273,6 +273,10 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
           align = (line.curvedAlign || line.align || 'center') as any;
           direction = (line.curve.direction === 'inner' ? 'inside' : 'outside') as any;
           rotationDeg = (line.curve.startAngleDeg || -90) + (line.rotationDeg || 0);
+          // Apply flip by rotating 180 degrees
+          if (line.curve.flipped) {
+            rotationDeg += 180;
+          }
         } else {
           // Legacy curved system
           cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;

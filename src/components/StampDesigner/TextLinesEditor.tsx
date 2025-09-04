@@ -309,6 +309,22 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                               curve: { ...line.curve!, sweepDeg: +v } 
                             })}
                           />
+                          <div className="col-span-2">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <Label className="text-sm font-medium">Flip Text</Label>
+                                <p className="text-xs text-muted-foreground">
+                                  Flip text upside down (useful for bottom curves)
+                                </p>
+                              </div>
+                              <Switch
+                                checked={line.curve.flipped || false}
+                                onCheckedChange={(flipped) => onUpdateLine(index, { 
+                                  curve: { ...line.curve!, flipped } 
+                                })}
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
