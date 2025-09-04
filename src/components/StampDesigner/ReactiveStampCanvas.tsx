@@ -253,20 +253,45 @@ const ReactiveStampCanvas: React.FC<ReactiveStampCanvasProps> = ({
       const fill = line.color || color;
       ctx.fillStyle = fill;
 
-      if (line.curved) {
+      // Check both legacy curved flag and new curve settings
+      const isCurved = line.curved || (line.curve?.enabled && line.curve);
+      
+      if (isCurved) {
         // Curved rendering with axis clamp and rotation - add defensive defaults
         const productWidth = product ? sizePx(product.size).widthPx : 200;
         const productHeight = product ? sizePx(product.size).heightPx : 200;
         
-        const cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;
-        const cyRaw = line.axisYMm != null ? mmToPx(line.axisYMm) : height / 2;
+        // Use new curve settings if available, fall back to legacy
+        let cxRaw, cyRaw, radiusPx, arcDegrees, align, direction, rotationDeg;
+        
+        if (line.curve?.enabled && line.curve) {
+          // New curve system
+          cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;
+          cyRaw = line.axisYMm != null ? mmToPx(line.axisYMm) : height / 2;
+          radiusPx = mmToPx(line.curve.radiusMm || Math.min(productWidth, productHeight) / 4 / 10); // Convert to mm
+          arcDegrees = line.curve.sweepDeg || 180;
+          align = (line.curvedAlign || line.align || 'center') as any;
+          direction = (line.curve.direction === 'inner' ? 'inside' : 'outside') as any;
+          rotationDeg = (line.curve.startAngleDeg || -90) + (line.rotationDeg || 0);
+        } else {
+          // Legacy curved system
+          cxRaw = line.axisXMm != null ? mmToPx(line.axisXMm) : width / 2;
+          cyRaw = line.axisYMm != null ? mmToPx(line.axisYMm) : height / 2;
+          radiusPx = Math.max(mmToPx(Math.max(0.1, line.radiusMm ?? Math.min(productWidth, productHeight) / 20)), 10);
+          arcDegrees = line.arcDeg ?? 120;
+          align = (line.curvedAlign || line.align || 'center') as any;
+          direction = (line.direction || 'outside') as any;
+          rotationDeg = line.rotationDeg || 0;
+        }
+        
         const cx = Math.min(width - safe, Math.max(safe, cxRaw));
         const cy = Math.min(height - safe, Math.max(safe, cyRaw));
-        const radiusPx = Math.max(mmToPx(Math.max(0.1, line.radiusMm ?? Math.min(productWidth, productHeight) / 20)), 10);
-        const arcDegrees = line.arcDeg ?? 120;
-        const align = (line.curvedAlign || line.align || 'center') as any;
-        const direction = (line.direction || 'outside') as any;
-        const rotationDeg = line.rotationDeg || 0;
+
+        console.log('[ReactiveCanvas] Rendering curved text:', {
+          text: line.text,
+          cx, cy, radiusPx, arcDegrees, align, direction, rotationDeg,
+          newCurveSystem: !!(line.curve?.enabled)
+        });
 
         try {
           const poses = layoutArc({

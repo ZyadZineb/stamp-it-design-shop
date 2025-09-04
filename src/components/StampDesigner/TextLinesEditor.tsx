@@ -213,7 +213,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
                   </p>
                 </div>
                 <Switch
-                  checked={line.curved || false}
+                  checked={line.curved || line.curve?.enabled || false}
                   onCheckedChange={() => onToggleCurvedText(index)}
                 />
               </div>
@@ -222,7 +222,7 @@ const TextLinesEditor: React.FC<TextLinesEditorProps> = ({
               <div className="space-y-4">
                 <Label className="text-sm font-medium">Position Controls</Label>
                 
-                {!line.curved ? (
+                {!(line.curved || line.curve?.enabled) ? (
                   // Straight line positioning
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Bar id="xMm" label="Horizontal (X)" unit="mm" min={SAFE_MM} max={widthMm-SAFE_MM} step={0.5}
